@@ -14,13 +14,6 @@ import {
 import UserListFilters from "./components/user-list-filters";
 import Pagination from "@/components/common/pagination";
 
-const DEFAULT_USER_LIST_QUERY = {
-  page: 1,
-  limit: 20,
-  sortBy: "createdAt",
-  sortDirection: "desc",
-} satisfies ListUsersRequest;
-
 type RoleFilter = RoleCode | "ALL";
 type StatusFilter = UserStatus | "ALL";
 type MenuKey = "role" | "status" | null;
@@ -175,15 +168,15 @@ export default function UserListView() {
               No users match the current filters.
             </div>
           ) : (
-            users.map((user: UserProfileResponse) => {
-              const roleCode = user.roleCodes[0];
+            users.map((user: UserProfileResponse, index: number) => {
+              const roleCode = user.roleCodes?.[0];
               const roleLabel = roleCode
                 ? getRoleLabel(roleCode, roleNameMap)
                 : "N/A";
 
               return (
                 <div
-                  key={user.id}
+                  key={user.id || `user-key-${user.username || index}-${index}`}
                   onClick={() => setSelectedUsername(user.username)}
                   role="button"
                   tabIndex={0}
@@ -197,36 +190,36 @@ export default function UserListView() {
                 >
                   <div className="col-span-3 flex min-w-0 items-center gap-3">
                     <div className="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-cyan/30 to-purple/30 text-[11px] font-bold text-foreground">
-                      {(user.fullName ?? user.username)
+                      {(user.fullName ?? user.username ?? "")
                         .split(" ")
                         .map((value: string) => value[0] ?? "")
                         .join("")
                         .slice(0, 2)
-                        .toUpperCase()}
+                        .toUpperCase() || "OP"}
                     </div>
                     <div className="min-w-0">
                       <div className="truncate text-sm text-foreground">
-                        {user.fullName}
+                        {user.fullName || "N/A"}
                       </div>
                       <div className="truncate font-mono text-[11px] text-muted-foreground">
-                        {user.email}
+                        {user.email || "N/A"}
                       </div>
                     </div>
                   </div>
 
                   <div className="col-span-2 truncate text-sm text-foreground">
-                    {user.username}
+                    {user.username || "N/A"}
                   </div>
 
                   <div className="col-span-1 min-w-0">
-                    <CopyableUserId value={user.id} />
+                    <CopyableUserId value={user.id || ""} />
                   </div>
 
                   <div className="col-span-3 flex justify-center">
                     <span
                       className={`label-mono rounded border px-2 py-1 text-[10px] ${roleCode ? getRoleTone(roleCode) : "border-white/10 bg-white/5 text-muted-foreground"}`}
                     >
-                      {user.roleCodes.length > 1
+                      {user.roleCodes && user.roleCodes.length > 1
                         ? `${roleLabel} +${user.roleCodes.length - 1}`
                         : roleLabel}
                     </span>

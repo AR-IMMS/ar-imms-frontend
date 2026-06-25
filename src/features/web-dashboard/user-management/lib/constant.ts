@@ -11,9 +11,3 @@ export const USER_STATUS_TONE_CLASSES: Record<UserStatus, string> = {
   INACTIVE: "text-amber",
   LOCKED: "text-critical",
 };
-
-export const USER_PRESET_FILTERS = [
-  "All Users",
-  "Need Password Reset",
-  "Inactive < 30 days",
-] as const;

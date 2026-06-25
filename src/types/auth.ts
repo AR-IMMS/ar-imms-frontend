@@ -119,7 +119,7 @@ export interface CreateUserRequestPayload {
   email: string;
   fullName: string;
   phoneNumber?: string;
-  jobTitle: string;
+  jobTitle?: string;
   department: string;
   avatarUrl?: string;
   roleCodes: RoleCode[];

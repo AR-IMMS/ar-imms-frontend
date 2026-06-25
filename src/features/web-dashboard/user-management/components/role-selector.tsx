@@ -1,0 +1,105 @@
+"use client";
+
+import type { RoleCode } from "@/types/auth";
+import { ROLE_COLORS } from "../lib/constant";
+
+// Role options with display details
+export const AVAILABLE_ROLES: Array<{
+  code: RoleCode;
+  name: string;
+  description: string;
+}> = [
+  {
+    code: "SYSTEM_MONITORING_OPERATOR",
+    name: "System Monitoring Operator",
+    description: "Monitors systems telemetry, view alerts queue, and reads dashboards.",
+  },
+  {
+    code: "MAINTENANCE_TECHNICIAN",
+    name: "Maintenance Technician",
+    description: "Conducts AR inspections, identifies assets, and resolves work tickets.",
+  },
+  {
+    code: "IT_ADMINISTRATOR",
+    name: "IT Administrator",
+    description: "Full control plane access, manages users, audit trails, and rules.",
+  },
+];
+
+interface FormErrors {
+  fullName?: string;
+  username?: string;
+  email?: string;
+  department?: string;
+  roleCodes?: string;
+  apiError?: string;
+}
+
+interface RoleSelectorProps {
+  selectedRoles: RoleCode[];
+  onRoleToggle: (role: RoleCode) => void;
+  errors: FormErrors;
+  isPending: boolean;
+}
+
+export default function RoleSelector({
+  selectedRoles,
+  onRoleToggle,
+  errors,
+  isPending,
+}: RoleSelectorProps) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="title-display text-[10px] tracking-wider text-cyan-ice">
+          Security Role Matrix <span className="text-[#ff4d6d]">*</span>
+        </h3>
+        {errors.roleCodes && (
+          <span className="text-[10px] text-[#ff4d6d]">{errors.roleCodes}</span>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {AVAILABLE_ROLES.map((role) => {
+          const isChecked = selectedRoles.includes(role.code);
+          const toneColors = ROLE_COLORS[role.code] || "border-border text-muted-foreground";
+
+          return (
+            <div
+              key={role.code}
+              onClick={() => !isPending && onRoleToggle(role.code)}
+              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-all duration-150 ${
+                isChecked
+                  ? `border-[#009DFF]/60 bg-[#009DFF]/10 text-foreground`
+                  : "border-[#25304A] bg-[#0b1020] hover:border-[#25304A]/90 hover:bg-[#1b2338]/40"
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={isChecked}
+                disabled={isPending}
+                onChange={() => {}} // Controlled by wrapper div click
+                className="accent-[#009DFF] mt-1.5 h-3.5 w-3.5 cursor-pointer rounded border-[#25304A] bg-[#0b1020]"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {role.name}
+                  </span>
+                  {isChecked && (
+                    <span className={`label-mono rounded border px-1.5 py-0.5 text-[8px] ${toneColors}`}>
+                      ACTIVE MATRIX
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 font-mono text-[10px] text-muted-foreground leading-relaxed">
+                  {role.description}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
