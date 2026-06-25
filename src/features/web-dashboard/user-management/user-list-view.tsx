@@ -1,166 +1,147 @@
 "use client";
 
-import { ChevronRight, Search } from "lucide-react";
-import { useState } from "react";
-import type { RoleCode, UserProfileResponse } from "@/types/auth";
+import { ChevronRight } from "lucide-react";
+import { useDeferredValue, useMemo, useState } from "react";
+import type { RoleCode, UserProfileResponse, UserStatus } from "@/types/auth";
+import CopyableUserId from "@/components/common/copyable-user-id";
 import UserDetailPanel from "./user-detail-panel";
-import FilterPill from "@/components/common/filter-pill";
 import { ROLE_COLORS } from "./lib/constant";
+import { ListUsersRequest } from "@/types/users";
+import {
+  useRolesQuery,
+  useUsersQuery,
+} from "@/hooks/identity/use-identity-queries";
+import UserListFilters from "./components/user-list-filters";
+import Pagination from "@/components/common/pagination";
 
-const SEED: Partial<UserProfileResponse>[] = [
-  {
-    id: "SE190090",
-    fullName: "Vera Kestrel",
-    username: "Vera Kestrel",
-    email: "vera.kestrel@arimms.io",
-    roleCodes: ["IT_ADMINISTRATOR"],
-    status: "ACTIVE",
-    mustChangePassword: false,
-    lastLoginAt: "2m ago",
-    department: "DC-01",
-  },
-  {
-    id: "SE190112",
-    fullName: "Hiro Tanabe",
-    username: "Hiro Tanabe",
-    email: "hiro.tanabe@arimms.io",
-    roleCodes: ["IT_ADMINISTRATOR"],
-    status: "ACTIVE",
-    mustChangePassword: false,
-    lastLoginAt: "14m ago",
-    department: "DC-01",
-  },
-  {
-    id: "SE190145",
-    fullName: "Lena Okafor",
-    username: "Lena Okafor",
-    email: "lena.okafor@arimms.io",
-    roleCodes: ["MAINTENANCE_TECHNICIAN"],
-    status: "ACTIVE",
-    mustChangePassword: true,
-    lastLoginAt: "1h ago",
-    department: "DC-02",
-  },
-  {
-    id: "SE190178",
-    fullName: "Dimitri Roux",
-    username: "Dimitri Roux",
-    email: "dimitri.roux@arimms.io",
-    roleCodes: ["MAINTENANCE_TECHNICIAN"],
-    status: "LOCKED",
-    mustChangePassword: true,
-    lastLoginAt: "—",
-    department: "DC-02",
-  },
-  {
-    id: "SE190201",
-    fullName: "Aiko Wen",
-    username: "Aiko Wen",
-    email: "aiko.wen@arimms.io",
-    roleCodes: ["SYSTEM_MONITORING_OPERATOR"],
-    status: "INACTIVE",
-    mustChangePassword: false,
-    lastLoginAt: "3d ago",
-    department: "DC-03",
-  },
-  {
-    id: "SE190233",
-    fullName: "Marcus Vale",
-    username: "Marcus Vale",
-    email: "marcus.vale@arimms.io",
-    roleCodes: ["IT_ADMINISTRATOR"],
-    status: "ACTIVE",
-    mustChangePassword: false,
-    lastLoginAt: "—",
-    department: "DC-01",
-  },
-  {
-    id: "SE190256",
-    fullName: "Priya Shankar",
-    username: "Priya Shankar",
-    email: "priya.shankar@arimms.io",
-    roleCodes: ["MAINTENANCE_TECHNICIAN"],
-    status: "ACTIVE",
-    mustChangePassword: false,
-    lastLoginAt: "8m ago",
-    department: "DC-03",
-  },
-  {
-    id: "SE190290",
-    fullName: "Oskar Lind",
-    username: "Oskar Lind",
-    email: "oskar.lind@arimms.io",
-    roleCodes: ["SYSTEM_MONITORING_OPERATOR"],
-    status: "LOCKED",
-    mustChangePassword: true,
-    lastLoginAt: "—",
-    department: "DC-02",
-  },
-];
+const DEFAULT_USER_LIST_QUERY = {
+  page: 1,
+  limit: 20,
+  sortBy: "createdAt",
+  sortDirection: "desc",
+} satisfies ListUsersRequest;
 
-const PRESETS = ["All Users", "Need Password Reset", "Inactive < 30 days"];
+type RoleFilter = RoleCode | "ALL";
+type StatusFilter = UserStatus | "ALL";
+type MenuKey = "role" | "status" | null;
+
+function getRoleLabel(
+  roleCode: RoleCode,
+  roleNameMap: Map<RoleCode, string>,
+): string {
+  return roleNameMap.get(roleCode) ?? roleCode.replace(/_/g, " ");
+}
+
+function getRoleTone(roleCode: RoleCode): string {
+  return (
+    ROLE_COLORS[roleCode] ?? "border-white/10 bg-white/5 text-muted-foreground"
+  );
+}
 
 export default function UserListView() {
-  const [users, setUsers] = useState<UserProfileResponse[]>(
-    () => SEED as UserProfileResponse[],
-  );
-  const [selected, setSelected] = useState<UserProfileResponse | null>(null);
-  const [preset, setPreset] = useState("All Users");
-  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleFilter>("ALL");
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("ALL");
+  const [openMenu, setOpenMenu] = useState<MenuKey>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const rows = users.filter((u) => {
-    if (preset === "Need Password Reset" && !u.mustChangePassword) return false;
-    if (preset === "Inactive < 30 days" && u.status !== "INACTIVE")
-      return false;
-    if (
-      query &&
-      !`${u.username} ${u.email} ${u.id}`
-        .toLowerCase()
-        .includes(query.toLowerCase())
-    ) {
-      return false;
+  const deferredSearch = useDeferredValue(search.trim());
+
+  const params: ListUsersRequest = useMemo(() => {
+    const listParams: ListUsersRequest = {
+      page: currentPage,
+      limit: 20,
+      sortBy: "createdAt",
+      sortDirection: "desc",
+    };
+
+    if (selectedStatus !== "ALL") {
+      listParams.status = selectedStatus;
     }
-    return true;
-  });
+
+    if (selectedRole !== "ALL") {
+      listParams.roleCodes = [selectedRole];
+    }
+
+    const trimmedSearch = deferredSearch.trim();
+    if (trimmedSearch) {
+      if (trimmedSearch.includes("@")) {
+        listParams.email = trimmedSearch;
+      } else {
+        listParams.username = trimmedSearch;
+      }
+    }
+
+    return listParams;
+  }, [currentPage, deferredSearch, selectedRole, selectedStatus]);
+
+  const rolesQuery = useRolesQuery();
+  const usersQuery = useUsersQuery(params);
+  const roleOptions = rolesQuery.data ?? [];
+
+  const roleNameMap = useMemo(() => {
+    return new Map(
+      (rolesQuery.data ?? []).map((role) => [role.code, role.name] as const),
+    );
+  }, [rolesQuery.data]);
+
+  const users = useMemo(
+    () => usersQuery.data?.items ?? [],
+    [usersQuery.data?.items],
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  function selectRoleFilter(roleCode: RoleFilter) {
+    setSelectedRole(roleCode);
+    setCurrentPage(1);
+    setOpenMenu(null);
+  }
+
+  function selectStatusFilter(status: StatusFilter) {
+    setSelectedStatus(status);
+    setCurrentPage(1);
+    setOpenMenu(null);
+  }
+
+  const selectedRoleLabel =
+    selectedRole === "ALL"
+      ? "All"
+      : (roleNameMap.get(selectedRole) ?? selectedRole.replace(/_/g, " "));
+
+  const selectedUser = useMemo(() => {
+    if (!selectedUsername) {
+      return null;
+    }
+
+    return (
+      users.find(
+        (user: UserProfileResponse) => user.username === selectedUsername,
+      ) ?? null
+    );
+  }, [selectedUsername, users]);
 
   return (
     <>
-      <div className="panel space-y-4 p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex h-9 min-w-65 flex-1 items-center gap-2 rounded-md border border-cyan/15 bg-surface-1 px-3">
-            <Search className="size-3.5 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, email, or UserID…"
-              className="flex-1 bg-transparent font-mono text-xs text-foreground outline-none placeholder:text-muted-foreground/70"
-            />
-          </div>
-          <FilterPill label="Role: All" />
-          <FilterPill label="Status: All" />
-          <FilterPill label="Dept: All" />
-        </div>
+      <UserListFilters
+        search={search}
+        onSearchChange={handleSearchChange}
+        roleOptions={roleOptions}
+        selectedRole={selectedRole}
+        selectedRoleLabel={selectedRoleLabel}
+        selectedStatus={selectedStatus}
+        onSelectRole={selectRoleFilter}
+        onSelectStatus={selectStatusFilter}
+        openMenu={openMenu}
+        setOpenMenu={setOpenMenu}
+      />
 
-        <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPreset(p)}
-              className={`rounded border px-2.5 py-1.5 text-[10px] transition label-mono ${
-                preset === p
-                  ? "border-cyan/40 bg-cyan/15 text-cyan shadow-[0_0_12px_rgba(0,209,255,0.2)]"
-                  : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="panel overflow-hidden">
-        {/* HEADER */}
-        <div className="grid grid-cols-12 border-b border-border bg-surface-1/50 px-4 py-3">
+      <div className="panel flex flex-col overflow-hidden">
+        <div className="grid grid-cols-12 border-b border-border bg-surface-1/50 px-4 py-3 shrink-0">
           <div className="col-span-3 label-mono text-[10px]">Full Name</div>
           <div className="col-span-2 label-mono text-[10px]">Username</div>
           <div className="col-span-1 label-mono text-[10px]">User ID</div>
@@ -175,73 +156,119 @@ export default function UserListView() {
           </div>
         </div>
 
-        {/* BODY */}
-        {rows.map((u) => (
-          <div
-            key={u.id}
-            onClick={() => setSelected(u as UserProfileResponse)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                setSelected(u as UserProfileResponse);
-              }
-            }}
-            className="group grid w-full grid-cols-12 items-center border-b border-border/60 px-4 py-3 text-left transition hover:bg-cyan/4"
-          >
-            <div className="col-span-3 flex min-w-0 items-center gap-3">
-              <div className="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-cyan/30 to-purple/30 text-[11px] font-bold text-foreground">
-                {u.username
-                  ?.split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </div>
-              <div className="min-w-0">
-                <div className="truncate text-sm text-foreground">
-                  {u.fullName}
+        <div className="h-[500px] overflow-y-auto min-h-[300px] divide-y divide-border/40">
+          {usersQuery.isLoading ? (
+            <div className="space-y-3 p-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-16 animate-pulse rounded-lg border border-border/60 bg-surface-1/40"
+                />
+              ))}
+            </div>
+          ) : usersQuery.isError ? (
+            <div className="p-6 text-sm text-center text-muted-foreground">
+              Failed to load users list.
+            </div>
+          ) : users.length === 0 ? (
+            <div className="p-6 text-sm text-center text-muted-foreground">
+              No users match the current filters.
+            </div>
+          ) : (
+            users.map((user: UserProfileResponse) => {
+              const roleCode = user.roleCodes[0];
+              const roleLabel = roleCode
+                ? getRoleLabel(roleCode, roleNameMap)
+                : "N/A";
+
+              return (
+                <div
+                  key={user.id}
+                  onClick={() => setSelectedUsername(user.username)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedUsername(user.username);
+                    }
+                  }}
+                  className="group grid w-full grid-cols-12 items-center border-b border-border/60 px-4 py-3 text-left transition hover:bg-cyan/4"
+                >
+                  <div className="col-span-3 flex min-w-0 items-center gap-3">
+                    <div className="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-cyan/30 to-purple/30 text-[11px] font-bold text-foreground">
+                      {(user.fullName ?? user.username)
+                        .split(" ")
+                        .map((value: string) => value[0] ?? "")
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm text-foreground">
+                        {user.fullName}
+                      </div>
+                      <div className="truncate font-mono text-[11px] text-muted-foreground">
+                        {user.email}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 truncate text-sm text-foreground">
+                    {user.username}
+                  </div>
+
+                  <div className="col-span-1 min-w-0">
+                    <CopyableUserId value={user.id} />
+                  </div>
+
+                  <div className="col-span-3 flex justify-center">
+                    <span
+                      className={`label-mono rounded border px-2 py-1 text-[10px] ${roleCode ? getRoleTone(roleCode) : "border-white/10 bg-white/5 text-muted-foreground"}`}
+                    >
+                      {user.roleCodes.length > 1
+                        ? `${roleLabel} +${user.roleCodes.length - 1}`
+                        : roleLabel}
+                    </span>
+                  </div>
+
+                  <div
+                    className={`col-span-2 font-mono text-xs text-center ${user.status === "ACTIVE" ? "text-neon-green" : user.status === "LOCKED" ? "text-critical" : "text-amber"}`}
+                  >
+                    {user.status}
+                  </div>
+
+                  <div className="col-span-1 flex justify-end">
+                    <ChevronRight className="size-4 text-muted-foreground group-hover:text-cyan-ice" />
+                  </div>
                 </div>
-                <div className="truncate font-mono text-[11px] text-muted-foreground">
-                  {u.email}
-                </div>
-              </div>
-            </div>
-
-            <div className="col-span-2 truncate text-sm text-foreground">
-              {u.username}
-            </div>
-
-            <div className="col-span-1 font-mono text-xs tabular-nums text-cyan-ice">
-              {u.id}
-            </div>
-
-            <div className="col-span-3 flex justify-center">
-              <span
-                className={`label-mono rounded border px-2 py-1 text-[10px] ${
-                  ROLE_COLORS[u.roleCodes?.[0] as RoleCode] ||
-                  "border-white/10 bg-white/5 text-muted-foreground"
-                }`}
-              >
-                {u.roleCodes?.map((role) => role.replace(/_/g, " ")).join(", ")}
-              </span>
-            </div>
-
-            <div
-              className={`col-span-2 font-mono text-xs text-center ${u.status === "ACTIVE" ? "text-neon-green" : u.status === "LOCKED" ? "text-critical" : "text-amber"}`}
-            >
-              {u.status}
-            </div>
-
-            <div className="col-span-1 flex justify-end">
-              <ChevronRight className="size-4 text-muted-foreground group-hover:text-cyan-ice" />
-            </div>
-          </div>
-        ))}
+              );
+            })
+          )}
+        </div>
       </div>
 
-      {selected && (
-        <UserDetailPanel user={selected} onClose={() => setSelected(null)} />
-      )}
+      {/* Pagination */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-[11px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
+        <span>
+          Loaded {users.length} of{" "}
+          {usersQuery.data?.pageInfo.totalItems ?? users.length}
+        </span>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={usersQuery.data?.pageInfo.totalPages ?? 1}
+          onPageChange={setCurrentPage}
+          isLoading={usersQuery.isFetching}
+        />
+      </div>
+
+      {selectedUser ? (
+        <UserDetailPanel
+          user={selectedUser}
+          onClose={() => setSelectedUsername(null)}
+          roleNameMap={roleNameMap}
+        />
+      ) : null}
     </>
   );
 }

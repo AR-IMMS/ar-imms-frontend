@@ -1,8 +1,9 @@
+import { redirect } from "next/navigation";
 import { authService } from "../../services/auth/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 import type { ApiError } from "@/types/api";
 import { AUTH_ERROR_CODES } from "@/types/auth";
-import { redirect } from "next/navigation";
+import { clearState } from "@/hooks/auth/use-auth-mutation";
 
 let isRefreshing = false;
 // Queue để lưu các request đang chờ refresh token
@@ -39,15 +40,6 @@ function isTokenIssueError(error: ApiError) {
   );
 }
 
-export function clearAuthState() {
-  useAuthStore.getState().logout();
-
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("auth-store");
-    window.location.href = "/login?callbackUrl=" + encodeURIComponent(window.location.pathname);
-  }
-}
-
 function goToForbiddenPage() {
   if (typeof window !== "undefined") {
     window.location.assign("/403");
@@ -82,7 +74,7 @@ export async function handleAuthError(
 
   // Chỉ thực hiện luồng refresh khi lỗi 401 liên quan tới Token
   if (error.status !== 401 || !isTokenIssueError(error)) {
-    clearAuthState();
+    clearState();
     throw error;
   }
 
@@ -119,7 +111,7 @@ export async function handleAuthError(
     queue.forEach((cb) => cb(null));
     queue = [];
 
-    clearAuthState();
+    clearState();
 
     throw error;
   } finally {

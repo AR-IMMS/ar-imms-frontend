@@ -1,5 +1,5 @@
 import { httpGet, httpPost } from "@/lib/http/http-methods";
-import { AUTH_ENDPOINTS } from "@/types/auth";
+import { AUTH_ENDPOINTS } from "@/lib/react-query/api-endpoint";
 import type {
   AuthTokens,
   ChangePasswordRequestPayload,
@@ -15,9 +15,7 @@ export const authService = {
       skipAuthHooks: true,
     }),
 
-  refreshToken: (
-    payload: RefreshTokenRequestPayload,
-  ): Promise<AuthTokens> =>
+  refreshToken: (payload: RefreshTokenRequestPayload): Promise<AuthTokens> =>
     httpPost<AuthTokens>(AUTH_ENDPOINTS.REFRESH, payload, {
       skipAuthHooks: true,
       credentials: "include",

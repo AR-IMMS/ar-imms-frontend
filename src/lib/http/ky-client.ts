@@ -1,8 +1,9 @@
 import ky from "ky";
 import { AUTH_HEADERS } from "@/types/auth";
-import { handleAuthError, clearAuthState } from "../auth/auth-handlers";
+import { handleAuthError } from "../auth/auth-handlers";
 import { useAuthStore } from "@/stores/auth-store";
 import type { ApiError, ApiFailure, ApiResponse } from "@/types/api";
+import { clearState } from "@/hooks/auth/use-auth-mutation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 const DEFAULT_TIMEOUT = 15_000;
@@ -61,10 +62,7 @@ export const kyClient = ky.create({
           const hasRetriedAuth = request.headers.has(AUTH_HEADERS.AUTH_RETRY);
 
           // Nếu gặp lỗi 401 và KHÔNG mang cờ chặn refresh
-          if (
-            response.status === 401 &&
-            !shouldSkipAuthRefresh
-          ) {
+          if (response.status === 401 && !shouldSkipAuthRefresh) {
             if (!hasRetriedAuth) {
               try {
                 const newToken = await handleAuthError(apiError);
@@ -81,7 +79,7 @@ export const kyClient = ky.create({
               }
             } else {
               // Đã retry nhưng vẫn bị 401 -> Token mới cũng không hợp lệ hoặc session đã bị huỷ
-              clearAuthState();
+              clearState();
             }
           }
 

@@ -9,16 +9,62 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import type { RoleCode, UserProfileResponse } from "@/types/auth";
-import { ROLE_COLORS } from "./lib/constant";
+import type {
+  USER,
+  RoleCode,
+  UserStatus,
+  UserProfileResponse,
+} from "@/types/auth";
+import { useUpdateUserStatusMutation } from "@/hooks/identity/use-identity-mutations";
+import { ROLE_COLORS, USER_STATUS_TONE_CLASSES } from "./lib/constant";
+import { useUserByIdQuery } from "@/hooks/identity/use-identity-queries";
+import Stat from "@/components/common/stat";
+import CopyableUserId from "@/components/common/copyable-user-id";
+
+type UserDetailPanelProps = {
+  user: USER;
+  onClose: () => void;
+  roleNameMap: Map<RoleCode, string>;
+};
+
+function getUserStatusAction(status: UserStatus): {
+  label: string;
+  nextStatus: UserStatus;
+  icon: typeof UserPlus;
+} {
+  if (status === "ACTIVE") {
+    return {
+      label: "Deactivate Account",
+      nextStatus: "INACTIVE",
+      icon: UserMinus,
+    };
+  }
+
+  return {
+    label: "Activate Account",
+    nextStatus: "ACTIVE",
+    icon: UserPlus,
+  };
+}
 
 export default function UserDetailPanel({
   user,
   onClose,
-}: {
-  user: UserProfileResponse;
-  onClose: () => void;
-}) {
+  roleNameMap,
+}: UserDetailPanelProps) {
+  const detailQuery = useUserByIdQuery(user.id);
+  const updateStatusMutation = useUpdateUserStatusMutation();
+
+  const detailUser = detailQuery.data ?? (user as UserProfileResponse);
+  const currentStatusAction = getUserStatusAction(detailUser.status);
+
+  function handleStatusUpdate(nextStatus: UserStatus) {
+    updateStatusMutation.mutate({
+      userId: detailUser.id,
+      payload: { status: nextStatus },
+    });
+  }
+
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <div
@@ -26,96 +72,135 @@ export default function UserDetailPanel({
         onClick={onClose}
       />
       <div className="glass relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-6">
+        {/* Header */}
         <div className="flex items-start justify-between">
           <div>
             <div className="label-mono text-[10px] text-cyan-ice">
               OPERATOR PROFILE
             </div>
-            <div className="title-display text-lg text-foreground mt-1">
-              {user.fullName ?? user.username}
+            <div className="title-display mt-1 text-lg text-foreground">
+              {detailUser.fullName || "N/A"}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              {user.email}
+              {detailUser.email || "N/A"}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              Last Login: {user.lastLoginAt ?? "-"}
+              Last Login: {detailUser.lastLoginAt ?? "-"}
             </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-white/5">
+          <button onClick={onClose} className="rounded p-1 hover:bg-white/5">
             <X className="size-4 text-muted-foreground" />
           </button>
         </div>
 
+        {/* User Details */}
         <div className="mt-6 grid grid-cols-2 gap-3">
-          <Stat label="Username" value={user.username || "N/A"} mono />
-          <Stat label="Operator ID" value={user.id} mono />
-          <Stat label="Department" value={user.department || "N/A"} mono />
-          <Stat label="Phone No" value={user.phoneNumber || "N/A"} mono />
+          <Stat label="Username" value={detailUser.username || "N/A"} mono />
+          <div className="panel p-3">
+            <div className="label-mono text-[9px] text-muted-foreground">
+              Operator ID
+            </div>
+            <CopyableUserId value={detailUser.id} className="mt-1" />
+          </div>
+          <Stat
+            label="Department"
+            value={detailUser.department || "N/A"}
+            mono
+          />
+          <Stat label="Phone No" value={detailUser.phoneNumber || "N/A"} mono />
           <Stat
             label="Status"
-            value={user.status}
+            value={detailUser.status || "N/A"}
             mono
-            tone={
-              user.status === "ACTIVE"
-                ? "text-neon-green"
-                : user.status === "LOCKED"
-                  ? "text-critical"
-                  : "text-amber"
-            }
+            tone={USER_STATUS_TONE_CLASSES[detailUser.status as UserStatus]}
           />
           <Stat
             label="Need Password Change"
-            value={user.mustChangePassword ? "YES" : "NO"}
+            value={detailUser.mustChangePassword ? "YES" : "NO"}
             mono
-            tone={user.mustChangePassword ? "text-amber" : "text-neon-green"}
+            tone={
+              detailUser.mustChangePassword ? "text-amber" : "text-neon-green"
+            }
           />
         </div>
 
+        {/* user roles */}
         <div className="mt-6">
           <div className="mb-2 label-mono text-[10px] text-muted-foreground">
             Role Assignment
           </div>
           <div className="flex flex-col gap-2">
-            {user.roleCodes.map((r) => {
-              const colorClass =
-                ROLE_COLORS[r as RoleCode] ||
-                "border-white/10 bg-white/5 text-muted-foreground";
+            {detailUser.roleCodes.length > 0 ? (
+              detailUser.roleCodes.map((roleCode: RoleCode) => {
+                const colorClass =
+                  ROLE_COLORS[roleCode] ??
+                  "border-white/10 bg-white/5 text-muted-foreground";
 
-              return (
-                <button
-                  key={r}
-                  className={`w-fit text-left p-2.5 rounded-md border transition ${colorClass}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="size-3.5 shrink-0" />
-                    <span className="label-mono text-[10px] text-foreground font-medium whitespace-nowrap">
-                      {r.replace(/_/g, " ")}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={roleCode}
+                    type="button"
+                    className={`w-fit rounded-md border p-2.5 text-left transition ${colorClass}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="size-3.5 shrink-0" />
+                      <span className="label-mono whitespace-nowrap text-[10px] font-medium text-foreground">
+                        {roleNameMap.get(roleCode) ??
+                          roleCode.replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+                No roles assigned
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Quick Actions */}
         <div className="panel mt-6 space-y-2 p-4">
           <div className="label-mono text-[10px] text-cyan-ice">
             Quick Actions
           </div>
-          <button className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30">
+
+          {/* Resend Activation Email */}
+          <button
+            type="button"
+            disabled={
+              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+            }
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               <Mail className="size-3.5 text-cyan" /> Resend Activation Email
             </span>
             <ChevronDown className="-rotate-90 size-3 text-muted-foreground" />
           </button>
-          <button className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30">
+
+          {/* Force Password Reset */}
+          <button
+            type="button"
+            disabled={
+              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+            }
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               <KeyRound className="size-3.5 text-amber" /> Force Password Reset
             </span>
             <ChevronDown className="-rotate-90 size-3 text-muted-foreground" />
           </button>
 
-          <button className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30">
+          {/* Update User Status */}
+          <button
+            type="button"
+            onClick={() => handleStatusUpdate(currentStatusAction.nextStatus)}
+            disabled={updateStatusMutation.isPending}
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               {user.status === "ACTIVE" ? (
                 <>
@@ -133,42 +218,25 @@ export default function UserDetailPanel({
             <ChevronDown className="-rotate-90 size-3 text-muted-foreground" />
           </button>
 
+          {/* Lock Account */}
           <button
-            disabled={user.status === "LOCKED"}
+            type="button"
+            onClick={() => handleStatusUpdate("LOCKED")}
+            disabled={
+              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+            }
             className={`inline-flex w-full items-center justify-between rounded-md border border-critical/30 bg-critical/10 px-3 py-2 transition ${
-              user.status === "LOCKED"
+              detailUser.status === "LOCKED" || updateStatusMutation.isPending
                 ? "cursor-not-allowed opacity-50"
                 : "hover:bg-critical/20"
             }`}
           >
             <span className="inline-flex items-center gap-2 text-xs text-critical">
-              <X className="size-3.5" /> Lock Account
+              <X className="size-3.5" />
+              Lock Account
             </span>
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  mono,
-  tone,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  tone?: string;
-}) {
-  return (
-    <div className="panel p-3">
-      <div className="label-mono text-[9px] text-muted-foreground">{label}</div>
-      <div
-        className={`mt-1 text-sm ${mono ? "font-mono" : ""} ${tone || "text-foreground"}`}
-      >
-        {value}
       </div>
     </div>
   );

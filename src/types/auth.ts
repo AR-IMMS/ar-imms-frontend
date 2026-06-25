@@ -1,13 +1,3 @@
-import { PaginationParams } from "./api";
-
-export const AUTH_ENDPOINTS = {
-  LOGIN: "/auth/login",
-  REFRESH: "/auth/refresh",
-  LOGOUT: "/auth/logout",
-  ME: "/auth/me",
-  CHANGE_PASSWORD: "/auth/change-password",
-} as const;
-
 export const AUTH_HEADERS = {
   SKIP_AUTH_INJECTION: "X-Skip-Auth-Injection",
   SKIP_AUTH_REFRESH: "X-Skip-Auth-Refresh",
@@ -88,6 +78,7 @@ export interface USER {
   avatarUrl?: string;
   roleCodes: RoleCode[];
   status: UserStatus;
+  permissions?: PermissionCode[];
 }
 
 export interface AuthTokens {
@@ -118,9 +109,6 @@ export interface ChangePasswordRequestPayload {
 
 export interface UserProfileResponse extends USER {
   mustChangePassword: boolean;
-  temporaryPassword?: string;
-  passwordChangedAt?: string;
-  permissions?: PermissionCode[];
   lastLoginAt: string;
   createdAt: string;
   updatedAt: string;
@@ -136,18 +124,3 @@ export interface CreateUserRequestPayload {
   avatarUrl?: string;
   roleCodes: RoleCode[];
 }
-
-export interface UpdateUserRequestPayload {
-  roleCodes?: RoleCode[];
-  status?: UserStatus;
-}
-
-export interface GetUsersRequest extends PaginationParams {
-  username?: string;
-  email?: string;
-  status?: UserStatus;
-  roleCode?: RoleCode[];
-}
-
-export type USER_ROLE = RoleCode;
-export type USER_STATUS = UserStatus;

@@ -1,7 +1,4 @@
-import { queryClient } from "@/lib/react-query/query-client";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { authService } from "@/services/auth/auth-service";
-import { useAuthStore } from "@/stores/auth-store";
+import { useMutation } from "@tanstack/react-query";
 import {
   AuthTokens,
   LoginRequestPayload,
@@ -9,7 +6,10 @@ import {
   RefreshTokenRequestPayload,
   UserProfileResponse,
 } from "@/types/auth";
-import { useMutation } from "@tanstack/react-query";
+import { authService } from "@/services/auth/auth-service";
+import { queryClient } from "@/lib/react-query/query-client";
+import { queryKeys } from "@/lib/react-query/query-keys";
+import { useAuthStore } from "@/stores/auth-store";
 
 export function useLoginMutation() {
   return useMutation({
@@ -38,8 +38,19 @@ export function useLogoutMutation() {
   return useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      useAuthStore.getState().logout();
-      queryClient.removeQueries({ queryKey: queryKeys.auth.all });
+      clearState();
     },
   });
+}
+
+export function clearState() {
+  useAuthStore.getState().logout();
+  queryClient.removeQueries({ queryKey: queryKeys.auth.all });
+  queryClient.removeQueries({ queryKey: queryKeys.identity.all });
+
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("auth-store");
+    window.location.href =
+      "/login?callbackUrl=" + encodeURIComponent(window.location.pathname);
+  }
 }

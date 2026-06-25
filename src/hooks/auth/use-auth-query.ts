@@ -5,12 +5,14 @@ import { queryKeys } from "@/lib/react-query/query-keys";
 import { useAuthStore } from "@/stores/auth-store";
 import type { RoleCode } from "@/types/auth";
 
+const DEFAULT_AUTH_STALE_TIME = 5 * 60_000; // 5 mins
+
 export function useCurrentUser(enabled = true) {
   const query = useQuery({
     queryKey: queryKeys.auth.currentUser(),
     queryFn: () => authService.getCurrentUser(),
     enabled,
-    staleTime: 5 * 60_000, // 5 mins
+    staleTime: DEFAULT_AUTH_STALE_TIME,
   });
 
   useEffect(() => {
@@ -23,11 +25,11 @@ export function useCurrentUser(enabled = true) {
 }
 
 export function useUserRole() {
-  return useAuthStore.getState().user?.roleCodes ?? [];
+  return useAuthStore((state) => state.user?.roleCodes ?? []);
 }
 
 export function useUserAvatar() {
-  return useAuthStore.getState().user?.avatarUrl ?? null;
+  return useAuthStore((state) => state.user?.avatarUrl ?? null);
 }
 
 export function useHasRole(role: RoleCode) {
