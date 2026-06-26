@@ -22,27 +22,39 @@ interface FormErrors {
   apiError?: string;
 }
 
+interface FormDataState {
+  fullName: string;
+  username: string;
+  email: string;
+  phoneNumber: string;
+  jobTitle: string;
+  department: string;
+  avatarUrl: string;
+}
+
 export default function AddUserModal({ onClose }: AddUserModalProps) {
   const createUserMutation = useCreateUserMutation();
 
   // Form states
-  const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [jobTitle, setJobTitle] = useState("");
-  const [department, setDepartment] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [formData, setFormData] = useState<FormDataState>({
+    fullName: "",
+    username: "",
+    email: "",
+    phoneNumber: "",
+    jobTitle: "",
+    department: "",
+    avatarUrl: "",
+  });
   const [selectedRoles, setSelectedRoles] = useState<RoleCode[]>([]);
 
   // Validation & error states
   const [errors, setErrors] = useState<FormErrors>({});
-  const [loadingText, setLoadingText] = useState("[PROCESSING...]");
+  const [loadingText, setLoadingText] = useState("PROCESSING...");
 
   // Monospace animated text loader for button
   useEffect(() => {
     if (!createUserMutation.isPending) return;
-    const frames = ["[PROCESSING.  ]", "[PROCESSING.. ]", "[PROCESSING...]"];
+    const frames = ["PROCESSING.  ", "PROCESSING.. ", "PROCESSING..."];
     let i = 0;
     const interval = setInterval(() => {
       setLoadingText(frames[i % frames.length]);
@@ -55,7 +67,9 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
   const handleRoleToggle = (role: RoleCode) => {
     setSelectedRoles((prev) => {
       const isSelected = prev.includes(role);
-      const next = isSelected ? prev.filter((r) => r !== role) : [...prev, role];
+      const next = isSelected
+        ? prev.filter((r) => r !== role)
+        : [...prev, role];
       // Clear error if selection is made
       if (next.length > 0 && errors.roleCodes) {
         setErrors((err) => ({ ...err, roleCodes: undefined }));
@@ -64,27 +78,21 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
     });
   };
 
-  // Input cleaners to clear specific errors on change
-  const handleFullNameChange = (val: string) => {
-    setFullName(val);
-    if (errors.fullName) setErrors((err) => ({ ...err, fullName: undefined }));
-  };
+  const handleInputChange = (field: keyof FormDataState, value: string) => {
+    let cleanValue = value;
 
-  const handleUsernameChange = (val: string) => {
-    // Prevent spaces and special characters during typing (allow letters, numbers, dash, underscore)
-    const cleaned = val.replace(/[^a-zA-Z0-9_-]/g, "");
-    setUsername(cleaned);
-    if (errors.username) setErrors((err) => ({ ...err, username: undefined }));
-  };
+    // Logic đặc thù xử lý dọn dẹp kí tự của username trực tiếp khi gõ
+    if (field === "username") {
+      cleanValue = value.replace(/[^a-zA-Z0-9_-]/g, "");
+    }
 
-  const handleEmailChange = (val: string) => {
-    setEmail(val);
-    if (errors.email) setErrors((err) => ({ ...err, email: undefined }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: cleanValue }));
 
-  const handleDepartmentChange = (val: string) => {
-    setDepartment(val);
-    if (errors.department) setErrors((err) => ({ ...err, department: undefined }));
+    // Tự động xóa lỗi của trường đó nếu người dùng bắt đầu nhập lại dữ liệu
+    const errorKey = field as keyof FormErrors;
+    if (errors[errorKey]) {
+      setErrors((err) => ({ ...err, [errorKey]: undefined }));
+    }
   };
 
   // Form submission
@@ -96,20 +104,27 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
     setErrors((err) => ({ ...err, apiError: undefined }));
 
     const newErrors: FormErrors = {};
+    const {
+      fullName,
+      username,
+      email,
+      phoneNumber,
+      jobTitle,
+      department,
+      avatarUrl,
+    } = formData;
 
-    // 1. Full name validation
     if (!fullName.trim()) {
       newErrors.fullName = "Full name is required.";
     }
 
-    // 2. Username validation
     if (!username.trim()) {
       newErrors.username = "Username is required.";
     } else if (/\s/.test(username) || !/^[a-zA-Z0-9_-]+$/.test(username)) {
-      newErrors.username = "Username must not contain spaces or special characters.";
+      newErrors.username =
+        "Username must not contain spaces or special characters.";
     }
 
-    // 3. Email validation
     const emailLower = email.trim().toLowerCase();
     const isEmailValidPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower);
     const endsWithAllowedDomain =
@@ -120,10 +135,10 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
     } else if (!isEmailValidPattern) {
       newErrors.email = "Must be a valid email address.";
     } else if (!endsWithAllowedDomain) {
-      newErrors.email = "Organization email must end with @gmail.com or @arimms.io.";
+      newErrors.email =
+        "Organization email must end with @gmail.com or @arimms.io.";
     }
 
-    // 5. Roles validation
     if (selectedRoles.length === 0) {
       newErrors.roleCodes = "At least one role must be selected.";
     }
@@ -157,7 +172,10 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
 
       // Try parsing the error payload
       if (err && typeof err === "object") {
-        const errorWithMsg = err as { message?: string; json?: () => Promise<unknown> };
+        const errorWithMsg = err as {
+          message?: string;
+          json?: () => Promise<unknown>;
+        };
         const rawMsg = errorWithMsg.message || "";
         errorMsg = rawMsg;
 
@@ -177,7 +195,9 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
               details?: { message?: string };
             };
             const detailMsg =
-              jsonErr?.error?.message || jsonErr?.message || jsonErr?.details?.message;
+              jsonErr?.error?.message ||
+              jsonErr?.message ||
+              jsonErr?.details?.message;
             if (detailMsg) {
               errorMsg = detailMsg;
               if (detailMsg.toLowerCase().includes("email")) {
@@ -204,7 +224,7 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
   return (
     <ModalLayout
       onClose={onClose}
-      eyebrow="OPERATOR SUITE // CREATE ACCOUNT"
+      eyebrow="// CREATE ACCOUNT"
       title="Add New Infrastructure Operator"
       isPending={createUserMutation.isPending}
     >
@@ -215,31 +235,18 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
           onSubmit={handleSubmit}
           className="flex flex-col gap-5 border-r-0 border-[#25304A] p-6 md:col-span-7 md:border-r"
         >
-          {errors.apiError && (
-            <div className="rounded-lg border border-[#ff4d6d]/30 bg-[#ff4d6d]/10 p-3 text-xs text-[#ff4d6d]">
-              <span className="font-semibold uppercase tracking-wider">SYSTEM WARNING: </span>
-              {errors.apiError}
-            </div>
-          )}
-
           {/* Section: Operator Metadata */}
           <IdentityFields
-            fullName={fullName}
-            username={username}
-            email={email}
-            phoneNumber={phoneNumber}
-            jobTitle={jobTitle}
-            department={department}
-            avatarUrl={avatarUrl}
+            {...formData}
             errors={errors}
             isPending={createUserMutation.isPending}
-            onFullNameChange={handleFullNameChange}
-            onUsernameChange={handleUsernameChange}
-            onEmailChange={handleEmailChange}
-            onPhoneNumberChange={setPhoneNumber}
-            onJobTitleChange={setJobTitle}
-            onDepartmentChange={handleDepartmentChange}
-            onAvatarUrlChange={setAvatarUrl}
+            onFullNameChange={(val) => handleInputChange("fullName", val)}
+            onUsernameChange={(val) => handleInputChange("username", val)}
+            onEmailChange={(val) => handleInputChange("email", val)}
+            onPhoneNumberChange={(val) => handleInputChange("phoneNumber", val)}
+            onJobTitleChange={(val) => handleInputChange("jobTitle", val)}
+            onDepartmentChange={(val) => handleInputChange("department", val)}
+            onAvatarUrlChange={(val) => handleInputChange("avatarUrl", val)}
           />
 
           {/* Section: Roles Selection */}
@@ -251,7 +258,7 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
           />
 
           {/* Actions Bar */}
-          <div className="mt-2 flex items-center justify-end gap-3 border-t border-[#25304A] pt-4">
+          <div className="mt-2 flex items-center justify-center gap-3 border-t border-[#25304A] pt-4">
             <button
               type="button"
               onClick={onClose}
@@ -268,23 +275,14 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
               {createUserMutation.isPending ? (
                 <span className="font-mono">{loadingText}</span>
               ) : (
-                "Provision Operator"
+                "Create Account"
               )}
             </button>
           </div>
         </form>
 
         {/* Right Column: Live Profile Preview */}
-        <UserPreview
-          fullName={fullName}
-          username={username}
-          email={email}
-          phoneNumber={phoneNumber}
-          jobTitle={jobTitle}
-          department={department}
-          avatarUrl={avatarUrl}
-          selectedRoles={selectedRoles}
-        />
+        <UserPreview {...formData} selectedRoles={selectedRoles} />
       </div>
     </ModalLayout>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import type { RoleCode } from "@/types/auth";
-import { ROLE_COLORS } from "../lib/constant";
 
 // Role options with display details
 export const AVAILABLE_ROLES: Array<{
@@ -52,7 +51,7 @@ export default function RoleSelector({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="title-display text-[10px] tracking-wider text-cyan-ice">
-          Security Role Matrix <span className="text-[#ff4d6d]">*</span>
+          Assigned Security Roles <span className="text-[#ff4d6d]">*</span>
         </h3>
         {errors.roleCodes && (
           <span className="text-[10px] text-[#ff4d6d]">{errors.roleCodes}</span>
@@ -62,7 +61,6 @@ export default function RoleSelector({
       <div className="flex flex-col gap-2">
         {AVAILABLE_ROLES.map((role) => {
           const isChecked = selectedRoles.includes(role.code);
-          const toneColors = ROLE_COLORS[role.code] || "border-border text-muted-foreground";
 
           return (
             <div
@@ -86,11 +84,6 @@ export default function RoleSelector({
                   <span className="font-mono text-xs font-bold text-foreground">
                     {role.name}
                   </span>
-                  {isChecked && (
-                    <span className={`label-mono rounded border px-1.5 py-0.5 text-[8px] ${toneColors}`}>
-                      ACTIVE MATRIX
-                    </span>
-                  )}
                 </div>
                 <p className="mt-1 font-mono text-[10px] text-muted-foreground leading-relaxed">
                   {role.description}

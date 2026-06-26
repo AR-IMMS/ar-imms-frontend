@@ -13,6 +13,7 @@ import {
 } from "@/hooks/identity/use-identity-queries";
 import UserListFilters from "./components/user-list-filters";
 import Pagination from "@/components/common/pagination";
+import { Avatar } from "@/components/common/avatar";
 
 type RoleFilter = RoleCode | "ALL";
 type StatusFilter = UserStatus | "ALL";
@@ -189,14 +190,12 @@ export default function UserListView() {
                   className="group grid w-full grid-cols-12 items-center border-b border-border/60 px-4 py-3 text-left transition hover:bg-cyan/4"
                 >
                   <div className="col-span-3 flex min-w-0 items-center gap-3">
-                    <div className="grid size-9 shrink-0 place-items-center rounded-md bg-linear-to-br from-cyan/30 to-purple/30 text-[11px] font-bold text-foreground">
-                      {(user.fullName ?? user.username ?? "")
-                        .split(" ")
-                        .map((value: string) => value[0] ?? "")
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase() || "OP"}
-                    </div>
+                    <Avatar
+                      avatarUrl={user.avatarUrl}
+                      fullName={user.fullName || user.username || "User"}
+                      variant="square"
+                      size="sm"
+                    />
                     <div className="min-w-0">
                       <div className="truncate text-sm text-foreground">
                         {user.fullName || "N/A"}

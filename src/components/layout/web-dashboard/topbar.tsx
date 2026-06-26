@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Hexagon } from "lucide-react";
 import { useAuth } from "@/hooks/auth/use-auth";
 import { getRoleName } from "@/lib/utils/roleConverter";
+import { Avatar } from "@/components/common/avatar";
 
 function useCurrentTime() {
   const [t, setT] = useState(() => new Date());
@@ -66,9 +67,12 @@ export default function TopBar() {
         </div>
 
         <div className="flex items-center gap-2 border-l border-cyan/15 pl-3">
-          <div className="grid size-8 place-items-center rounded-md bg-linear-to-br from-cyan to-purple text-[11px] font-bold text-primary-foreground">
-            {user?.username?.substring(0, 2).toUpperCase() || "N/A"}
-          </div>
+          <Avatar
+            avatarUrl={user?.avatarUrl || null}
+            fullName={user?.fullName || user?.username || "N/A"}
+            size="sm"
+            variant="square"
+          />
           <div className="hidden md:block leading-tight">
             <div className="text-xs font-medium text-foreground">
               {user?.username || "N/A"}
