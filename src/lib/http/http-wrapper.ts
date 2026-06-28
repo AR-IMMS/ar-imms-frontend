@@ -7,7 +7,14 @@ export interface ExtendedHttpOptions extends Options {
   includeAuth?: boolean; // Mặc định là true, nếu truyền false sẽ không đính kèm Token
   skipAuthHooks?: boolean; // Nếu là true, sẽ bypass qua cơ chế đính token và tự động refresh
   timeout?: number;
+  service?: "identity" | "asset"; // Tự động chọn base URL theo service
 }
+
+// Cấu hình URL cho từng service
+const SERVICE_URLS: Record<string, string> = {
+  identity: process.env.NEXT_PUBLIC_IDENTITY_API_URL || "",
+  asset: process.env.NEXT_PUBLIC_ASSET_API_URL || "",
+};
 
 // Wrapper function to handle API requests with error handling and response parsing
 export async function http<T>(
@@ -29,9 +36,16 @@ export async function http<T>(
       headers.set("X-Skip-Auth-Refresh", "true");
     }
 
+    // Xác định prefix URL dựa trên service được truyền vào
+    let servicePrefix = undefined;
+    if (options.service && SERVICE_URLS[options.service]) {
+      servicePrefix = SERVICE_URLS[options.service];
+    }
+
     const finalOptions = {
       ...options,
       headers,
+      ...(servicePrefix ? { prefix: servicePrefix } : {}),
     };
 
     // request qua kyClient

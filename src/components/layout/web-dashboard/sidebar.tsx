@@ -17,6 +17,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import isActivePath from "@/lib/utils/isActivePath";
 import { useSidebar } from "@/hooks/common/use-sidebar";
+import { Tooltip } from "@/components/common/tooltip";
 
 type NavItem = {
   icon: LucideIcon;
@@ -61,32 +62,6 @@ const footerItems: NavItem[] = [
 ];
 
 /* ---------- Helper Components ---------- */
-
-function Tooltip({
-  children,
-  content,
-  enabled,
-}: {
-  children: React.ReactNode;
-  content: string;
-  enabled: boolean;
-}) {
-  if (!enabled) return <>{children}</>;
-  return (
-    <div className="group relative flex items-center justify-center w-full">
-      {children}
-      <div className="pointer-events-none absolute left-full z-50 ml-3 flex items-center opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 ease-out">
-        {/* Triangle arrow */}
-        <div className="h-0 w-0 border-y-[5px] border-y-transparent border-r-[5px] border-r-cyan/30" />
-        {/* Tooltip box */}
-        <div className="rounded-md border border-cyan/30 bg-surface-2/95 px-2.5 py-1 text-[9px] font-mono tracking-wider text-cyan-ice shadow-[0_0_15px_rgba(0,209,255,0.25)] backdrop-blur-md whitespace-nowrap uppercase">
-          {content}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function NavLink({
   icon: Icon,
   label,
@@ -181,8 +156,8 @@ export default function Sidebar() {
   const { isCollapsed, toggleSidebar } = useSidebar();
 
   return (
-    <aside
-      className={`glass hidden h-[calc(100vh-72px)] shrink-0 flex-col gap-6 border-r border-sidebar-border py-5 lg:sticky lg:top-18 lg:flex transition-all duration-300 ease-in-out ${
+    <div
+      className={`glass hidden h-[calc(100vh-63px)] z-20 shrink-0 flex-col gap-6 border-r border-sidebar-border py-5 lg:sticky lg:top-18 lg:flex transition-all duration-300 ease-in-out ${
         isCollapsed ? "w-16 px-2" : "w-60 px-4"
       }`}
     >
@@ -245,6 +220,6 @@ export default function Sidebar() {
           </button>
         </Tooltip>
       </div>
-    </aside>
+    </div>
   );
 }

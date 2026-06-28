@@ -14,10 +14,13 @@ import {
   UpdateUserStatusRequestPayload,
 } from "@/types/users";
 
+const SERVICE_NAME = "identity";
+
 export const identityService = {
   getRoles: (): Promise<ROLE_ITEM[]> =>
     httpGet<ROLE_ITEM[]>(IDENTITY_ENDPOINTS.GET_ROLES, {
       includeAuth: false,
+      service: SERVICE_NAME,
     }),
 
   listUsers: (
@@ -25,6 +28,7 @@ export const identityService = {
   ): Promise<PaginatedResponse<UserProfileResponse>> =>
     httpGet<PaginatedResponse<UserProfileResponse>>(
       `${IDENTITY_ENDPOINTS.GET_USERS}${buildQueryString(params)}`,
+      { service: SERVICE_NAME },
     ),
 
   getUserByUsername: (
@@ -32,15 +36,20 @@ export const identityService = {
   ): Promise<PaginatedResponse<UserProfileResponse>> =>
     httpGet<PaginatedResponse<UserProfileResponse>>(
       `${IDENTITY_ENDPOINTS.GET_USER_BY_USERNAME(params.username)}${buildQueryString(params)}`,
+      { service: SERVICE_NAME },
     ),
 
   getUserById: (userId: string): Promise<UserProfileResponse> =>
-    httpGet<UserProfileResponse>(IDENTITY_ENDPOINTS.GET_USER_BY_ID(userId)),
+    httpGet<UserProfileResponse>(IDENTITY_ENDPOINTS.GET_USER_BY_ID(userId), {
+      service: SERVICE_NAME,
+    }),
 
   createUser: (
     payload: CreateUserRequestPayload,
   ): Promise<UserProfileResponse> =>
-    httpPost<UserProfileResponse>(IDENTITY_ENDPOINTS.CREATE_USERS, payload),
+    httpPost<UserProfileResponse>(IDENTITY_ENDPOINTS.CREATE_USERS, payload, {
+      service: SERVICE_NAME,
+    }),
 
   updateUserStatus: (
     userId: string,
@@ -49,6 +58,7 @@ export const identityService = {
     httpPatch<UserProfileResponse>(
       IDENTITY_ENDPOINTS.UPDATE_USER_STATUS(userId),
       payload,
+      { service: SERVICE_NAME },
     ),
 
   updateUserRoles: (
@@ -58,5 +68,6 @@ export const identityService = {
     httpPut<UserProfileResponse>(
       IDENTITY_ENDPOINTS.UPDATE_USER_ROLES(userId),
       payload,
+      { service: SERVICE_NAME },
     ),
 };
