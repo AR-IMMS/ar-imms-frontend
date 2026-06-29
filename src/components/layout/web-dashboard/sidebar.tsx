@@ -37,15 +37,14 @@ const sections: NavSection[] = [
       { icon: Activity, label: "Monitoring", to: "/monitoring" },
       {
         icon: AlertTriangle,
-        label: "Alerts & Tickets",
-        to: "/incidents",
-        badge: "7",
+        label: "Tickets",
+        to: "/tickets",
       },
       { icon: FileText, label: "Audit Logs", to: "/audit" },
     ],
   },
   {
-    title: "Manaagement",
+    title: "Management",
     items: [
       { icon: Users, label: "Users", to: "/user-management" },
       { icon: Server, label: "Assets", to: "/assets" },

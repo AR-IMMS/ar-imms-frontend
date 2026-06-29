@@ -203,6 +203,37 @@
   text-shadow: 0 0 12px rgba(255, 77, 109, 0.6);
 }
 
+@utility ticket-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  padding-inline: 0.75rem;
+  padding-block: 0.5rem;
+  min-height: 2.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 160ms ease-out,
+    box-shadow 160ms ease-out;
+
+  &::placeholder {
+    color: color-mix(in srgb, var(--muted-foreground) 72%, transparent);
+  }
+
+  &:focus {
+    border-color: color-mix(in srgb, var(--cyan) 55%, transparent);
+    box-shadow: 0 0 0 1px rgba(0, 209, 255, 0.12);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
 @keyframes pulse-dot {
   0%,
   100% {
