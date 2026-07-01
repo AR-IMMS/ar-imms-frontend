@@ -4,11 +4,13 @@ import Sidebar from "@/components/layout/web-dashboard/sidebar";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen w-full text-foreground">
+    <div className="h-screen w-screen flex flex-col overflow-hidden text-foreground bg-[#070b15]">
       <TopBar />
-      <div className="flex w-full">
+      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
         <Sidebar />
-        <main className="flex-1 px-6 py-6 space-y-6 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0 overflow-hidden flex flex-col">
+          {children}
+        </main>
       </div>
     </div>
   );

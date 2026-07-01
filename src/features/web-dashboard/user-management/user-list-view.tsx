@@ -150,7 +150,7 @@ export default function UserListView() {
           </div>
         </div>
 
-        <div className="h-[500px] overflow-y-auto min-h-[300px] divide-y divide-border/40">
+        <div className="h-[600px] overflow-y-auto min-h-[300px] divide-y divide-border/40">
           {usersQuery.isLoading ? (
             <div className="space-y-3 p-4">
               {Array.from({ length: 5 }).map((_, index) => (

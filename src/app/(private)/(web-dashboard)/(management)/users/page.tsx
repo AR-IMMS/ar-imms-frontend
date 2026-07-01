@@ -12,7 +12,7 @@ export default function UserManagementPage() {
   const [addUserOpen, setAddUserOpen] = useState(false);
   
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-6">
       <Header
         eyebrow="ADMIN // IDENTITY CONTROL"
         title="User Management"

@@ -3,7 +3,7 @@ interface Props {
 }
 
 export default async function NodeDetailPage({ params }: Props) {
-  const { rackId, nodeId } = await params;
+  const { nodeId } = await params;
 
   return (
     <div className="flex gap-6">

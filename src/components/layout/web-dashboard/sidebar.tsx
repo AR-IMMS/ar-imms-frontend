@@ -157,7 +157,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className={`glass hidden h-[calc(100vh-63px)] z-20 shrink-0 flex-col gap-6 border-r border-sidebar-border py-5 lg:sticky lg:top-18 lg:flex transition-all duration-300 ease-in-out ${
+      className={`glass hidden h-[calc(100vh-60px)] z-20 shrink-0 flex-col gap-6 border-r border-sidebar-border py-5 lg:sticky lg:top-18 lg:flex transition-all duration-300 ease-in-out ${
         isCollapsed ? "w-16 px-2" : "w-60 px-4"
       }`}
     >

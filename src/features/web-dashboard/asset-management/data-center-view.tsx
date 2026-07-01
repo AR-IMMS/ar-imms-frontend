@@ -1,294 +1,341 @@
 "use client";
 
-// import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Server, ZoomIn, ZoomOut, Move, RotateCcw } from "lucide-react";
-
-// export const Route = createFileRoute("/topology")({
-//   head: () => ({
-//     meta: [
-//       { title: "AR-IMMS // Infrastructure Topology" },
-//       {
-//         name: "description",
-//         content:
-//           "Holographic infrastructure topology visualizer for AR-IMMS micro data centers.",
-//       },
-//       { property: "og:title", content: "AR-IMMS // Infrastructure Topology" },
-//       {
-//         property: "og:description",
-//         content:
-//           "Live cluster, rack and grid views of mission-critical infrastructure.",
-//       },
-//     ],
-//   }),
-//   component: TopologyPage,
-// });
-
-type Status = "online" | "warning" | "critical" | "offline";
-
-interface NodeT {
-  id: string;
-  ip: string;
-  rack: string;
-  status: Status;
-  workload: string;
-  cpu: number;
-  ram: number;
-  disk: number;
-  anomaly: number;
-  containers: {
-    name: string;
-    image: string;
-    cpu: number;
-    ram: number;
-    state: Status;
-  }[];
-}
-
-const STATUS_COLOR: Record<Status, string> = {
-  online: "var(--cyber-green)",
-  warning: "var(--cyber-warning)",
-  critical: "var(--cyber-red)",
-  offline: "var(--cyber-offline)",
-};
-
-const RACKS = ["R-01", "R-02", "R-03", "R-04"];
-const WORKLOADS = ["edge-mesh", "ml-pipeline", "ingest", "gateway"];
-
-function rand(seed: number) {
-  let s = seed;
-  return () => {
-    s = (s * 9301 + 49297) % 233280;
-    return s / 233280;
-  };
-}
-
-const NODES: NodeT[] = (() => {
-  const r = rand(7);
-  const list: NodeT[] = [];
-  for (let i = 0; i < 32; i++) {
-    const v = r();
-    const status: Status =
-      v > 0.9
-        ? "critical"
-        : v > 0.78
-          ? "warning"
-          : v > 0.7
-            ? "offline"
-            : "online";
-    const id = `NODE-${(1000 + i).toString().padStart(4, "0")}`;
-    list.push({
-      id,
-      ip: `10.42.${Math.floor(i / 8) + 1}.${(i * 7 + 12) % 250}`,
-      rack: RACKS[i % RACKS.length],
-      status,
-      workload: WORKLOADS[i % WORKLOADS.length],
-      cpu: Math.floor(20 + r() * 75),
-      ram: Math.floor(15 + r() * 80),
-      disk: Math.floor(10 + r() * 70),
-      anomaly: Math.round(r() * 100) / 100,
-      containers: Array.from({ length: 2 + Math.floor(r() * 3) }).map(
-        (_, ci) => ({
-          name: `svc-${id.slice(-3)}-${ci}`,
-          image: [
-            "nginx:1.27",
-            "redis:7.2",
-            "ar-imms/agent:4.21",
-            "postgres:16",
-            "grafana:11",
-          ][ci % 5],
-          cpu: Math.floor(r() * 60 + 5),
-          ram: Math.floor(r() * 70 + 10),
-          state: r() > 0.85 ? "warning" : "online",
-        }),
-      ),
-    });
-  }
-  return list;
-})();
+import { useMemo, useRef, useEffect } from "react";
+import {
+  TransformWrapper,
+  TransformComponent,
+  ReactZoomPanPinchRef,
+} from "react-zoom-pan-pinch";
+import { ZoomIn, ZoomOut, RotateCcw, Loader2 } from "lucide-react";
+import { RackTopologyResult } from "@/types/assets";
+import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
+import { useAssetStore } from "./hooks/useAssetStore";
+import { RackCard } from "./components/rack-card";
+import { CanvasBtn } from "@/components/common/canvas-btn";
+import { parseCoordinate } from "./lib/utils/parse-coordinate";
+import { SiteDetailPanel } from "./components/site-detail-panel";
+import { RackDetailPanel } from "./components/rack-detail-panel";
+import { NodeDetailPanel } from "./components/node-detail-panel";
 
 export function TopologyPage() {
-  const [selected, setSelected] = useState<NodeT | null>(NODES[5]);
-  const [zoom, setZoom] = useState(1);
+  const {
+    data: topology = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useTopologyTreeQuery();
 
-  return (
-    <div className="relative flex max-h-screen flex-col overflow-hidden text-foreground">
-      <div className="relative z-10 flex flex-1 overflow-hidden">
-        {/* CENTER WORKSPACE */}
-        <main className="relative flex-1 overflow-hidden">
-          <div className="absolute inset-0 holo-floor opacity-80" />
-          <div className="absolute inset-0" />
+  const {
+    selectedSiteCode,
+    selectedRoomCode,
+    selectedRackId,
+    selectedNodeId,
+    searchQuery,
+    setSelectedRackId,
+    setSelectedNodeId,
+    activePanelType,
+    setIsUnmappedDrawerOpen,
+    setActivePanelType,
+  } = useAssetStore();
 
-          <div
-            className="relative h-full w-full overflow-auto p-8"
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: "center top",
-            }}
-          >
-              <RackView
-                nodes={NODES}
-                selected={selected}
-                onSelect={setSelected}
-              />
-          </div>
+  const transformComponentRef = useRef<ReactZoomPanPinchRef>(null);
 
-          {/* Canvas controls */}
-          <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5">
-            <CanvasBtn
-              onClick={() => setZoom((z) => Math.min(1.6, z + 0.1))}
-              I={ZoomIn}
-              label="Zoom in"
-            />
-            <CanvasBtn
-              onClick={() => setZoom((z) => Math.max(0.6, z - 0.1))}
-              I={ZoomOut}
-              label="Zoom out"
-            />
-            <CanvasBtn onClick={() => setZoom(1)} I={RotateCcw} label="Reset" />
-            <CanvasBtn onClick={() => {}} I={Move} label="Pan" />
-          </div>
+  // Focus viewport on selected rack or node rack automatically
+  useEffect(() => {
+    if (!transformComponentRef.current) return;
 
-          {/* Minimap */}
-          <div className="glass-panel absolute bottom-4 right-4 z-20 hidden h-32 w-48 overflow-hidden rounded-lg p-2 md:block">
-            <div className="font-mono-tech mb-1 flex items-center justify-between text-[9px] uppercase tracking-[0.18em] text-ice/50">
-              <span>Minimap</span>
-              <span className="text-cyan">●</span>
-            </div>
-            <div className="relative h-[88px] w-full rounded bg-cyber-input holo-grid-sm">
-              <div className="absolute inset-2 grid grid-cols-8 gap-0.5">
-                {NODES.map((n) => (
-                  <span
-                    key={n.id}
-                    className="h-1.5 w-1.5 rounded-[1px]"
-                    style={{
-                      background: STATUS_COLOR[n.status],
-                      opacity: 0.85,
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="absolute inset-3 rounded border border-cyan/50" />
-            </div>
-          </div>
+    if (selectedNodeId) {
+      const rackWithNode = topology.find((item) =>
+        item.nodes.some((n) => n.id === selectedNodeId),
+      );
+      if (rackWithNode) {
+        setTimeout(() => {
+          transformComponentRef.current?.zoomToElement(
+            `rack-card-${rackWithNode.rack.id}`,
+            1.75,
+            500,
+            "easeOut",
+          );
+        }, 100);
+      }
+    } else if (selectedRackId) {
+      setTimeout(() => {
+        transformComponentRef.current?.zoomToElement(
+          `rack-card-${selectedRackId}`,
+          1.75,
+          500,
+          "easeOut",
+        );
+      }, 100);
+    }
+  }, [selectedRackId, selectedNodeId, topology]);
 
-          {/* Coordinate readout */}
-          <div className="font-mono-tech pointer-events-none absolute bottom-4 left-4 z-20 text-[10px] text-ice/40">
-            ZOOM {zoom.toFixed(2)}× · X 0.00 Y 0.00 · GRID-LOCKED
-          </div>
-        </main>
-      </div>
-    </div>
-  );
-}
-
-/* ============ Sub Components ============ */
-
-function CanvasBtn({
-  onClick,
-  I,
-  label,
-}: {
-  onClick: () => void;
-  I: React.ComponentType<{ className?: string }>;
-  label: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      className="glass-panel flex h-9 w-9 items-center justify-center rounded-md text-ice transition-all hover:text-cyan"
-      style={{ boxShadow: "var(--glow-cyan)" }}
-    >
-      <I className="h-4 w-4" />
-    </button>
-  );
-}
-
-/* ============ Views ============ */
-function RackView({
-  nodes,
-  selected,
-  onSelect,
-}: {
-  nodes: NodeT[];
-  selected: NodeT | null;
-  onSelect: (n: NodeT) => void;
-}) {
-  const racks = RACKS.map((r) => ({
-    id: r,
-    nodes: nodes.filter((n) => n.rack === r),
-  }));
-  return (
-    <div className="mx-auto flex max-w-[1100px] flex-wrap items-end justify-center gap-6">
-      {racks.map((rack) => (
-        <div
-          key={rack.id}
-          className="relative w-56 cyber-border rounded-xl bg-cyber-panel/80 p-3"
-          style={{
-            boxShadow:
-              "inset 0 0 60px rgba(0,217,255,0.06), 0 20px 50px -20px rgba(0,157,255,0.3)",
+  const activePanel = useMemo(() => {
+    if (activePanelType === "node" && selectedNodeId) {
+      return <NodeDetailPanel onClose={() => setSelectedNodeId(null)} />;
+    }
+    if (activePanelType === "rack" && selectedRackId) {
+      return <RackDetailPanel onClose={() => setSelectedRackId(null)} />;
+    }
+    if (activePanelType === "site" && selectedSiteCode) {
+      return (
+        <SiteDetailPanel
+          onClose={() => {
+            const { setSelectedSiteCode } = useAssetStore.getState();
+            setSelectedSiteCode(null);
           }}
-        >
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <div className="text-display text-[11px] text-cyan">
-                RACK {rack.id}
-              </div>
-              <div className="font-mono-tech text-[10px] text-ice/40">
-                {rack.nodes.length} units
-              </div>
-            </div>
-            <Server className="h-4 w-4 text-ice/50" />
+        />
+      );
+    }
+    return null;
+  }, [
+    activePanelType,
+    selectedNodeId,
+    selectedRackId,
+    selectedSiteCode,
+    setSelectedNodeId,
+    setSelectedRackId,
+  ]);
+
+  // Filter topology based on tree selections
+  const filteredTopology = useMemo(() => {
+    return topology.filter((item) => {
+      const site = item.rack.siteCode || "";
+      const room = item.rack.roomCode || "";
+
+      if (selectedSiteCode !== null && site !== selectedSiteCode) return false;
+      if (selectedRoomCode !== null && room !== selectedRoomCode) return false;
+
+      // Filter by search query if set
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase().trim();
+        const rackMatch =
+          item.rack.rackCode.toLowerCase().includes(q) ||
+          (item.rack.displayName &&
+            item.rack.displayName.toLowerCase().includes(q));
+
+        const nodeMatch = item.nodes.some(
+          (node) =>
+            node.nodeCode.toLowerCase().includes(q) ||
+            (node.displayName && node.displayName.toLowerCase().includes(q)) ||
+            (node.managementIp && node.managementIp.toLowerCase().includes(q)),
+        );
+
+        return rackMatch || nodeMatch;
+      }
+
+      return true;
+    });
+  }, [topology, selectedSiteCode, selectedRoomCode, searchQuery]);
+
+  // Separate into Placed (with Row/Position)
+  const placedRacks = useMemo(() => {
+    const placed: Array<{
+      row: number;
+      col: number;
+      rackTopology: RackTopologyResult;
+    }> = [];
+
+    filteredTopology.forEach((item) => {
+      const rowVal = parseCoordinate(item.rack.rowCode);
+      const colVal = parseCoordinate(item.rack.positionCode);
+
+      if (rowVal !== null && colVal !== null) {
+        placed.push({
+          row: rowVal,
+          col: colVal,
+          rackTopology: item,
+        });
+      }
+    });
+
+    return placed;
+  }, [filteredTopology]);
+
+  // Grid dimensions (rows, cols)
+  const { maxRow, maxCol } = useMemo(() => {
+    if (placedRacks.length === 0) return { maxRow: 2, maxCol: 4 };
+    const rows = placedRacks.map((pr) => pr.row);
+    const cols = placedRacks.map((pr) => pr.col);
+    return {
+      maxRow: Math.max(2, ...rows),
+      maxCol: Math.max(4, ...cols),
+    };
+  }, [placedRacks]);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 h-full w-full flex flex-col items-center justify-center gap-3 p-8">
+        <Loader2 className="size-8 text-cyan animate-spin" />
+        <span className="font-mono text-xs text-muted-foreground">
+          Initializing Spatial Canvas...
+        </span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex-1 h-full w-full flex flex-col items-center justify-center gap-4 text-center p-8">
+        <div>
+          <div className="text-sm font-mono font-semibold text-critical">
+            Failed to fetch asset telemetry
           </div>
-          <div className="space-y-1.5">
-            {rack.nodes.map((n) => {
-              const color = STATUS_COLOR[n.status];
-              return (
-                <button
-                  key={n.id}
-                  onClick={() => onSelect(n)}
-                  className="group relative flex w-full items-center gap-2 rounded-md bg-cyber-input px-2 py-1.5 text-left transition-all hover:bg-cyber-elevated"
-                  style={{
-                    borderLeft: `2px solid ${color}`,
-                    boxShadow:
-                      selected?.id === n.id
-                        ? `0 0 0 1px ${color}, 0 0 20px ${color}66`
-                        : "none",
-                  }}
-                >
-                  <span
-                    className="h-1.5 w-1.5 shrink-0 rounded-full animate-cyber-pulse"
-                    style={{
-                      background: color,
-                      color,
-                      boxShadow: `0 0 6px ${color}`,
-                    }}
-                  />
-                  <span className="font-mono-tech grow truncate text-[10px] text-ice/80">
-                    {n.id}
-                  </span>
-                  <span className="font-mono-tech text-[9px] text-ice/40">
-                    {n.cpu}%
-                  </span>
-                </button>
-              );
-            })}
-            {Array.from({ length: Math.max(0, 10 - rack.nodes.length) }).map(
-              (_, i) => (
-                <div
-                  key={i}
-                  className="h-6 rounded-md border border-dashed border-cyan/10 bg-cyber-input/40"
-                />
-              ),
-            )}
-          </div>
-          <div className="font-mono-tech mt-3 flex items-center justify-between text-[9px] text-ice/30">
-            <span>PWR 240V</span>
-            <span className="text-neon-green">ONLINE</span>
+          <div className="text-xs font-mono text-muted-foreground/60 mt-1">
+            Please check your network status
           </div>
         </div>
-      ))}
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 bg-white/5 border border-border border-critical/40 rounded-lg text-xs label-mono text-foreground hover:border-critical/70 transition cursor-pointer"
+        >
+          Retry Loading
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full flex-1 min-h-0 flex overflow-hidden rounded-2xl border border-border/10 relative">
+      {/* Left/Main Spatial Canvas */}
+      <div className="flex-1 relative min-w-0">
+        <TransformWrapper
+          ref={transformComponentRef}
+          initialScale={1}
+          minScale={0.4}
+          maxScale={2.0}
+          centerOnInit={false}
+          limitToBounds={false}
+          doubleClick={{ disabled: true }}
+        >
+          {({ zoomIn, zoomOut, resetTransform }) => (
+            <main className="flex-1 relative overflow-hidden select-none outline-none cursor-grab active:cursor-grabbing w-full h-full">
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "100%",
+                  overflow: "hidden",
+                }}
+                contentStyle={{ width: "auto", height: "auto" }}
+              >
+                {/* Viewport content */}
+                <div
+                  className="p-24 origin-center"
+                  style={{
+                    display: "grid",
+                    gridTemplateRows: `auto repeat(${maxRow}, minmax(380px, auto))`,
+                    gridTemplateColumns: `auto repeat(${maxCol}, minmax(180px, auto))`,
+                    gap: "1.5rem",
+                  }}
+                >
+                  {/* Intersection Cell (0,0) */}
+                  <div className="size-12"></div>
+
+                  {/* Column Coordinates Row */}
+                  {Array.from({ length: maxCol }).map((_, cIdx) => (
+                    <div
+                      key={`col-head-${cIdx}`}
+                      className="flex items-center justify-center font-mono text-[10px] text-cyan-ice/50 bg-background/50 border border-border/20 rounded px-4 py-2 select-none tracking-widest"
+                    >
+                      POS {cIdx + 1}
+                    </div>
+                  ))}
+
+                  {/* Rows */}
+                  {Array.from({ length: maxRow }).map((_, rIdx) => {
+                    const rowNum = rIdx + 1;
+                    return (
+                      <div
+                        key={`row-wrap-${rIdx}`}
+                        style={{ display: "contents" }}
+                      >
+                        {/* Row Coordinator Label (Col 0) */}
+                        <div className="flex items-center justify-end font-mono text-[10px] text-cyan-ice/70 bg-background/50 border border-border/20 rounded pr-4 pl-6 select-none tracking-widest">
+                          ROW {rowNum}
+                        </div>
+
+                        {/* Cells inside Row */}
+                        {Array.from({ length: maxCol }).map((_, cIdx) => {
+                          const colNum = cIdx + 1;
+                          const item = placedRacks.find(
+                            (pr) => pr.row === rowNum && pr.col === colNum,
+                          );
+
+                          if (item) {
+                            return (
+                              <RackCard
+                                key={item.rackTopology.rack.id}
+                                rackResult={item.rackTopology}
+                                selectedRackId={selectedRackId}
+                                selectedNodeId={selectedNodeId}
+                                onNodeSelect={(nodeId) => {
+                                  setSelectedNodeId(nodeId);
+                                  if (nodeId) {
+                                    setIsUnmappedDrawerOpen(false);
+                                    setActivePanelType("node");
+                                  } else {
+                                    setActivePanelType(null);
+                                  }
+                                }}
+                                onRackSelect={(rackId) => {
+                                  setSelectedRackId(rackId);
+                                  if (rackId) {
+                                    setIsUnmappedDrawerOpen(false);
+                                    setActivePanelType("rack");
+                                  } else {
+                                    setActivePanelType(null);
+                                  }
+                                }}
+                              />
+                            );
+                          }
+
+                          // Empty Holographic Blueprint Cell
+                          return (
+                            <div
+                              key={`empty-${rowNum}-${colNum}`}
+                              className="border border-dashed border-border/10 bg-background/20 rounded-2xl flex flex-col items-center justify-center p-8 transition-colors hover:bg-white/2"
+                            >
+                              <div className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-widest">
+                                FREE SPACE
+                              </div>
+                              <div className="font-mono text-[8px] text-muted-foreground/40 mt-1">
+                                R{rowNum}-P{colNum}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </TransformComponent>
+
+              {/* Floating Canvas Controls */}
+              <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                <CanvasBtn
+                  onClick={() => zoomIn()}
+                  I={ZoomIn}
+                  label="Zoom In"
+                />
+                <CanvasBtn
+                  onClick={() => zoomOut()}
+                  I={ZoomOut}
+                  label="Zoom Out"
+                />
+                <CanvasBtn
+                  onClick={() => resetTransform()}
+                  I={RotateCcw}
+                  label="Reset Zoom"
+                />
+              </div>
+            </main>
+          )}
+        </TransformWrapper>
+      </div>
+
+      {/* Right details panel overlay */}
+      {activePanel}
     </div>
   );
 }

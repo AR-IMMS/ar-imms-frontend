@@ -15,3 +15,41 @@ export const IDENTITY_ENDPOINTS = {
   UPDATE_USER_STATUS: (userId: string) => `/admin/users/${encodeURIComponent(userId)}/status`,
   UPDATE_USER_ROLES: (userId: string) => `/admin/users/${encodeURIComponent(userId)}/roles`,
 } as const;
+
+export const ASSET_ENDPOINTS = {
+  TOPOLOGY_TREE: "/topology/tree",
+  RACK_TOPOLOGY: (rackId: string) => `/racks/${encodeURIComponent(rackId)}/topology`,
+  NODE_CONTEXT: (nodeId: string) => `/nodes/${encodeURIComponent(nodeId)}/context`,
+  ASSET_BY_CODE: (code: string) => `/assets/by-code/${encodeURIComponent(code)}`,
+  RESOLVE_MARKER: (markerCode: string) => `/markers/resolve/${encodeURIComponent(markerCode)}`,
+  SEARCH_ASSETS: "/assets/search",
+
+  // Admin Topology
+  ADMIN_RACKS: "/admin/topology/racks",
+  ADMIN_RACK_BY_ID: (rackId: string) => `/admin/topology/racks/${encodeURIComponent(rackId)}`,
+  CONFIRM_READY_RACK: (rackId: string) => `/admin/topology/racks/${encodeURIComponent(rackId)}/confirm-ready`,
+  ACTIVATE_RACK: (rackId: string) => `/admin/topology/racks/${encodeURIComponent(rackId)}/activate`,
+  DRAIN_RACK: (rackId: string) => `/admin/topology/racks/${encodeURIComponent(rackId)}/drain`,
+  RETIRE_RACK: (rackId: string) => `/admin/topology/racks/${encodeURIComponent(rackId)}/retire`,
+
+  NORMALIZE_NODE: "/admin/topology/nodes/normalize",
+  DISCOVERED_NODES: "/admin/topology/discovered-nodes",
+  UNASSIGNED_NODES: "/admin/topology/nodes/unassigned",
+  ADMIN_NODE_BY_ID: (nodeId: string) => `/admin/topology/nodes/${encodeURIComponent(nodeId)}`,
+  ASSIGN_RACK: (nodeId: string) => `/admin/topology/nodes/${encodeURIComponent(nodeId)}/assign-rack`,
+  ASSIGN_DISCOVERED_NODE: (agentId: string) => `/admin/topology/discovered-nodes/${encodeURIComponent(agentId)}/assign-rack`,
+  ACTIVATE_NODE: (nodeId: string) => `/admin/topology/nodes/${encodeURIComponent(nodeId)}/activate`,
+  DRAIN_NODE: (nodeId: string) => `/admin/topology/nodes/${encodeURIComponent(nodeId)}/drain`,
+  RETIRE_NODE: (nodeId: string) => `/admin/topology/nodes/${encodeURIComponent(nodeId)}/retire`,
+
+  // Admin Markers
+  ADMIN_MARKERS: "/admin/markers",
+  ADMIN_MARKER_BY_ID: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}`,
+  GENERATE_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/generate`,
+  PRINT_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/print`,
+  MOUNT_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/mount`,
+  VALIDATE_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/validate`,
+  ACTIVATE_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/activate`,
+  REMAP_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/remap`,
+  RETIRE_MARKER: (markerId: string) => `/admin/markers/${encodeURIComponent(markerId)}/retire`,
+} as const;

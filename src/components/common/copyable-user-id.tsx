@@ -50,8 +50,8 @@ export default function CopyableUserId({
         type="button"
         onClick={handleCopy}
         className="inline-flex size-6 shrink-0 items-center justify-center rounded border border-border bg-surface-1 text-muted-foreground transition hover:border-cyan/30 hover:text-cyan-ice"
-        aria-label={`Copy user id ${value}`}
-        title={copied ? "Copied" : "Copy user id"}
+        aria-label={`Copy ID ${value}`}
+        title={copied ? "Copied" : "Copy ID"}
       >
         {copied ? (
           <Check className="size-3.5" />
