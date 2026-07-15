@@ -24,17 +24,6 @@ export function useRackTopologyQuery(rackId: string, enabled = true) {
   });
 }
 
-export function useNodeContextQuery(nodeId: string, enabled = true) {
-  const normalizedNodeId = nodeId?.trim() ?? "";
-
-  return useQuery({
-    queryKey: queryKeys.asset.nodeContext(normalizedNodeId),
-    queryFn: () => assetService.getNodeContext(normalizedNodeId),
-    enabled: enabled && normalizedNodeId.length > 0,
-    staleTime: DEFAULT_STALE_TIME,
-  });
-}
-
 export function useAssetSummaryQuery(code: string, enabled = true) {
   const normalizedCode = code?.trim() ?? "";
 
@@ -46,13 +35,13 @@ export function useAssetSummaryQuery(code: string, enabled = true) {
   });
 }
 
-export function useMarkerResolutionQuery(markerCode: string, enabled = true) {
-  const normalizedMarkerCode = markerCode?.trim() ?? "";
+export function useNodeContextQuery(nodeId: string, enabled = true) {
+  const normalizedNodeId = nodeId?.trim() ?? "";
 
   return useQuery({
-    queryKey: queryKeys.asset.resolveMarker(normalizedMarkerCode),
-    queryFn: () => assetService.resolveMarker(normalizedMarkerCode),
-    enabled: enabled && normalizedMarkerCode.length > 0,
+    queryKey: queryKeys.asset.nodeContext(normalizedNodeId),
+    queryFn: () => assetService.getNodeContext(normalizedNodeId),
+    enabled: enabled && normalizedNodeId.length > 0,
     staleTime: DEFAULT_STALE_TIME,
   });
 }
@@ -70,22 +59,22 @@ export function useAssetSearchQuery(
   });
 }
 
-export function useDiscoveredNodesQuery(enabled = true) {
+export function usePendingAssignmentNodesQuery(enabled = true) {
   return useQuery({
-    queryKey: queryKeys.asset.discoveredNodes(),
-    queryFn: () => assetService.getDiscoveredNodes(),
+    queryKey: queryKeys.asset.pendingAssignmentNodes(),
+    queryFn: () => assetService.getPendingAssignmentNodes(),
     enabled,
     staleTime: DEFAULT_STALE_TIME,
   });
 }
 
-export function useUnassignedNodesQuery(enabled = true) {
-  return useQuery({
-    queryKey: queryKeys.asset.unassignedNodes(),
-    queryFn: () => assetService.getUnassignedNodes(),
-    enabled,
-    staleTime: DEFAULT_STALE_TIME,
-  });
-}
+// export function useMarkerResolutionQuery(markerCode: string, enabled = true) {
+//   const normalizedMarkerCode = markerCode?.trim() ?? "";
 
-
+//   return useQuery({
+//     queryKey: queryKeys.asset.resolveMarker(normalizedMarkerCode),
+//     queryFn: () => assetService.resolveMarker(normalizedMarkerCode),
+//     enabled: enabled && normalizedMarkerCode.length > 0,
+//     staleTime: DEFAULT_STALE_TIME,
+//   });
+// }

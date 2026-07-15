@@ -50,10 +50,10 @@ export const kyClient = ky.create({
         if (!response.ok || isBeBusinessError) {
           const errorDetail = (body as ApiFailure | null)?.error;
           const apiError: ApiError = {
-            status: errorDetail?.details?.statusCode ?? response.status,
+            status: errorDetail?.details?.status ?? response.status,
             code: errorDetail?.code ?? "UNKNOWN_ERROR",
             message:
-              errorDetail?.details?.message ??
+              errorDetail?.details?.detail ??
               errorDetail?.message ??
               response.statusText ??
               "Something went wrong",

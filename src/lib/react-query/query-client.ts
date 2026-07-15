@@ -4,6 +4,7 @@ import type { ApiError } from "@/types/api";
 
 function handleGlobalError(error: unknown, isMutation: boolean) {
   const apiError = error as ApiError;
+  const errorMessage = apiError?.message ?? "An unexpected error occurred";
 
   // Tối ưu UX - dành cho khi useQuery fetch dữ liệu ngầm
   // tránh spam toast
@@ -16,21 +17,21 @@ function handleGlobalError(error: unknown, isMutation: boolean) {
 
   switch (apiError?.code) {
     case "REQUEST_TIMEOUT":
-      toast.error(apiError.message ?? "Server is not responding. Please try again later");
+      toast.error(errorMessage ?? "Server is not responding. Please try again later");
       break;
 
     case "NETWORK_ERROR":
       toast.error(
-        apiError.message ?? "Cannot connect to server, please check your network connection",
+        errorMessage ?? "Cannot connect to server, please check your network connection",
       );
       break;
 
     case "NOT_FOUND":
-      toast.error(apiError.message ?? "Resource not found");
+      toast.error(errorMessage ?? "Resource not found");
       break;
 
     default:
-      toast.error(apiError?.message ?? "Something went wrong");
+      toast.error(errorMessage ?? "Something went wrong");
   }
 }
 

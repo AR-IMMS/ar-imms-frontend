@@ -1,89 +1,72 @@
 "use client";
 
 import { useMemo } from "react";
-import { X, MapPin, QrCode, Monitor, CpuIcon } from "lucide-react";
-import { useAssetStore } from "../hooks/useAssetStore";
+import {
+  X,
+  MapPin,
+  QrCode,
+  Monitor,
+  CpuIcon,
+  Power,
+  AlertTriangle,
+} from "lucide-react";
+import { useAssetStore } from "../../hooks/useAssetStore";
 import { useNodeContextQuery } from "@/hooks/asset/use-asset-queries";
 import {
   ASSIGNMENT_COLOR_TEXT,
-  LIFECYCLE_COLOR,
   LIFECYCLE_COLOR_TEXT,
-} from "../lib/constant";
-import { MarkerEntity } from "@/types/assets";
+} from "../../lib/constant";
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
+import { DiscoveredNodeEntity, MarkerEntity } from "@/types/assets";
 
 interface NodeDetailPanelProps {
   onClose: () => void;
 }
 
-interface DiscoveredNodeMetadata {
-  discoveredNode?: {
-    agentId?: string;
-    source?: string | null;
-    hardware?: {
-      primaryIpv4?: string;
-      macAddress?: string;
-      hardwareSerial?: string;
-      osProduct?: string;
-      logicalCpuCount?: number;
-      cpuArchitecture?: string;
-      vendor?: string;
-      model?: string;
-    };
-    registeredAt?: string;
-  };
-}
-
 export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
-  const { selectedNodeId } = useAssetStore();
+  const { selectedAsset, setLifecycleModalState } = useAssetStore();
 
   const { data: context, isLoading } = useNodeContextQuery(
-    selectedNodeId || "",
-    !!selectedNodeId,
+    selectedAsset?.assetType === "node" ? selectedAsset.id : "",
+    !!selectedAsset && selectedAsset.assetType === "node",
   );
 
   const nodeInfo = useMemo(() => {
     if (!context) return null;
     const { node, rack, markers } = context;
-    const meta = node.metadata as unknown as DiscoveredNodeMetadata;
-    const metaDisc = meta?.discoveredNode;
-
-    const ipAddr =
-      node.managementIp || metaDisc?.hardware?.primaryIpv4 || "N/A";
-    const macAddr = metaDisc?.hardware?.macAddress || "N/A";
-    const serialNum =
-      node.serialNumber || metaDisc?.hardware?.hardwareSerial || "N/A";
-    const vendorName = node.vendor || metaDisc?.hardware?.vendor || "GENERIC";
-    const modelName = node.model || metaDisc?.hardware?.model || "GENERIC";
-    const osProduct = metaDisc?.hardware?.osProduct || "N/A";
-    const cpuCount = metaDisc?.hardware?.logicalCpuCount || 0;
-    const cpuArch = metaDisc?.hardware?.cpuArchitecture || "N/A";
+    const nodeMetaData = node.metadata
+      ?.discoveredNode as unknown as DiscoveredNodeEntity;
 
     return {
+      // business & coordinates
       id: node.id,
       nodeCode: node.nodeCode,
       displayName: node.displayName || node.nodeCode,
       hostname: node.hostname || "N/A",
       nodeType: node.nodeType || "Server",
-      source: node.source || metaDisc?.source || "N/A",
+      source: node.source || nodeMetaData?.source || "N/A",
       lifecycleState: node.lifecycleState,
       assignmentState: node.assignmentState,
       notes: node.notes || "No notes available",
+      // position location (belong to rack)
       rackId: rack?.id || "N/A",
       positionCode: node.positionCode || "N/A",
-      siteCode: rack?.siteCode || "Unassigned Site",
-      roomCode: rack?.roomCode || "Unknown Room",
-      rowCode: rack?.rowCode || "Unknown Row",
-      rackPositionCode: rack?.positionCode || "Unknown Position",
-      ip: ipAddr,
-      mac: macAddr,
-      serial: serialNum,
-      vendor: vendorName,
-      model: modelName,
-      os: osProduct,
-      cpus: cpuCount,
-      arch: cpuArch,
+      siteCode: rack?.siteCode || "Unassigned",
+      roomCode: rack?.roomCode || "Unassigned",
+      rowCode: rack?.rowCode || "Unassigned",
+      rackPositionCode: rack?.positionCode || "Unassigned",
+      // Node hardware
+      ip: node.managementIp || nodeMetaData?.hardware?.primaryIpv4 || "N/A",
+      mac: nodeMetaData?.hardware?.macAddress || "N/A",
+      serial:
+        node.serialNumber || nodeMetaData?.hardware?.hardwareSerial || "N/A",
+      vendor: node.vendor || nodeMetaData?.hardware?.vendor || "GENERIC",
+      model: node.model || nodeMetaData?.hardware?.model || "GENERIC",
+      os: nodeMetaData?.hardware?.osProduct || "N/A",
+      cpus: nodeMetaData?.hardware?.logicalCpuCount || "N/A",
+      arch: nodeMetaData?.hardware?.cpuArchitecture || "N/A",
+      // AR markers
       markers: markers || [],
     };
   }, [context]);
@@ -112,7 +95,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
               <div className="label-mono text-[10px] text-cyan-ice uppercase tracking-wider">
                 NODE DETAIL PROFILE
               </div>
-              <div className="title-display mt-1 text-lg text-foreground truncate max-w-[280px]">
+              <div className="title-display mt-1 text-lg text-foreground truncate max-w-70">
                 {nodeInfo.displayName}
               </div>
               <div className="flex items-center gap-1.5">
@@ -125,12 +108,37 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
                 />
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="rounded p-1 hover:bg-white/5 cursor-pointer"
-            >
-              <X className="size-4 text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() =>
+                  setLifecycleModalState({
+                    entityType: "node",
+                    entityId: nodeInfo.id,
+                    action:
+                      nodeInfo.lifecycleState === "ACTIVE"
+                        ? "retire"
+                        : "activate",
+                    displayName: nodeInfo.displayName,
+                  })
+                }
+                className="rounded p-1 hover:bg-white/5 cursor-pointer text-muted-foreground hover:text-red-400 transition"
+                title={
+                  nodeInfo.lifecycleState === "ACTIVE"
+                    ? "Retire Node"
+                    : "Activate Node"
+                }
+              >
+                <Power
+                  className={`size-4 ${nodeInfo.lifecycleState === "ACTIVE" ? "text-red-400" : "text-emerald-400"}`}
+                />
+              </button>
+              <button
+                onClick={onClose}
+                className="rounded p-1 hover:bg-white/5 cursor-pointer"
+              >
+                <X className="size-4 text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Section 1: Business & Coordinates */}
@@ -207,7 +215,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
               mono
             />
 
-            {/* state */}
+            {/* node state */}
             <div className="grid grid-cols-2 gap-3">
               <Stat
                 label="LIFECYCLE STATE"
@@ -288,6 +296,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
               </div>
             </div>
 
+            {/* CPU Information */}
             <div className="grid grid-cols-2 gap-3">
               <Stat
                 icon={<CpuIcon className="size-3.5 text-purple" />}
@@ -296,7 +305,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
                 mono
               />
               <Stat
-              icon={<CpuIcon className="size-3.5 text-purple" />}
+                icon={<CpuIcon className="size-3.5 text-purple" />}
                 label="CPU LOGICAL CORES"
                 value={nodeInfo.cpus.toString()}
                 mono
@@ -371,7 +380,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
 
               {nodeInfo.markers.length === 0 && (
                 <div className="text-center font-mono text-[11px] text-muted-foreground/55 py-6 border border-[#25304A]/25 border-dashed rounded-lg flex flex-col items-center gap-2">
-                  <AlertSquareIcon className="size-4 text-amber/60" />
+                  <AlertTriangle className="size-4 text-amber/60" />
                   <span>NO ACTIVE SPATIAL MARKERS ATTACHED</span>
                 </div>
               )}
@@ -380,24 +389,5 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-function AlertSquareIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="18" height="18" x="3" y="3" rx="2" />
-      <line x1="12" x2="12" y1="8" y2="12" />
-      <line x1="12" x2="12.01" y1="16" y2="16" />
-    </svg>
   );
 }

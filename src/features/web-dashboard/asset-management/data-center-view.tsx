@@ -7,15 +7,23 @@ import {
   ReactZoomPanPinchRef,
 } from "react-zoom-pan-pinch";
 import { ZoomIn, ZoomOut, RotateCcw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { RackTopologyResult } from "@/types/assets";
 import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
+import { useUpdateRackMutation } from "@/hooks/asset/use-asset-mutations";
 import { useAssetStore } from "./hooks/useAssetStore";
 import { RackCard } from "./components/rack-card";
 import { CanvasBtn } from "@/components/common/canvas-btn";
 import { parseCoordinate } from "./lib/utils/parse-coordinate";
-import { SiteDetailPanel } from "./components/site-detail-panel";
-import { RackDetailPanel } from "./components/rack-detail-panel";
-import { NodeDetailPanel } from "./components/node-detail-panel";
+import { SiteDetailPanel } from "./components/panel/site-detail-panel";
+import { RackDetailPanel } from "./components/panel/rack-detail-panel";
+import { NodeDetailPanel } from "./components/panel/node-detail-panel";
+
+// Import mutation modals
+import CreateEditRackModal from "./components/modal/create-edit-rack-modal";
+import ConfirmRetireModal from "./components/modal/confirm-activate-retire-modal";
+import AssignUnmapNodeModal from "./components/modal/select-node-slot-modal";
+import ConfirmMoveAsset from "./components/modal/confirm-move-asset-modal";
 
 export function TopologyPage() {
   const {
@@ -28,15 +36,24 @@ export function TopologyPage() {
   const {
     selectedSiteCode,
     selectedRoomCode,
-    selectedRackId,
-    selectedNodeId,
+    selectedAsset,
     searchQuery,
-    setSelectedRackId,
-    setSelectedNodeId,
+    setSelectedAsset,
     activePanelType,
-    setIsUnmappedDrawerOpen,
     setActivePanelType,
+
+    // DND state
+    draggedAsset,
+    setDraggedAsset,
+    dragOverGridCell,
+    setDragOverGridCell,
+
+    // Modal state controllers
+    createEditRackModal,
+    setConfirmMoveModalState,
   } = useAssetStore();
+
+  const updateRackMutation = useUpdateRackMutation();
 
   const transformComponentRef = useRef<ReactZoomPanPinchRef>(null);
 
@@ -44,38 +61,46 @@ export function TopologyPage() {
   useEffect(() => {
     if (!transformComponentRef.current) return;
 
-    if (selectedNodeId) {
-      const rackWithNode = topology.find((item) =>
-        item.nodes.some((n) => n.id === selectedNodeId),
-      );
-      if (rackWithNode) {
-        setTimeout(() => {
-          transformComponentRef.current?.zoomToElement(
-            `rack-card-${rackWithNode.rack.id}`,
-            1.75,
-            500,
-            "easeOut",
-          );
-        }, 100);
-      }
-    } else if (selectedRackId) {
+    if (selectedAsset?.id) {
       setTimeout(() => {
         transformComponentRef.current?.zoomToElement(
-          `rack-card-${selectedRackId}`,
+          `rack-card-${selectedAsset.id}`,
           1.75,
           500,
           "easeOut",
         );
       }, 100);
     }
-  }, [selectedRackId, selectedNodeId, topology]);
+  }, [selectedAsset, topology]);
 
   const activePanel = useMemo(() => {
-    if (activePanelType === "node" && selectedNodeId) {
-      return <NodeDetailPanel onClose={() => setSelectedNodeId(null)} />;
+    if (
+      activePanelType === "node" &&
+      selectedAsset?.assetType === "node" &&
+      selectedAsset.id
+    ) {
+      return (
+        <NodeDetailPanel
+          onClose={() => {
+            setSelectedAsset(null);
+            setActivePanelType(null);
+          }}
+        />
+      );
     }
-    if (activePanelType === "rack" && selectedRackId) {
-      return <RackDetailPanel onClose={() => setSelectedRackId(null)} />;
+    if (
+      activePanelType === "rack" &&
+      selectedAsset?.assetType === "rack" &&
+      selectedAsset.id
+    ) {
+      return (
+        <RackDetailPanel
+          onClose={() => {
+            setSelectedAsset(null);
+            setActivePanelType(null);
+          }}
+        />
+      );
     }
     if (activePanelType === "site" && selectedSiteCode) {
       return (
@@ -90,11 +115,10 @@ export function TopologyPage() {
     return null;
   }, [
     activePanelType,
-    selectedNodeId,
-    selectedRackId,
+    selectedAsset,
     selectedSiteCode,
-    setSelectedNodeId,
-    setSelectedRackId,
+    setSelectedAsset,
+    setActivePanelType,
   ]);
 
   // Filter topology based on tree selections
@@ -163,6 +187,58 @@ export function TopologyPage() {
     };
   }, [placedRacks]);
 
+  // Handle dropping a rack onto an empty cell
+  const handleRackDrop = (
+    e: React.DragEvent,
+    rowNum: number,
+    colNum: number,
+  ) => {
+    e.preventDefault();
+    if (!draggedAsset || draggedAsset.type !== "rack") return;
+
+    const finalSiteCode =
+      selectedSiteCode || filteredTopology[0]?.rack.siteCode || "UNDEFINED";
+    const finalRoomCode =
+      selectedRoomCode || filteredTopology[0]?.rack.roomCode || "UNDEFINED";
+
+    const targetCoords = {
+      siteCode: finalSiteCode,
+      roomCode: finalRoomCode,
+      rowCode: `ROW-${rowNum}`,
+      positionCode: `P-${colNum}`,
+    };
+
+    setConfirmMoveModalState({
+      assetType: "rack",
+      assetId: null,
+      targetCoords,
+      onConfirm: () => {
+        updateRackMutation.mutate(
+          {
+            rackId: draggedAsset.id,
+            payload: {
+              siteCode: finalSiteCode || "",
+              roomCode: finalRoomCode || "",
+              rowCode: `ROW-${rowNum}`,
+              positionCode: `P-${colNum}`,
+            },
+          },
+          {
+            onSuccess: () => {
+              toast.success("Rack relocated successfully");
+            },
+            onError: (err: Error) => {
+              toast.error(err.message || "Failed to relocate Rack");
+            },
+          },
+        );
+      },
+    });
+
+    setDraggedAsset(null);
+    setDragOverGridCell(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 h-full w-full flex flex-col items-center justify-center gap-3 p-8">
@@ -198,7 +274,9 @@ export function TopologyPage() {
   return (
     <div className="w-full h-full flex-1 min-h-0 flex overflow-hidden rounded-2xl border border-border/10 relative">
       {/* Left/Main Spatial Canvas */}
-      <div className="flex-1 relative min-w-0">
+      <div
+        className={`flex-1 relative min-w-0 transition-all duration-300 ${activePanelType ? "pr-[448px]" : ""}`}
+      >
         <TransformWrapper
           ref={transformComponentRef}
           initialScale={1}
@@ -266,35 +344,47 @@ export function TopologyPage() {
                               <RackCard
                                 key={item.rackTopology.rack.id}
                                 rackResult={item.rackTopology}
-                                selectedRackId={selectedRackId}
-                                selectedNodeId={selectedNodeId}
-                                onNodeSelect={(nodeId) => {
-                                  setSelectedNodeId(nodeId);
-                                  if (nodeId) {
-                                    setIsUnmappedDrawerOpen(false);
-                                    setActivePanelType("node");
-                                  } else {
-                                    setActivePanelType(null);
-                                  }
-                                }}
-                                onRackSelect={(rackId) => {
-                                  setSelectedRackId(rackId);
-                                  if (rackId) {
-                                    setIsUnmappedDrawerOpen(false);
-                                    setActivePanelType("rack");
-                                  } else {
-                                    setActivePanelType(null);
-                                  }
-                                }}
                               />
                             );
                           }
 
                           // Empty Holographic Blueprint Cell
+                          const isCellDragOver =
+                            dragOverGridCell?.row === rowNum &&
+                            dragOverGridCell?.col === colNum;
+
                           return (
                             <div
                               key={`empty-${rowNum}-${colNum}`}
-                              className="border border-dashed border-border/10 bg-background/20 rounded-2xl flex flex-col items-center justify-center p-8 transition-colors hover:bg-white/2"
+                              onDragOver={(e) => {
+                                if (draggedAsset?.type === "rack") {
+                                  e.preventDefault();
+                                  e.dataTransfer.dropEffect = "move";
+                                  if (
+                                    dragOverGridCell?.row !== rowNum ||
+                                    dragOverGridCell?.col !== colNum
+                                  ) {
+                                    setDragOverGridCell({
+                                      row: rowNum,
+                                      col: colNum,
+                                    });
+                                  }
+                                }
+                              }}
+                              onDragLeave={() => {
+                                if (
+                                  dragOverGridCell?.row === rowNum &&
+                                  dragOverGridCell?.col === colNum
+                                ) {
+                                  setDragOverGridCell(null);
+                                }
+                              }}
+                              onDrop={(e) => handleRackDrop(e, rowNum, colNum)}
+                              className={`border rounded-2xl flex flex-col items-center justify-center p-8 transition-colors select-none ${
+                                isCellDragOver
+                                  ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)] border-solid"
+                                  : "border-dashed border-border/10 bg-background/20 hover:bg-white/2"
+                              }`}
                             >
                               <div className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-widest">
                                 FREE SPACE
@@ -336,6 +426,18 @@ export function TopologyPage() {
 
       {/* Right details panel overlay */}
       {activePanel}
+
+      {/* Mounting Modals */}
+      <CreateEditRackModal
+        key={
+          createEditRackModal?.isOpen
+            ? createEditRackModal?.rackId || "new"
+            : "closed"
+        }
+      />
+      <ConfirmRetireModal />
+      <AssignUnmapNodeModal />
+      <ConfirmMoveAsset />
     </div>
   );
 }

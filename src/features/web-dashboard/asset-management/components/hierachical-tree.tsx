@@ -3,10 +3,10 @@
 import { useMemo, useState, useEffect } from "react";
 import {
   useTopologyTreeQuery,
-  useDiscoveredNodesQuery,
-  useUnassignedNodesQuery,
+  usePendingAssignmentNodesQuery,
 } from "@/hooks/asset/use-asset-queries";
 import { useAssetStore } from "../hooks/useAssetStore";
+import { matchesPendingAssignmentNode } from "../lib/utils/pending-assignment";
 import {
   ChevronRight,
   ChevronDown,
@@ -36,18 +36,16 @@ interface SiteGroup {
 
 export default function HierarchicalTreeSidebar() {
   const { data: topology, isLoading, isError } = useTopologyTreeQuery();
-  const { data: discoveredNodes = [] } = useDiscoveredNodesQuery();
-  const { data: unassignedNodes = [] } = useUnassignedNodesQuery();
+  const { data: pendingAssignmentNodes = [] } = usePendingAssignmentNodesQuery();
 
   const {
     selectedSiteCode,
     selectedRoomCode,
-    selectedRackId,
+    selectedAsset,
     searchQuery,
     setSelectedSiteCode,
     setSelectedRoomCode,
-    setSelectedRackId,
-    setSelectedNodeId,
+    setSelectedAsset,
     setSearchQuery,
     setTopologyData,
     setLoadingState,
@@ -119,11 +117,13 @@ export default function HierarchicalTreeSidebar() {
         );
 
         if (matchedNode) {
-          setSelectedNodeId(matchedNode.id);
-          setSelectedRackId(matchedAssigned.rack.id);
+          setSelectedAsset({ id: matchedNode.id, assetType: "node" });
+          setSelectedAsset({ id: matchedAssigned.rack.id, assetType: "rack" });
+          setActivePanelType("node");
         } else {
-          setSelectedRackId(matchedAssigned.rack.id);
-          setSelectedNodeId(null);
+          setSelectedAsset({ id: matchedAssigned.rack.id, assetType: "rack" });
+          setSelectedAsset(null);
+          setActivePanelType("rack");
         }
 
         setIsUnmappedDrawerOpen(false);
@@ -131,48 +131,22 @@ export default function HierarchicalTreeSidebar() {
       }
     }
 
-    // 2. Search in UNASSIGNED Nodes inside drawer
-    if (unassignedNodes) {
-      const matchedUnassigned = unassignedNodes.find(
-        (node) =>
-          node.nodeCode.toLowerCase().includes(q) ||
-          (node.displayName && node.displayName.toLowerCase().includes(q)) ||
-          (node.managementIp && node.managementIp.toLowerCase().includes(q)),
-      );
+    // 2. Search in pending-assignment nodes inside drawer
+    const matchedPendingNode = pendingAssignmentNodes.find((node) =>
+      matchesPendingAssignmentNode(node, q),
+    );
 
-      if (matchedUnassigned) {
-        setSelectedSiteCode(null);
-        setSelectedRoomCode(null);
-        setSelectedRackId(null);
-        setSelectedNodeId(matchedUnassigned.id);
-        setIsUnmappedDrawerOpen(true);
-        setActivePanelType(null); // Drawer items should not open detail panel
-        return;
-      }
+    if (matchedPendingNode) {
+      setSelectedSiteCode(null);
+      setSelectedRoomCode(null);
+      setSelectedAsset(null);
+      setSelectedAsset({ id: matchedPendingNode.nodeCode, assetType: "node" });
+      setIsUnmappedDrawerOpen(true);
+      setActivePanelType(null); // Drawer items should not open detail panel
+      return;
     }
 
-    // 3. Search in DISCOVERED Nodes inside drawer
-    if (discoveredNodes) {
-      const matchedDiscovered = discoveredNodes.find(
-        (node) =>
-          node.agentId.toLowerCase().includes(q) ||
-          (node.hostname && node.hostname.toLowerCase().includes(q)) ||
-          (node.hardware?.primaryIpv4 &&
-            node.hardware.primaryIpv4.toLowerCase().includes(q)),
-      );
-
-      if (matchedDiscovered) {
-        setSelectedSiteCode(null);
-        setSelectedRoomCode(null);
-        setSelectedRackId(null);
-        setSelectedNodeId(matchedDiscovered.agentId);
-        setIsUnmappedDrawerOpen(true);
-        setActivePanelType(null); // Drawer items should not open detail panel
-        return;
-      }
-    }
-
-    // 4. Search in UNMAPPED Racks inside drawer
+    // 3. Search in UNMAPPED Racks inside drawer
     if (topology) {
       const matchedUnmapped = topology.find((item) => {
         // Placed check
@@ -193,8 +167,8 @@ export default function HierarchicalTreeSidebar() {
       if (matchedUnmapped) {
         setSelectedSiteCode(null);
         setSelectedRoomCode(null);
-        setSelectedNodeId(null);
-        setSelectedRackId(matchedUnmapped.rack.id);
+        setSelectedAsset(null);
+        setSelectedAsset({ id: matchedUnmapped.rack.id, assetType: "rack" });
         setIsUnmappedDrawerOpen(true);
         setActivePanelType(null); // Drawer items should not open detail panel
         return;
@@ -203,12 +177,10 @@ export default function HierarchicalTreeSidebar() {
   }, [
     searchQuery,
     topology,
-    discoveredNodes,
-    unassignedNodes,
+    pendingAssignmentNodes,
     setSelectedSiteCode,
     setSelectedRoomCode,
-    setSelectedRackId,
-    setSelectedNodeId,
+    setSelectedAsset,
     setIsUnmappedDrawerOpen,
     setActivePanelType,
   ]);
@@ -312,7 +284,7 @@ export default function HierarchicalTreeSidebar() {
   ) => {
     setSelectedSiteCode(siteCode || "");
     setSelectedRoomCode(roomCode || "");
-    setSelectedRackId(rackId);
+    setSelectedAsset({ id: rackId, assetType: "rack" });
     setIsUnmappedDrawerOpen(false);
     setActivePanelType("rack");
   };
@@ -334,7 +306,7 @@ export default function HierarchicalTreeSidebar() {
   const hasSelection =
     selectedSiteCode !== null ||
     selectedRoomCode !== null ||
-    selectedRackId !== null;
+    selectedAsset !== null;
 
   return (
     <div className="panel p-4 space-y-4 h-full flex flex-col overflow-hidden">
@@ -376,7 +348,7 @@ export default function HierarchicalTreeSidebar() {
             const siteActive =
               selectedSiteCode === (site.siteCode || "") &&
               selectedRoomCode === null &&
-              selectedRackId === null;
+              selectedAsset === null;
 
             return (
               <div key={siteKey} className="w-full">
@@ -407,7 +379,7 @@ export default function HierarchicalTreeSidebar() {
                     className={`flex-1 text-left px-2 py-1.5 rounded flex items-center gap-2 min-w-0 transition-colors ${
                       siteActive
                         ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                        : "text-foreground hover:bg-white/[0.03] border border-transparent"
+                        : "text-foreground hover:bg-white/3 border border-transparent"
                     }`}
                   >
                     <MapPin className="size-3.5 text-purple shrink-0" />
@@ -428,7 +400,7 @@ export default function HierarchicalTreeSidebar() {
                       const roomActive =
                         selectedSiteCode === (site.siteCode || "") &&
                         selectedRoomCode === (room.roomCode || "") &&
-                        selectedRackId === null;
+                        selectedAsset === null;
 
                       return (
                         <div key={roomKey} className="w-full">
@@ -465,7 +437,7 @@ export default function HierarchicalTreeSidebar() {
                               className={`flex-1 text-left px-2 py-1 rounded flex items-center gap-2 min-w-0 transition-colors ${
                                 roomActive
                                   ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                  : "text-foreground hover:bg-white/[0.03] border border-transparent"
+                                  : "text-foreground hover:bg-white/3 border border-transparent"
                               }`}
                             >
                               <Layers className="size-3.5 text-cyan-ice shrink-0" />
@@ -479,7 +451,7 @@ export default function HierarchicalTreeSidebar() {
                           {roomOpen && (
                             <div className="ml-8 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
                               {room.racks.map((rack) => {
-                                const rackActive = selectedRackId === rack.id;
+                                const rackActive = selectedAsset?.id === rack.id && selectedAsset?.assetType === "rack";
 
                                 return (
                                   <button
@@ -503,7 +475,7 @@ export default function HierarchicalTreeSidebar() {
                                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-colors ${
                                       rackActive
                                         ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                        : "text-foreground/70 hover:bg-white/[0.03] hover:text-foreground border border-transparent"
+                                        : "text-foreground/70 hover:bg-white/3 hover:text-foreground border border-transparent"
                                     }`}
                                   >
                                     <Server className="size-3.5 text-emerald-400 shrink-0" />

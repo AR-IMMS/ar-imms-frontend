@@ -1,4 +1,3 @@
-import { NodeHealthState } from "@/types/monitoring-node";
 import { NodeAssignmentState, NodeLifecycleState, RackLifecycleState } from "@/types/assets";
 
 export const CAPACITY_COLOR: Record<"AVAILABLE" | "EXPANDING" | "FULL", string> = {
@@ -53,4 +52,4 @@ export const ASSIGNMENT_COLOR_TEXT: Record<NodeAssignmentState, string> = {
   UNASSIGNED: "text-critical",
   ASSIGNED: "text-neon-green",
   MOVED: "text-amber",
-};
+};   

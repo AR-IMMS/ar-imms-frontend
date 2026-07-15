@@ -22,13 +22,17 @@ export const queryKeys = {
   },
   asset: {
     all: ["asset"] as const,
-    topologyTree: () => ["asset", "topology", "tree"] as const,
-    rackTopology: (rackId: string) => ["asset", "topology", "rack", rackId] as const,
-    nodeContext: (nodeId: string) => ["asset", "node", "context", nodeId] as const,
+    topologyTree: () => ["asset", "topology"] as const,
+    rackTopology: (rackId: string) =>
+      ["asset", "topology", "rack", rackId] as const,
+    nodeContext: (nodeId: string) =>
+      ["asset", "node", "context", nodeId] as const,
     assetByCode: (code: string) => ["asset", "detail", "code", code] as const,
-    resolveMarker: (markerCode: string) => ["asset", "marker", "resolve", markerCode] as const,
-    search: (params?: { q?: string; type?: string }) => ["asset", "search", params ?? {}] as const,
-    discoveredNodes: () => ["asset", "discovered-nodes"] as const,
-    unassignedNodes: () => ["asset", "unassigned-nodes"] as const,
+    resolveMarker: (markerCode: string) =>
+      ["asset", "marker", "resolve", markerCode] as const,
+    search: (params?: { q?: string; type?: string }) =>
+      ["asset", "search", params ?? {}] as const,
+    pendingAssignmentNodes: () =>
+      ["asset", "pending-assignment-nodes"] as const,
   },
 } as const;

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { X, Network, Server, Cpu, Store } from "lucide-react";
-import { useAssetStore } from "../hooks/useAssetStore";
+import { useAssetStore } from "../../hooks/useAssetStore";
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
 

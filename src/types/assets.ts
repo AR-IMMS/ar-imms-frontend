@@ -1,17 +1,4 @@
-import { NodeRuntimeSnapshotEntity } from "./monitoring-node";
-
-export type DC = {
-  id: string;
-  name: string;
-  region: string;
-  racks: RackEntity[];
-};
-
-// --- Asset Service Microservice Types & Enums ---
-
 export type AssetType = "rack" | "node" | "marker";
-
-export type MarkerTargetType = "rack" | "node";
 
 export type RackLifecycleState =
   | "CREATED"
@@ -30,6 +17,10 @@ export type NodeLifecycleState =
   | "RETIRED";
 
 export type NodeAssignmentState = "UNASSIGNED" | "ASSIGNED" | "MOVED";
+
+export type PendingAssignmentNodeOrigin = "mongo" | "redis";
+
+export type MarkerTargetType = "rack" | "node";
 
 export type MarkerLifecycleState =
   | "DRAFT"
@@ -111,11 +102,25 @@ export interface DiscoveredNodeEntity {
   source?: string;
   lifecycleState: NodeLifecycleState;
   assignmentState: NodeAssignmentState;
-  logicalRackId?: string;
-  siteCode?: string;
   hardware: DiscoveredNodeHardwareEntity;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  siteCode?: string;
+  logicalRackId?: string | null;
+}
+
+export interface PendingAssignmentNodeView {
+  nodeCode: string;
+  displayName: string;
+  hostname: string;
+  nodeType: string;
+  source: string;
+  lifecycleState: NodeLifecycleState;
+  assignmentState: NodeAssignmentState;
+  origin: PendingAssignmentNodeOrigin;
+  discoveredNode?: DiscoveredNodeEntity;
+  siteCode?: string;
+  logicalRackId?: string | null;
 }
 
 export interface AssetSummary {
@@ -129,24 +134,12 @@ export interface AssetSummary {
 export interface RackTopologyResult {
   rack: RackEntity;
   nodes: NodeEntity[];
-  nodeRuntimeSnapshots: NodeRuntimeSnapshotEntity[];
 }
 
 export interface NodeContextResult {
   node: NodeEntity;
   rack?: RackEntity;
-  runtimeSnapshot?: NodeRuntimeSnapshotEntity;
   markers: MarkerEntity[];
-  topologyPath: { rackId?: string; rackCode?: string };
-  externalContext: { workloadSource: "monitoring-service-or-bff" };
-}
-
-export interface MarkerResolutionResult {
-  marker: MarkerEntity;
-  target: AssetSummary;
-  rack?: RackEntity;
-  node?: NodeEntity;
-  runtimeSnapshot?: NodeRuntimeSnapshotEntity;
   topologyPath: { rackId?: string; rackCode?: string };
   externalContext: { workloadSource: "monitoring-service-or-bff" };
 }
@@ -178,22 +171,9 @@ export interface UpdateRackRequestDto {
   metadata?: Record<string, unknown>;
 }
 
-export interface NormalizeNodeRequestDto {
-  nodeCode: string;
-  displayName: string;
-  source: string;
-  hostname?: string;
-  nodeType?: string;
-  serialNumber?: string;
-  vendor?: string;
-  model?: string;
-  managementIp?: string;
-  notes?: string;
-  metadata?: Record<string, unknown>;
-}
-
 export interface UpdateNodeRequestDto {
   nodeCode?: string;
+  rackId?: string;
   displayName?: string;
   source?: string;
   hostname?: string;
@@ -213,27 +193,37 @@ export interface AssignNodeToRackRequestDto {
   allowDraining?: boolean;
 }
 
-export interface CreateMarkerRequestDto {
-  markerCode: string;
-  displayLabel?: string;
-  targetType?: MarkerTargetType;
-  targetId?: string;
-  imageTargetId?: string;
-  worldTrackingEnabled?: boolean;
-  notes?: string;
-  metadata?: Record<string, unknown>;
-}
+// export interface MarkerResolutionResult {
+//   marker: MarkerEntity;
+//   target: AssetSummary;
+//   rack?: RackEntity;
+//   node?: NodeEntity;
+//   runtimeSnapshot?: NodeRuntimeSnapshotEntity;
+//   topologyPath: { rackId?: string; rackCode?: string };
+//   externalContext: { workloadSource: "monitoring-service-or-bff" };
+// }
 
-export interface UpdateMarkerRequestDto {
-  markerCode?: string;
-  displayLabel?: string;
-  imageTargetId?: string;
-  worldTrackingEnabled?: boolean;
-  notes?: string;
-  metadata?: Record<string, unknown>;
-}
+// export interface CreateMarkerRequestDto {
+//   markerCode: string;
+//   displayLabel?: string;
+//   targetType?: MarkerTargetType;
+//   targetId?: string;
+//   imageTargetId?: string;
+//   worldTrackingEnabled?: boolean;
+//   notes?: string;
+//   metadata?: Record<string, unknown>;
+// }
 
-export interface RemapMarkerTargetRequestDto {
-  targetType: MarkerTargetType;
-  targetId: string;
-}
+// export interface UpdateMarkerRequestDto {
+//   markerCode?: string;
+//   displayLabel?: string;
+//   imageTargetId?: string;
+//   worldTrackingEnabled?: boolean;
+//   notes?: string;
+//   metadata?: Record<string, unknown>;
+// }
+
+// export interface RemapMarkerTargetRequestDto {
+//   targetType: MarkerTargetType;
+//   targetId: string;
+// }

@@ -3,17 +3,19 @@
 import Header from "@/components/layout/web-dashboard/header";
 import BulkMarkerExport from "@/features/web-dashboard/asset-management/bulk-marker-export";
 import HierarchicalTreeSidebar from "@/features/web-dashboard/asset-management/components/hierachical-tree";
-import { UnmappedAssetsDrawer } from "@/features/web-dashboard/asset-management/components/unmapped-asset-drawer";
+import { UnmappedAssetsDrawer } from "@/features/web-dashboard/asset-management/unmapped-asset-drawer";
 import { QrCode, Plus } from "lucide-react";
 import { ReactNode, useState } from "react";
+import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
 
 export default function AssetManagementLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [registerOpen, setRegisterOpen] = useState(false);
+  const { createEditRackModal, setCreateEditRackModal } = useAssetStore();
   const [exportOpen, setExportOpen] = useState(false);
+  const registerOpen = !!createEditRackModal?.isOpen;
 
   return (
     <div className="flex flex-col gap-4 flex-1 min-h-0 w-full overflow-hidden">
@@ -26,13 +28,14 @@ export default function AssetManagementLayout({
             <>
               <button
                 onClick={() => setExportOpen(true)}
-                disabled={registerOpen}
+                // disabled={registerOpen}
+                disabled={true}
                 className="glass rounded-lg px-3 py-2 text-xs label-mono text-cyan-ice hover:border-cyan/50 transition inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <QrCode className="size-3.5" /> Bulk Marker Export
               </button>
               <button
-                onClick={() => setRegisterOpen(true)}
+                onClick={() => setCreateEditRackModal({ isOpen: true })}
                 disabled={exportOpen}
                 className="rounded-lg px-3 py-2 text-xs label-mono bg-gradient-to-r from-cyan to-electric text-primary-foreground hover:shadow-[0_0_20px_rgba(0,209,255,0.4)] transition inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -55,7 +58,6 @@ export default function AssetManagementLayout({
         <UnmappedAssetsDrawer />
       </div>
 
-      {/* {registerOpen && <RegisterRackModal onClose={() => setRegisterOpen(false)} />} */}
       {exportOpen && <BulkMarkerExport onClose={() => setExportOpen(false)} />}
     </div>
   );

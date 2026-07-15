@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { X, AlertTriangle, Cpu, StoreIcon } from "lucide-react";
-import { useAssetStore } from "../hooks/useAssetStore";
-import { CAPACITY_COLOR, LIFECYCLE_COLOR } from "../lib/constant";
+import { X, AlertTriangle, Cpu, StoreIcon, Edit, Power } from "lucide-react";
+import { useAssetStore } from "../../hooks/useAssetStore";
+import { CAPACITY_COLOR, LIFECYCLE_COLOR } from "../../lib/constant";
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
 
@@ -12,12 +12,21 @@ interface RackDetailPanelProps {
 }
 
 export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
-  const { selectedRackId, topologyData, setSelectedNodeId } = useAssetStore();
+  const {
+    selectedAsset,
+    topologyData,
+    setSelectedAsset,
+    setCreateEditRackModal,
+    setLifecycleModalState,
+    setDraggedAsset,
+    setDragOverGridCell,
+    setDragOverRackId,
+  } = useAssetStore();
 
   const rackTopology = useMemo(() => {
-    if (!selectedRackId) return null;
-    return topologyData.find((item) => item.rack.id === selectedRackId);
-  }, [topologyData, selectedRackId]);
+    if (!selectedAsset || selectedAsset.assetType !== "rack") return null;
+    return topologyData.find((item) => item.rack.id === selectedAsset.id);
+  }, [topologyData, selectedAsset]);
 
   const unmappedNodes = useMemo(() => {
     if (!rackTopology?.nodes) return [];
@@ -27,6 +36,8 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
   if (!rackTopology) return null;
 
   const { rack, nodes } = rackTopology;
+
+  // #region - render section
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
@@ -38,7 +49,7 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
               <div className="label-mono text-[10px] text-cyan-ice uppercase tracking-wider">
                 RACK DETAIL PROFILE
               </div>
-              <div className="title-display mt-1 text-lg text-foreground truncate max-w-[280px]">
+              <div className="title-display mt-1 text-lg text-foreground truncate max-w-70">
                 {rack.displayName || rack.rackCode}
               </div>
               <div className="flex items-center gap-1.5">
@@ -51,15 +62,47 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
                 />
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="rounded p-1 hover:bg-white/5 cursor-pointer"
-            >
-              <X className="size-4 text-muted-foreground" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() =>
+                  setCreateEditRackModal({ isOpen: true, rackId: rack.id })
+                }
+                className="rounded p-1 hover:bg-white/5 cursor-pointer text-muted-foreground hover:text-cyan transition"
+                title="Edit Cabinet"
+              >
+                <Edit className="size-4" />
+              </button>
+              <button
+                onClick={() =>
+                  setLifecycleModalState({
+                    entityType: "rack",
+                    entityId: rack.id,
+                    action:
+                      rack.lifecycleState === "ACTIVE" ? "retire" : "activate",
+                    displayName: rack.displayName || rack.rackCode,
+                  })
+                }
+                className="rounded p-1 hover:bg-white/5 cursor-pointer text-muted-foreground hover:text-red-400 transition"
+                title={
+                  rack.lifecycleState === "ACTIVE"
+                    ? "Retire Cabinet"
+                    : "Activate Cabinet"
+                }
+              >
+                <Power
+                  className={`size-4 ${rack.lifecycleState === "ACTIVE" ? "text-red-400" : "text-emerald-400"}`}
+                />
+              </button>
+              <button
+                onClick={onClose}
+                className="rounded p-1 hover:bg-white/5 cursor-pointer"
+              >
+                <X className="size-4 text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
-          {/* Business information */}
+          {/* Physical Information */}
           <div className="panel p-3 space-y-3 flex flex-col">
             <div className="font-bold text-xs text-cyan-ice uppercase py-2">
               PHYSICAL INFORMATION
@@ -188,8 +231,27 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
               {unmappedNodes.map((node) => (
                 <button
                   key={node.id}
-                  onClick={() => setSelectedNodeId(node.id)}
-                  className="w-full flex items-center justify-between panel p-3 font-mono text-xs hover:border-cyan hover:bg-cyan text-left transition duration-200 cursor-pointer pointer-events-auto"
+                  draggable={true}
+                  onDragStart={(e) => {
+                    setDraggedAsset({
+                      type: "node",
+                      id: node.id,
+                      origin: "canvas",
+                    });
+                    e.dataTransfer.setData(
+                      "application/react-dnd",
+                      JSON.stringify({ type: "node", id: node.id }),
+                    );
+                  }}
+                  onDragEnd={() => {
+                    setDraggedAsset(null);
+                    setDragOverGridCell(null);
+                    setDragOverRackId(null);
+                  }}
+                  onClick={() =>
+                    setSelectedAsset({ id: node.id, assetType: "node" })
+                  }
+                  className="w-full flex items-center justify-between panel p-3 font-mono text-xs hover:border-cyan hover:bg-cyan/5 text-left transition duration-200 cursor-pointer pointer-events-auto active:scale-[0.98]"
                 >
                   <div className="min-w-0 pr-2">
                     <div className="text-foreground/90 font-medium truncate text-sm">
@@ -206,7 +268,7 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
               ))}
 
               {unmappedNodes.length === 0 && (
-                <div className="text-center font-mono text-[9px] text-muted-foreground/45 py-6 bg-white/[0.01] border border-[#25304A]/25 border-dashed rounded-lg">
+                <div className="text-center font-mono text-[9px] text-muted-foreground/45 py-6 bg-white/1 border border-[#25304A]/25 border-dashed rounded-lg">
                   ALL CABINET NODES MAPPED TO AR
                 </div>
               )}
@@ -216,4 +278,6 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
       </div>
     </div>
   );
+
+  // #endregion - render section
 }
