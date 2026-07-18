@@ -35,4 +35,12 @@ export const queryKeys = {
     pendingAssignmentNodes: () =>
       ["asset", "pending-assignment-nodes"] as const,
   },
+  monitoring: {
+    all: ["monitoring"] as const,
+    racks: {
+      all: ["monitoring", "racks"] as const,
+      overview: () => ["monitoring", "racks", "overview"] as const,
+      // state: () => ["monitoring", "racks", "state"] as const,
+    },
+  },
 } as const;

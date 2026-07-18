@@ -79,3 +79,9 @@ export const ASSET_ENDPOINTS = {
   // RETIRE_MARKER: (markerId: string) =>
   //   `/admin/markers/${encodeURIComponent(markerId)}/retire`,
 } as const;
+
+export const MONITORING_ENDPOINTS = {
+  RACKS_OVERVIEW: "/monitoring/racks/overview",
+  RACKS_STATE: "/monitoring/racks/state",
+} as const;
+

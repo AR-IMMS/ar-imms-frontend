@@ -275,9 +275,13 @@ export function TopologyPage() {
     <div className="w-full h-full flex-1 min-h-0 flex overflow-hidden rounded-2xl border border-border/10 relative">
       {/* Left/Main Spatial Canvas */}
       <div
-        className={`flex-1 relative min-w-0 transition-all duration-300 ${activePanelType ? "pr-[448px]" : ""}`}
+        className={`flex-1 relative min-w-0 transition-all duration-300 flex flex-col ${
+          activePanelType ? "pr-[448px]" : ""
+        }`}
       >
-        <TransformWrapper
+
+        <div className="flex-1 min-h-0 relative">
+          <TransformWrapper
           ref={transformComponentRef}
           initialScale={1}
           minScale={0.4}
@@ -422,6 +426,7 @@ export function TopologyPage() {
             </main>
           )}
         </TransformWrapper>
+        </div>
       </div>
 
       {/* Right details panel overlay */}

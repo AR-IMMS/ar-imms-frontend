@@ -7,9 +7,11 @@ import {
 } from "@/hooks/asset/use-asset-queries";
 import { useAssetStore } from "../hooks/useAssetStore";
 import { matchesPendingAssignmentNode } from "../lib/utils/pending-assignment";
+import { useSidebarStore } from "@/stores/sidebar-store";
 import {
   ChevronRight,
   ChevronDown,
+  ChevronLeft,
   Search,
   MapPin,
   Layers,
@@ -37,6 +39,12 @@ interface SiteGroup {
 export default function HierarchicalTreeSidebar() {
   const { data: topology, isLoading, isError } = useTopologyTreeQuery();
   const { data: pendingAssignmentNodes = [] } = usePendingAssignmentNodesQuery();
+
+  const {
+    isTopologyTreeCollapsed,
+    toggleTopologyTree,
+    setTopologyTreeCollapsed,
+  } = useSidebarStore();
 
   const {
     selectedSiteCode,
@@ -217,7 +225,9 @@ export default function HierarchicalTreeSidebar() {
       const sCode = item.rack.siteCode ? item.rack.siteCode.trim() : "";
       const rCode = item.rack.roomCode ? item.rack.roomCode.trim() : "";
 
-      // Fallbacks
+      // Fallbacks - Skip racks with no site and no room
+      if (!sCode && !rCode) return;
+
       const siteKey = sCode || "unassigned-site";
       const roomKey = rCode || "unknown-room";
 
@@ -261,6 +271,13 @@ export default function HierarchicalTreeSidebar() {
 
   // Selection handlers
   const handleSiteClick = (siteCode: string, siteKey: string) => {
+    if (selectedSiteCode === siteCode) {
+      setSelectedSiteCode(null);
+      setSelectedRoomCode(null);
+      setSelectedAsset(null);
+      setActivePanelType(null);
+      return;
+    }
     setSelectedSiteCode(siteCode || "");
     setIsUnmappedDrawerOpen(false);
     if (!openSites[siteKey]) toggleSite(siteKey);
@@ -271,6 +288,12 @@ export default function HierarchicalTreeSidebar() {
     roomCode: string,
     roomKey: string,
   ) => {
+    if (selectedRoomCode === roomCode && selectedSiteCode === siteCode) {
+      setSelectedRoomCode(null);
+      setSelectedAsset(null);
+      setActivePanelType(null);
+      return;
+    }
     setSelectedSiteCode(siteCode || "");
     setSelectedRoomCode(roomCode || "");
     setIsUnmappedDrawerOpen(false);
@@ -282,12 +305,19 @@ export default function HierarchicalTreeSidebar() {
     roomCode: string,
     rackId: string,
   ) => {
+    if (selectedSiteCode === siteCode && selectedRoomCode === roomCode && selectedAsset?.id === rackId) {
+      setSelectedAsset(null);
+      setActivePanelType(null);
+      return;
+    }
     setSelectedSiteCode(siteCode || "");
     setSelectedRoomCode(roomCode || "");
     setSelectedAsset({ id: rackId, assetType: "rack" });
     setIsUnmappedDrawerOpen(false);
     setActivePanelType("rack");
   };
+
+  // #region - render section
 
   if (isLoading) {
     return (
@@ -303,200 +333,213 @@ export default function HierarchicalTreeSidebar() {
     );
   }
 
-  const hasSelection =
-    selectedSiteCode !== null ||
-    selectedRoomCode !== null ||
-    selectedAsset !== null;
-
   return (
-    <div className="panel p-4 space-y-4 h-full flex flex-col overflow-hidden">
-      {/* Search Input */}
-      <div className="flex items-center gap-2 px-2 h-9 rounded-md bg-surface-1 border border-border shrink-0">
-        <Search className="size-3.5 text-muted-foreground" />
-        <input
-          placeholder="Search by code, IP, name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 bg-transparent outline-none text-xs font-mono placeholder:text-muted-foreground/60"
-        />
-      </div>
-
-      <div className="flex items-center justify-between px-1 shrink-0">
-        <div className="label-mono text-[10px] text-muted-foreground">
-          Topology Tree
+    <div className="relative h-full flex flex-col select-none">
+      {/* Sidebar Content Panel */}
+      <div
+        className={`panel p-4 space-y-4 h-full flex flex-col overflow-hidden transition-all duration-300 ${
+          isTopologyTreeCollapsed
+            ? "opacity-0 pointer-events-none scale-95 -translate-x-4"
+            : "opacity-100 scale-100 translate-x-0"
+        }`}
+      >
+        {/* Search Input */}
+        <div className="flex items-center gap-2 px-2 h-9 rounded-md bg-surface-1 border border-border shrink-0">
+          <Search className="size-3.5 text-muted-foreground" />
+          <input
+            placeholder="Search by code, IP, name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-xs font-mono placeholder:text-muted-foreground/60"
+          />
         </div>
-        {hasSelection && (
-          <button
-            onClick={resetFilters}
-            className="text-[9px] font-mono text-cyan-ice hover:text-cyan border-b border-cyan/30 hover:border-cyan transition"
-          >
-            Show All
-          </button>
-        )}
-      </div>
 
-      {/* Group List */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar space-y-1 font-mono text-xs pr-1">
-        {treeData.length === 0 ? (
-          <div className="text-center text-muted-foreground/50 py-8 text-[11px]">
-            No assets match filters
-          </div>
-        ) : (
-          treeData.map((site) => {
-            const siteKey = site.siteCode || "unassigned-site";
-            const siteOpen = searchQuery ? true : !!openSites[siteKey];
-            const siteActive =
-              selectedSiteCode === (site.siteCode || "") &&
-              selectedRoomCode === null &&
-              selectedAsset === null;
+        {/* Group List */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar space-y-1 font-mono text-xs pr-1">
+          {treeData.length === 0 ? (
+            <div className="text-center text-muted-foreground/50 py-8 text-[11px]">
+              No assets match filters
+            </div>
+          ) : (
+            treeData.map((site) => {
+              const siteKey = site.siteCode || "unassigned-site";
+              const siteOpen = searchQuery ? true : !!openSites[siteKey];
+              const siteActive =
+                selectedSiteCode === (site.siteCode || "") &&
+                selectedRoomCode === null &&
+                selectedAsset === null;
 
-            return (
-              <div key={siteKey} className="w-full">
-                {/* Site Node */}
-                <div className="flex items-center w-full min-w-0 group/site">
-                  <button
-                    onClick={() => toggleSite(siteKey)}
-                    className="p-1 shrink-0 text-muted-foreground hover:text-cyan-ice"
-                  >
-                    {siteOpen ? (
-                      <ChevronDown className="size-3" />
-                    ) : (
-                      <ChevronRight className="size-3" />
-                    )}
-                  </button>
+              return (
+                <div key={siteKey} className="w-full">
+                  {/* Site Node */}
+                  <div className="flex items-center w-full min-w-0 group/site">
+                    <button
+                      onClick={() => toggleSite(siteKey)}
+                      className="p-1 shrink-0 text-muted-foreground hover:text-cyan-ice"
+                    >
+                      {siteOpen ? (
+                        <ChevronDown className="size-3" />
+                      ) : (
+                        <ChevronRight className="size-3" />
+                      )}
+                    </button>
 
-                  <button
-                    onClick={() => handleSiteClick(site.siteCode, siteKey)}
-                    ref={
-                      siteActive && searchQuery
-                        ? (el) =>
-                            el?.scrollIntoView({
-                              behavior: "smooth",
-                              block: "nearest",
-                            })
-                        : undefined
-                    }
-                    className={`flex-1 text-left px-2 py-1.5 rounded flex items-center gap-2 min-w-0 transition-colors ${
-                      siteActive
-                        ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                        : "text-foreground hover:bg-white/3 border border-transparent"
-                    }`}
-                  >
-                    <MapPin className="size-3.5 text-purple shrink-0" />
-                    <span className="truncate flex-1 font-semibold">
-                      {site.displayName}
-                    </span>
-                  </button>
-                </div>
-
-                {/* Rooms List */}
-                {siteOpen && (
-                  <div className="ml-2 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
-                    {Object.values(site.rooms).map((room) => {
-                      const roomKey = `${siteKey}/${room.roomCode || "unknown-room"}`;
-                      const roomOpen = searchQuery
-                        ? true
-                        : !!openRooms[roomKey];
-                      const roomActive =
-                        selectedSiteCode === (site.siteCode || "") &&
-                        selectedRoomCode === (room.roomCode || "") &&
-                        selectedAsset === null;
-
-                      return (
-                        <div key={roomKey} className="w-full">
-                          {/* Room Node */}
-                          <div className="flex items-center w-full min-w-0 group/room">
-                            <button
-                              onClick={() => toggleRoom(roomKey)}
-                              className="p-1 shrink-0 text-muted-foreground hover:text-cyan-ice"
-                            >
-                              {roomOpen ? (
-                                <ChevronDown className="size-3" />
-                              ) : (
-                                <ChevronRight className="size-3" />
-                              )}
-                            </button>
-
-                            <button
-                              onClick={() =>
-                                handleRoomClick(
-                                  site.siteCode,
-                                  room.roomCode,
-                                  roomKey,
-                                )
-                              }
-                              ref={
-                                roomActive && searchQuery
-                                  ? (el) =>
-                                      el?.scrollIntoView({
-                                        behavior: "smooth",
-                                        block: "nearest",
-                                      })
-                                  : undefined
-                              }
-                              className={`flex-1 text-left px-2 py-1 rounded flex items-center gap-2 min-w-0 transition-colors ${
-                                roomActive
-                                  ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                  : "text-foreground hover:bg-white/3 border border-transparent"
-                              }`}
-                            >
-                              <Layers className="size-3.5 text-cyan-ice shrink-0" />
-                              <span className="truncate flex-1">
-                                {room.displayName}
-                              </span>
-                            </button>
-                          </div>
-
-                          {/* Racks List */}
-                          {roomOpen && (
-                            <div className="ml-8 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
-                              {room.racks.map((rack) => {
-                                const rackActive = selectedAsset?.id === rack.id && selectedAsset?.assetType === "rack";
-
-                                return (
-                                  <button
-                                    key={rack.id}
-                                    onClick={() =>
-                                      handleRackClick(
-                                        site.siteCode,
-                                        room.roomCode,
-                                        rack.id,
-                                      )
-                                    }
-                                    ref={
-                                      rackActive && searchQuery
-                                        ? (el) =>
-                                            el?.scrollIntoView({
-                                              behavior: "smooth",
-                                              block: "nearest",
-                                            })
-                                        : undefined
-                                    }
-                                    className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-colors ${
-                                      rackActive
-                                        ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                        : "text-foreground/70 hover:bg-white/3 hover:text-foreground border border-transparent"
-                                    }`}
-                                  >
-                                    <Server className="size-3.5 text-emerald-400 shrink-0" />
-                                    <span className="truncate text-[11px] flex-1">
-                                      {rack.displayName}
-                                    </span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    <button
+                      onClick={() => handleSiteClick(site.siteCode, siteKey)}
+                      ref={
+                        siteActive && searchQuery
+                          ? (el) =>
+                              el?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "nearest",
+                              })
+                          : undefined
+                      }
+                      className={`flex-1 text-left px-2 py-1.5 rounded flex items-center gap-2 min-w-0 transition-colors ${
+                        siteActive
+                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                          : "text-foreground hover:bg-white/3 border border-transparent"
+                      }`}
+                    >
+                      <MapPin className="size-3.5 text-purple shrink-0" />
+                      <span className="truncate flex-1 font-semibold">
+                        {site.displayName}
+                      </span>
+                    </button>
                   </div>
-                )}
-              </div>
-            );
-          })
-        )}
+
+                  {/* Rooms List */}
+                  {siteOpen && (
+                    <div className="ml-2 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
+                      {Object.values(site.rooms).map((room) => {
+                        const roomKey = `${siteKey}/${room.roomCode || "unknown-room"}`;
+                        const roomOpen = searchQuery
+                          ? true
+                          : !!openRooms[roomKey];
+                        const roomActive =
+                          selectedSiteCode === (site.siteCode || "") &&
+                          selectedRoomCode === (room.roomCode || "") &&
+                          selectedAsset === null;
+
+                        return (
+                          <div key={roomKey} className="w-full">
+                            {/* Room Node */}
+                            <div className="flex items-center w-full min-w-0 group/room">
+                              <button
+                                onClick={() => toggleRoom(roomKey)}
+                                className="p-1 shrink-0 text-muted-foreground hover:text-cyan-ice"
+                              >
+                                {roomOpen ? (
+                                  <ChevronDown className="size-3" />
+                                ) : (
+                                  <ChevronRight className="size-3" />
+                                )}
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  handleRoomClick(
+                                    site.siteCode,
+                                    room.roomCode,
+                                    roomKey,
+                                  )
+                                }
+                                ref={
+                                  roomActive && searchQuery
+                                    ? (el) =>
+                                        el?.scrollIntoView({
+                                          behavior: "smooth",
+                                          block: "nearest",
+                                        })
+                                    : undefined
+                                }
+                                className={`flex-1 text-left px-2 py-1 rounded flex items-center gap-2 min-w-0 transition-colors ${
+                                  roomActive
+                                    ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                                    : "text-foreground hover:bg-white/3 border border-transparent"
+                                }`}
+                              >
+                                <Layers className="size-3.5 text-cyan-ice shrink-0" />
+                                <span className="truncate flex-1">
+                                  {room.displayName}
+                                </span>
+                              </button>
+                            </div>
+
+                            {/* Racks List */}
+                            {roomOpen && (
+                              <div className="ml-8 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
+                                {room.racks.map((rack) => {
+                                  const rackActive = selectedAsset?.id === rack.id && selectedAsset?.assetType === "rack";
+
+                                  return (
+                                    <button
+                                      key={rack.id}
+                                      onClick={() =>
+                                        handleRackClick(
+                                          site.siteCode,
+                                          room.roomCode,
+                                          rack.id,
+                                        )
+                                      }
+                                      ref={
+                                        rackActive && searchQuery
+                                          ? (el) =>
+                                              el?.scrollIntoView({
+                                                behavior: "smooth",
+                                                block: "nearest",
+                                              })
+                                          : undefined
+                                      }
+                                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-colors ${
+                                        rackActive
+                                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                                          : "text-foreground/70 hover:bg-white/3 hover:text-foreground border border-transparent"
+                                      }`}
+                                    >
+                                      <Server className="size-3.5 text-emerald-400 shrink-0" />
+                                      <span className="truncate text-[11px] flex-1">
+                                        {rack.displayName}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
+
+      {/* Floating Toggle Button centered on the right border line */}
+      <button
+        onClick={toggleTopologyTree}
+        className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 flex items-center justify-center size-6 rounded-full bg-accent border border-accent-foreground/30 text-accent-foreground hover:border-cyan-400 hover:bg-cyan/30 transition duration-200 cursor-pointer"
+        title={isTopologyTreeCollapsed ? "Expand Topology Sidebar" : "Collapse Topology Sidebar"}
+      >
+        {isTopologyTreeCollapsed ? (
+          <ChevronRight className="size-3.5" />
+        ) : (
+          <ChevronLeft className="size-3.5" />
+        )}
+      </button>
+
+      {/* Clickable Micro-Trigger Strip when collapsed */}
+      {isTopologyTreeCollapsed && (
+        <div
+          onClick={() => setTopologyTreeCollapsed(false)}
+          className="absolute inset-y-0 right-0 w-4"
+        />
+      )}
     </div>
   );
+
+  // #rendegion - render section
 }

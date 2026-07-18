@@ -12,7 +12,8 @@ export interface ErrorResponse {
 
 export interface MetaResponse {
   timestamp: string;
-  correlationId: string;
+  requestId?: string;
+  correlationId?: string;
   version: string;
 }
 
