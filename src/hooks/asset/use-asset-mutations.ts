@@ -178,11 +178,11 @@ export function useAssignNodeMutation() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.asset.pendingAssignmentNodes(),
       });
-      // if (updatedNode.rackId) {
-      //   queryClient.invalidateQueries({
-      //     queryKey: queryKeys.asset.rackTopology(updatedNode.rackId),
-      //   });
-      // }
+      if (updatedNode.rackId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.asset.rackTopology(updatedNode.rackId),
+        });
+      }
     },
   });
 }

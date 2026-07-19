@@ -62,12 +62,30 @@ export function TopologyPage() {
     if (!transformComponentRef.current) return;
 
     if (selectedAsset?.id) {
+      if (selectedAsset.assetType === "node") {
+        const node = topology
+          .flatMap((item) => item.nodes)
+          .find((n) => n.id === selectedAsset.id);
+        if (node && node.rackId) {
+          transformComponentRef.current?.zoomToElement(
+            `rack-card-${node.rackId}`,
+            1.75,
+            500,
+            "easeOut",
+            0,
+            -125,
+          );
+        }
+        return;
+      }
       setTimeout(() => {
         transformComponentRef.current?.zoomToElement(
           `rack-card-${selectedAsset.id}`,
           1.75,
           500,
           "easeOut",
+          0,
+          -125,
         );
       }, 100);
     }
@@ -263,7 +281,7 @@ export function TopologyPage() {
         </div>
         <button
           onClick={() => refetch()}
-          className="px-4 py-2 bg-white/5 border border-border border-critical/40 rounded-lg text-xs label-mono text-foreground hover:border-critical/70 transition cursor-pointer"
+          className="px-4 py-2 bg-white/5 border border-critical/40 rounded-lg text-xs label-mono text-foreground hover:border-critical/70 transition cursor-pointer"
         >
           Retry Loading
         </button>
@@ -279,153 +297,154 @@ export function TopologyPage() {
           activePanelType ? "pr-[448px]" : ""
         }`}
       >
-
         <div className="flex-1 min-h-0 relative">
           <TransformWrapper
-          ref={transformComponentRef}
-          initialScale={1}
-          minScale={0.4}
-          maxScale={2.0}
-          centerOnInit={false}
-          limitToBounds={false}
-          doubleClick={{ disabled: true }}
-        >
-          {({ zoomIn, zoomOut, resetTransform }) => (
-            <main className="flex-1 relative overflow-hidden select-none outline-none cursor-grab active:cursor-grabbing w-full h-full">
-              <TransformComponent
-                wrapperStyle={{
-                  width: "100%",
-                  height: "100%",
-                  overflow: "hidden",
-                }}
-                contentStyle={{ width: "auto", height: "auto" }}
-              >
-                {/* Viewport content */}
-                <div
-                  className="p-24 origin-center"
-                  style={{
-                    display: "grid",
-                    gridTemplateRows: `auto repeat(${maxRow}, minmax(380px, auto))`,
-                    gridTemplateColumns: `auto repeat(${maxCol}, minmax(180px, auto))`,
-                    gap: "1.5rem",
+            ref={transformComponentRef}
+            initialScale={1}
+            minScale={0.4}
+            maxScale={2.0}
+            centerOnInit={false}
+            limitToBounds={false}
+            doubleClick={{ disabled: true }}
+          >
+            {({ zoomIn, zoomOut, resetTransform }) => (
+              <main className="flex-1 relative overflow-hidden select-none outline-none cursor-grab active:cursor-grabbing w-full h-full">
+                <TransformComponent
+                  wrapperStyle={{
+                    width: "100%",
+                    height: "100%",
+                    overflow: "hidden",
                   }}
+                  contentStyle={{ width: "auto", height: "auto" }}
                 >
-                  {/* Intersection Cell (0,0) */}
-                  <div className="size-12"></div>
+                  {/* Viewport content */}
+                  <div
+                    className="p-24 origin-center"
+                    style={{
+                      display: "grid",
+                      gridTemplateRows: `auto repeat(${maxRow}, minmax(380px, auto))`,
+                      gridTemplateColumns: `auto repeat(${maxCol}, minmax(180px, auto))`,
+                      gap: "1.5rem",
+                    }}
+                  >
+                    {/* Intersection Cell (0,0) */}
+                    <div className="size-12"></div>
 
-                  {/* Column Coordinates Row */}
-                  {Array.from({ length: maxCol }).map((_, cIdx) => (
-                    <div
-                      key={`col-head-${cIdx}`}
-                      className="flex items-center justify-center font-mono text-[10px] text-cyan-ice/50 bg-background/50 border border-border/20 rounded px-4 py-2 select-none tracking-widest"
-                    >
-                      POS {cIdx + 1}
-                    </div>
-                  ))}
-
-                  {/* Rows */}
-                  {Array.from({ length: maxRow }).map((_, rIdx) => {
-                    const rowNum = rIdx + 1;
-                    return (
+                    {/* Column Coordinates Row */}
+                    {Array.from({ length: maxCol }).map((_, cIdx) => (
                       <div
-                        key={`row-wrap-${rIdx}`}
-                        style={{ display: "contents" }}
+                        key={`col-head-${cIdx}`}
+                        className="flex items-center justify-center font-mono text-[10px] text-cyan-ice/50 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded px-4 py-2 select-none tracking-widest"
                       >
-                        {/* Row Coordinator Label (Col 0) */}
-                        <div className="flex items-center justify-end font-mono text-[10px] text-cyan-ice/70 bg-background/50 border border-border/20 rounded pr-4 pl-6 select-none tracking-widest">
-                          ROW {rowNum}
-                        </div>
-
-                        {/* Cells inside Row */}
-                        {Array.from({ length: maxCol }).map((_, cIdx) => {
-                          const colNum = cIdx + 1;
-                          const item = placedRacks.find(
-                            (pr) => pr.row === rowNum && pr.col === colNum,
-                          );
-
-                          if (item) {
-                            return (
-                              <RackCard
-                                key={item.rackTopology.rack.id}
-                                rackResult={item.rackTopology}
-                              />
-                            );
-                          }
-
-                          // Empty Holographic Blueprint Cell
-                          const isCellDragOver =
-                            dragOverGridCell?.row === rowNum &&
-                            dragOverGridCell?.col === colNum;
-
-                          return (
-                            <div
-                              key={`empty-${rowNum}-${colNum}`}
-                              onDragOver={(e) => {
-                                if (draggedAsset?.type === "rack") {
-                                  e.preventDefault();
-                                  e.dataTransfer.dropEffect = "move";
-                                  if (
-                                    dragOverGridCell?.row !== rowNum ||
-                                    dragOverGridCell?.col !== colNum
-                                  ) {
-                                    setDragOverGridCell({
-                                      row: rowNum,
-                                      col: colNum,
-                                    });
-                                  }
-                                }
-                              }}
-                              onDragLeave={() => {
-                                if (
-                                  dragOverGridCell?.row === rowNum &&
-                                  dragOverGridCell?.col === colNum
-                                ) {
-                                  setDragOverGridCell(null);
-                                }
-                              }}
-                              onDrop={(e) => handleRackDrop(e, rowNum, colNum)}
-                              className={`border rounded-2xl flex flex-col items-center justify-center p-8 transition-colors select-none ${
-                                isCellDragOver
-                                  ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)] border-solid"
-                                  : "border-dashed border-border/10 bg-background/20 hover:bg-white/2"
-                              }`}
-                            >
-                              <div className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-widest">
-                                FREE SPACE
-                              </div>
-                              <div className="font-mono text-[8px] text-muted-foreground/40 mt-1">
-                                R{rowNum}-P{colNum}
-                              </div>
-                            </div>
-                          );
-                        })}
+                        POS {cIdx + 1}
                       </div>
-                    );
-                  })}
-                </div>
-              </TransformComponent>
+                    ))}
 
-              {/* Floating Canvas Controls */}
-              <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                <CanvasBtn
-                  onClick={() => zoomIn()}
-                  I={ZoomIn}
-                  label="Zoom In"
-                />
-                <CanvasBtn
-                  onClick={() => zoomOut()}
-                  I={ZoomOut}
-                  label="Zoom Out"
-                />
-                <CanvasBtn
-                  onClick={() => resetTransform()}
-                  I={RotateCcw}
-                  label="Reset Zoom"
-                />
-              </div>
-            </main>
-          )}
-        </TransformWrapper>
+                    {/* Rows */}
+                    {Array.from({ length: maxRow }).map((_, rIdx) => {
+                      const rowNum = rIdx + 1;
+                      return (
+                        <div
+                          key={`row-wrap-${rIdx}`}
+                          style={{ display: "contents" }}
+                        >
+                          {/* Row Coordinator Label (Col 0) */}
+                          <div className="flex items-center justify-end font-mono text-[10px] text-cyan-ice/70 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded pr-4 pl-6 select-none tracking-widest">
+                            ROW {rowNum}
+                          </div>
+
+                          {/* Cells inside Row */}
+                          {Array.from({ length: maxCol }).map((_, cIdx) => {
+                            const colNum = cIdx + 1;
+                            const item = placedRacks.find(
+                              (pr) => pr.row === rowNum && pr.col === colNum,
+                            );
+
+                            if (item) {
+                              return (
+                                <RackCard
+                                  key={item.rackTopology.rack.id}
+                                  rackResult={item.rackTopology}
+                                />
+                              );
+                            }
+
+                            // Empty Holographic Blueprint Cell
+                            const isCellDragOver =
+                              dragOverGridCell?.row === rowNum &&
+                              dragOverGridCell?.col === colNum;
+
+                            return (
+                              <div
+                                key={`empty-${rowNum}-${colNum}`}
+                                onDragOver={(e) => {
+                                  if (draggedAsset?.type === "rack") {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = "move";
+                                    if (
+                                      dragOverGridCell?.row !== rowNum ||
+                                      dragOverGridCell?.col !== colNum
+                                    ) {
+                                      setDragOverGridCell({
+                                        row: rowNum,
+                                        col: colNum,
+                                      });
+                                    }
+                                  }
+                                }}
+                                onDragLeave={() => {
+                                  if (
+                                    dragOverGridCell?.row === rowNum &&
+                                    dragOverGridCell?.col === colNum
+                                  ) {
+                                    setDragOverGridCell(null);
+                                  }
+                                }}
+                                onDrop={(e) =>
+                                  handleRackDrop(e, rowNum, colNum)
+                                }
+                                className={`border rounded-2xl flex flex-col items-center justify-center p-8 transition-colors select-none ${
+                                  isCellDragOver
+                                    ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)] border-solid"
+                                    : "border-dashed border-border/10 bg-background/20 light:bg-secondary/15 hover:bg-foreground/3 hover:light:bg-secondary/30"
+                                }`}
+                              >
+                                <div className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-widest">
+                                  FREE SPACE
+                                </div>
+                                <div className="font-mono text-[8px] text-muted-foreground/40 mt-1">
+                                  R{rowNum}-P{colNum}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </TransformComponent>
+
+                {/* Floating Canvas Controls */}
+                <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                  <CanvasBtn
+                    onClick={() => zoomIn()}
+                    I={ZoomIn}
+                    label="Zoom In"
+                  />
+                  <CanvasBtn
+                    onClick={() => zoomOut()}
+                    I={ZoomOut}
+                    label="Zoom Out"
+                  />
+                  <CanvasBtn
+                    onClick={() => resetTransform()}
+                    I={RotateCcw}
+                    label="Reset Zoom"
+                  />
+                </div>
+              </main>
+            )}
+          </TransformWrapper>
         </div>
       </div>
 

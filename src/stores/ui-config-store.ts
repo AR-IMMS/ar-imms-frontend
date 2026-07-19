@@ -11,7 +11,7 @@ export interface NavigationPathItem {
   type: "site" | "room" | "rack";
 }
 
-interface SidebarState {
+interface UiConfigState {
   isCollapsed: boolean;
   hasHydrated: boolean;
   toggleSidebar: () => void;
@@ -24,11 +24,15 @@ interface SidebarState {
   setTopologyTreeCollapsed: (collapsed: boolean) => void;
   toggleTopologyTree: () => void;
   setActiveNavigationPath: (path: NavigationPathItem[]) => void;
+
+  // Theme state & actions
+  theme: "light" | "dark" | "system";
+  setTheme: (theme: "light" | "dark" | "system") => void;
 }
 
-type PersistedSidebarState = Pick<
-  SidebarState,
-  "isCollapsed" | "isTopologyTreeCollapsed"
+type PersistedUiConfigState = Pick<
+  UiConfigState,
+  "isCollapsed" | "isTopologyTreeCollapsed" | "theme"
 >;
 
 const createFallbackStorage = (): StateStorage => {
@@ -61,13 +65,14 @@ const createBrowserStorage = (): StateStorage => {
   };
 };
 
-export const useSidebarStore = create<SidebarState>()(
-  persist<SidebarState, [], [], PersistedSidebarState>(
+export const useUiConfigStore = create<UiConfigState>()(
+  persist<UiConfigState, [], [], PersistedUiConfigState>(
     (set) => ({
       isCollapsed: false,
       hasHydrated: false,
       isTopologyTreeCollapsed: false,
       activeNavigationPath: [],
+      theme: "dark",
 
       toggleSidebar: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
       setCollapsed: (isCollapsed) => set({ isCollapsed }),
@@ -81,13 +86,16 @@ export const useSidebarStore = create<SidebarState>()(
         })),
       setActiveNavigationPath: (activeNavigationPath) =>
         set({ activeNavigationPath }),
+
+      setTheme: (theme) => set({ theme }),
     }),
     {
-      name: "sidebar-store",
-      storage: createJSONStorage<PersistedSidebarState>(createBrowserStorage),
-      partialize: (state): PersistedSidebarState => ({
+      name: "ui-config-store",
+      storage: createJSONStorage<PersistedUiConfigState>(createBrowserStorage),
+      partialize: (state): PersistedUiConfigState => ({
         isCollapsed: state.isCollapsed,
         isTopologyTreeCollapsed: state.isTopologyTreeCollapsed,
+        theme: state.theme,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
@@ -95,4 +103,5 @@ export const useSidebarStore = create<SidebarState>()(
     },
   ),
 );
+
 

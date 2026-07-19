@@ -106,9 +106,9 @@ export default function AssignUnmapNodeModal() {
     >
       <div className="p-6 flex flex-col h-125 justify-between">
         <div className="space-y-4 overflow-y-auto pr-1">
-          <div className="flex justify-between items-center text-xs font-mono text-muted-foreground border-b border-[#25304A]/60 pb-2">
+          <div className="flex justify-between items-center text-xs font-mono text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-2">
             <span>TARGET RACK:</span>
-            <span className="text-cyan font-bold uppercase">
+            <span className="text-cyan-ice font-bold uppercase">
               {rackName || rackId || "Undefined"}
             </span>
           </div>

@@ -7,7 +7,7 @@ import {
 } from "@/hooks/asset/use-asset-queries";
 import { useAssetStore } from "../hooks/useAssetStore";
 import { matchesPendingAssignmentNode } from "../lib/utils/pending-assignment";
-import { useSidebarStore } from "@/stores/sidebar-store";
+import { useUiConfigStore } from "@/stores/ui-config-store";
 import {
   ChevronRight,
   ChevronDown,
@@ -38,13 +38,14 @@ interface SiteGroup {
 
 export default function HierarchicalTreeSidebar() {
   const { data: topology, isLoading, isError } = useTopologyTreeQuery();
-  const { data: pendingAssignmentNodes = [] } = usePendingAssignmentNodesQuery();
+  const { data: pendingAssignmentNodes = [] } =
+    usePendingAssignmentNodesQuery();
 
   const {
     isTopologyTreeCollapsed,
     toggleTopologyTree,
     setTopologyTreeCollapsed,
-  } = useSidebarStore();
+  } = useUiConfigStore();
 
   const {
     selectedSiteCode,
@@ -305,7 +306,11 @@ export default function HierarchicalTreeSidebar() {
     roomCode: string,
     rackId: string,
   ) => {
-    if (selectedSiteCode === siteCode && selectedRoomCode === roomCode && selectedAsset?.id === rackId) {
+    if (
+      selectedSiteCode === siteCode &&
+      selectedRoomCode === roomCode &&
+      selectedAsset?.id === rackId
+    ) {
       setSelectedAsset(null);
       setActivePanelType(null);
       return;
@@ -344,7 +349,7 @@ export default function HierarchicalTreeSidebar() {
         }`}
       >
         {/* Search Input */}
-        <div className="flex items-center gap-2 px-2 h-9 rounded-md bg-surface-1 border border-border shrink-0">
+        <div className="flex items-center gap-2 px-2 h-9 rounded-md bg-surface-1 light:bg-muted border border-border shrink-0">
           <Search className="size-3.5 text-muted-foreground" />
           <input
             placeholder="Search by code, IP, name..."
@@ -397,8 +402,8 @@ export default function HierarchicalTreeSidebar() {
                       }
                       className={`flex-1 text-left px-2 py-1.5 rounded flex items-center gap-2 min-w-0 transition-colors ${
                         siteActive
-                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                          : "text-foreground hover:bg-white/3 border border-transparent"
+                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                          : "text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent"
                       }`}
                     >
                       <MapPin className="size-3.5 text-purple shrink-0" />
@@ -455,8 +460,8 @@ export default function HierarchicalTreeSidebar() {
                                 }
                                 className={`flex-1 text-left px-2 py-1 rounded flex items-center gap-2 min-w-0 transition-colors ${
                                   roomActive
-                                    ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                    : "text-foreground hover:bg-white/3 border border-transparent"
+                                    ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                                    : "text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent"
                                 }`}
                               >
                                 <Layers className="size-3.5 text-cyan-ice shrink-0" />
@@ -470,7 +475,9 @@ export default function HierarchicalTreeSidebar() {
                             {roomOpen && (
                               <div className="ml-8 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
                                 {room.racks.map((rack) => {
-                                  const rackActive = selectedAsset?.id === rack.id && selectedAsset?.assetType === "rack";
+                                  const rackActive =
+                                    selectedAsset?.id === rack.id &&
+                                    selectedAsset?.assetType === "rack";
 
                                   return (
                                     <button
@@ -493,8 +500,8 @@ export default function HierarchicalTreeSidebar() {
                                       }
                                       className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-colors ${
                                         rackActive
-                                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-                                          : "text-foreground/70 hover:bg-white/3 hover:text-foreground border border-transparent"
+                                          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
+                                          : "text-foreground/70 hover:bg-white/3 hover:light:bg-primary/15 hover:text-foreground border border-transparent"
                                       }`}
                                     >
                                       <Server className="size-3.5 text-emerald-400 shrink-0" />
@@ -521,8 +528,12 @@ export default function HierarchicalTreeSidebar() {
       {/* Floating Toggle Button centered on the right border line */}
       <button
         onClick={toggleTopologyTree}
-        className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 flex items-center justify-center size-6 rounded-full bg-accent border border-accent-foreground/30 text-accent-foreground hover:border-cyan-400 hover:bg-cyan/30 transition duration-200 cursor-pointer"
-        title={isTopologyTreeCollapsed ? "Expand Topology Sidebar" : "Collapse Topology Sidebar"}
+        className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 flex items-center justify-center size-6 rounded-full bg-accent light:bg-primary border border-accent-foreground/30 light:border-muted text-accent-foreground light:text-white hover:border-cyan-400 hover:bg-cyan/30 transition duration-200 cursor-pointer"
+        title={
+          isTopologyTreeCollapsed
+            ? "Expand Topology Sidebar"
+            : "Collapse Topology Sidebar"
+        }
       >
         {isTopologyTreeCollapsed ? (
           <ChevronRight className="size-3.5" />

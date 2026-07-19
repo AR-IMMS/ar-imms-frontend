@@ -108,7 +108,7 @@ export default function CreateEditRackModal() {
       eyebrow={rackId ? "ADMIN // UPDATE RACK" : "ADMIN // REGISTER RACK"}
       title={
         rackId
-          ? `Edit Rack Properties (ID: ${rackId})`
+          ? `Edit Rack Properties (${rackId})`
           : "Configure New Infrastructure"
       }
       isPending={isPending}
@@ -120,7 +120,7 @@ export default function CreateEditRackModal() {
       >
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
               DISPLAY NAME
             </label>
             <input
@@ -133,8 +133,11 @@ export default function CreateEditRackModal() {
             />
           </div>
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80">
-              RACK CODE (auto-generated)
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold">
+              RACK CODE
+              <span className="text-muted-foreground/60 light:text-muted-foreground/70 light:font-normal text-[10px]">
+                {} (auto-generated)
+              </span>
             </label>
             <input
               type="text"
@@ -147,8 +150,11 @@ export default function CreateEditRackModal() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
-              CAPACITY (U)
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
+              CAPACITY
+              <span className="text-muted-foreground/60 light:text-muted-foreground/70 light:font-normal text-[10px]">
+                {} (U)
+              </span>
             </label>
             <input
               type="number"
@@ -162,8 +168,11 @@ export default function CreateEditRackModal() {
             />
           </div>
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80">
-              VENDOR (optional)
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold">
+              VENDOR
+              <span className="text-muted-foreground/60 light:text-muted-foreground/70 light:font-normal text-[10px]">
+                {} (optional)
+              </span>
             </label>
             <input
               type="text"
@@ -177,7 +186,7 @@ export default function CreateEditRackModal() {
 
         <div className="grid grid-cols-5 gap-2">
           <div className="col-span-2 space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
               SITE CODE
             </label>
             <input
@@ -191,7 +200,7 @@ export default function CreateEditRackModal() {
             />
           </div>
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
               ROOM CODE
             </label>
             <input
@@ -205,7 +214,7 @@ export default function CreateEditRackModal() {
             />
           </div>
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
               ROW CODE
             </label>
             <input
@@ -219,7 +228,7 @@ export default function CreateEditRackModal() {
             />
           </div>
           <div className="space-y-1">
-            <label className="font-mono text-xs text-muted-foreground/80 uppercase">
+            <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold uppercase">
               POSITION
             </label>
             <input
@@ -235,8 +244,11 @@ export default function CreateEditRackModal() {
         </div>
 
         <div className="space-y-1">
-          <label className="font-mono text-xs text-muted-foreground/80">
-            CABINET NOTES (optional)
+          <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold">
+            CABINET NOTES
+            <span className="text-muted-foreground/60 light:text-muted-foreground/70 light:font-normal text-[10px]">
+                {} (optional)
+              </span>
           </label>
           <textarea
             disabled={isPending}

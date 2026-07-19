@@ -35,10 +35,10 @@ export default function ModalLayout({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#25304A] px-6 py-4">
           <div>
-            <div className="label-mono text-[10px] text-cyan-ice tracking-wider uppercase">
+            <div className="label-mono text-[10px] text-cyan-ice light:font-bold light:text-primary tracking-wider uppercase">
               {eyebrow}
             </div>
-            <div className="title-display mt-1 text-base text-foreground">
+            <div className="title-display text-base text-foreground">
               {title}
             </div>
           </div>

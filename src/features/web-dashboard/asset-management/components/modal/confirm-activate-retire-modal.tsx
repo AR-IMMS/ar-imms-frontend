@@ -123,19 +123,19 @@ export default function ConfirmRetireModal() {
         )}
 
         <div className="space-y-2">
-          <div className="flex justify-between border-b border-[#25304A]/60 pb-1.5 text-xs font-mono text-foreground/50">
+          <div className="flex justify-between border-b border-[#25304A]/60 pb-1.5 text-xs font-mono text-foreground/50 light:font-bold">
             <span>TARGET COMPONENT:</span>
             <span className="text-foreground font-bold">
               {entityType?.toUpperCase()}
             </span>
           </div>
-          <div className="flex justify-between border-b border-[#25304A]/60 pb-1.5 text-xs font-mono text-foreground/50">
+          <div className="flex justify-between border-b border-[#25304A]/60 pb-1.5 text-xs font-mono text-foreground/50 light:font-bold">
             <span>HARDWARE ID:</span>
             <span className="text-foreground font-bold font-mono">
               {entityId}
             </span>
           </div>
-          <div className="flex justify-between text-xs font-mono text-foreground/50">
+          <div className="flex justify-between text-xs font-mono text-foreground/50 light:font-bold">
             <span>ACTION TYPE:</span>
             <span
               className={

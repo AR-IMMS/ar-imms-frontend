@@ -41,7 +41,7 @@ export default function CopyableUserId({
   return (
     <div className={cn("flex min-w-0 items-center gap-2", className)}>
       <span
-        className="min-w-0 max-w-30 truncate font-mono text-xs tabular-nums text-cyan-ice"
+        className="min-w-0 max-w-30 truncate font-mono text-xs tabular-nums text-cyan-ice light:font-bold"
         title={value}
       >
         {value}
@@ -49,7 +49,7 @@ export default function CopyableUserId({
       <button
         type="button"
         onClick={handleCopy}
-        className="inline-flex size-6 shrink-0 items-center justify-center rounded border border-border bg-surface-1 text-muted-foreground transition hover:border-cyan/30 hover:text-cyan-ice"
+        className="inline-flex size-6 shrink-0 items-center justify-center rounded border border-border bg-surface-1 text-muted-foreground transition hover:border-cyan/30 hover:text-cyan-ice hover:light:text-primary hover:light:bg-primary/10"
         aria-label={`Copy ID ${value}`}
         title={copied ? "Copied" : "Copy ID"}
       >

@@ -134,12 +134,12 @@ export function RackCard({ rackResult }: RackCardProps) {
           setActivePanelType("rack");
         }
       }}
-      className={`relative w-full rounded-2xl border p-3 flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-cyan/50 active:scale-99 ${
+      className={`relative w-full rounded-2xl border p-3 flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-cyan/50 hover:light:border-cyan/70 active:scale-99 ${
         isDragOver
           ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)]"
           : isSelectedRack
-            ? "border-cyan/50 bg-accent/60"
-            : "border-cyan/20 bg-accent/30"
+            ? "border-cyan/50 bg-accent/60 light:bg-primary/40 light:border-cyan/70 shadow-[0_0_12px_rgba(0,209,255,0.6)] light:shadow-[0_0_12px_rgba(32,100,138,0.8)]"
+            : "border-cyan/20 bg-accent/30 light:bg-accent/80"
       }`}
     >
       <div>
@@ -149,9 +149,9 @@ export function RackCard({ rackResult }: RackCardProps) {
             <span className="text-xs text-[11px] font-bold text-foreground truncate uppercase">
               {rack.displayName || rack.rackCode}
             </span>
-            <span className="text-xs text-[8px] text-muted-foreground">
+            <span className="text-xs text-[8px] text-muted-foreground light:text-foreground">
               Capacity:{" "}
-              <span className="text-cyan-ice/70 font-bold">
+              <span className="text-cyan-ice/70 light:text-cyan-ice font-bold">
                 {nodes.length}/{rack.capacityLimit || 42}U
               </span>
             </span>
@@ -185,8 +185,8 @@ export function RackCard({ rackResult }: RackCardProps) {
                     setActivePanelType("node");
                   }
                 }}
-                className={`relative flex w-full items-center gap-2 rounded bg-accent/70 border-l-3 ${LIFECYCLE_COLOR_BORDER[state]} hover:bg-cyan/10 px-2 py-1 text-left transition-all hover:border-cyan/40 cursor-pointer ${
-                  isSelected ? "bg-cyan/20" : ""
+                className={`relative flex w-full items-center gap-2 rounded bg-accent/70 light:bg-background border-l-3 ${LIFECYCLE_COLOR_BORDER[state]} hover:bg-cyan/10 px-2 py-1 text-left transition-all hover:border-cyan/40 cursor-pointer ${
+                  isSelected ? "bg-cyan/20 light:bg-primary" : ""
                 }`}
               >
                 {/* Health Dot */}
@@ -195,12 +195,16 @@ export function RackCard({ rackResult }: RackCardProps) {
                 />
 
                 {/* Node name */}
-                <span className="font-mono grow truncate text-[9px] text-foreground/80">
+                <span className={`font-mono grow truncate text-[9px] text-foreground/80 ${
+                  isSelected ? "light:text-white font-bold" : ""
+                }`}>
                   {node.displayName || node.nodeCode}
                 </span>
 
                 {/* Slot/Unit label */}
-                <span className="font-mono text-[7.5px] text-muted-foreground/70 shrink-0">
+                <span className={`font-mono text-[7.5px] text-muted-foreground/70 shrink-0 ${
+                  isSelected ? "light:text-white" : ""
+                }`}>
                   {node.positionCode || "U--"}
                 </span>
               </button>
@@ -209,7 +213,7 @@ export function RackCard({ rackResult }: RackCardProps) {
 
           {/* Empty indicator */}
           {nodes.length === 0 && (
-            <div className="text-center py-6 font-mono text-[9px] text-muted-foreground/30">
+            <div className="text-center py-6 font-mono text-[9px] text-muted-foreground/30 light:text-muted-foreground/50">
               NO ASSETS ASSIGNED
             </div>
           )}
@@ -218,7 +222,7 @@ export function RackCard({ rackResult }: RackCardProps) {
 
       {/* Bottom specs */}
       <div className="font-mono mt-3.5 border-t border-border/20 pt-2 flex items-center justify-between select-none">
-        <span className="flex items-center gap-1.5 text-[8.5px] text-muted-foreground/70">
+        <span className="flex items-center gap-1.5 text-[8.5px] text-muted-foreground/70 light:text-muted-foreground">
           {rack.siteCode}·{rack.roomCode}
         </span>
         <span

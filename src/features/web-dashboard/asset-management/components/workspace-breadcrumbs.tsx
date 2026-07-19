@@ -1,11 +1,11 @@
 "use client";
 
-import { useSidebarStore } from "@/stores/sidebar-store";
+import { useUiConfigStore } from "@/stores/ui-config-store";
 import { useAssetStore } from "../hooks/useAssetStore";
 import { ChevronRight, Database, MapPin, Layers, Server } from "lucide-react";
 
 export function WorkspaceBreadcrumbs() {
-  const { activeNavigationPath, isTopologyTreeCollapsed } = useSidebarStore();
+  const { activeNavigationPath, isTopologyTreeCollapsed } = useUiConfigStore();
   const {
     setSelectedSiteCode,
     setSelectedRoomCode,
@@ -99,16 +99,18 @@ export function WorkspaceBreadcrumbs() {
   const isRootActive = activeNavigationPath.length === 0;
 
   return (
-    <div className={`absolute top-0 h-9 px-4 flex items-center gap-2 border border-border bg-accent/35 rounded-lg shrink-0 font-mono text-xs select-none z-20 ${
-      isTopologyTreeCollapsed ? "left-0" : "left-4"
-    }`}>
+    <div
+      className={`absolute top-0 h-9 px-4 flex items-center gap-2 border border-border bg-accent/50 backdrop-blur-md rounded-lg shrink-0 font-mono text-xs select-none z-20 ${
+        isTopologyTreeCollapsed ? "left-0" : "left-4"
+      }`}
+    >
       {/* Root Breadcrumb Item */}
       <button
         onClick={() => handleSegmentClick(-1)}
         className={`flex items-center gap-1.5 transition duration-150 ${
           isRootActive
-            ? "text-[#00D1FF] font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
-            : "text-slate-400 hover:text-[#00D1FF] cursor-pointer"
+            ? "text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
+            : "text-slate-500 hover:text-cyan-ice cursor-pointer"
         }`}
         disabled={isRootActive}
       >
@@ -124,14 +126,14 @@ export function WorkspaceBreadcrumbs() {
             key={`${item.type}-${item.id}`}
             className="flex items-center gap-2"
           >
-            <ChevronRight className="size-3 text-[#25304A] shrink-0" />
+            <ChevronRight className="size-3 text-muted-foreground shrink-0" />
             <button
               onClick={() => handleSegmentClick(index)}
               disabled={isLast}
               className={`flex items-center gap-1.5 transition duration-150 ${
                 isLast
-                  ? "text-[#00D1FF] font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
-                  : "text-[#94A3B8] hover:text-[#00D1FF] cursor-pointer"
+                  ? "text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
+                  : "text-slate-500 hover:text-cyan-ice cursor-pointer"
               }`}
             >
               {getIcon(item.type, isLast)}

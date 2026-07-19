@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import isActivePath from "@/lib/utils/isActivePath";
-import { useSidebar } from "@/hooks/common/use-sidebar";
+import { useSidebar } from "@/hooks/common/use-ui-config";
 import { Tooltip } from "@/components/common/tooltip";
 
 type NavItem = {
@@ -80,8 +80,8 @@ function NavLink({
           : "w-full px-3 gap-3"
       } ${
         active
-          ? "border-cyan/30 bg-cyan/10 text-cyan shadow-[inset_0_0_18px_rgba(0,209,255,0.08)]"
-          : "border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-white/2 hover:text-cyan-ice"
+          ? "border-cyan/30 bg-cyan/10 text-cyan light:bg-destructive-foreground hover:light:bg-destructive-foreground/70"
+          : "border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-muted-foreground/10 hover:text-cyan-ice"
       }`}
     >
       <Icon
@@ -91,7 +91,7 @@ function NavLink({
         strokeWidth={1.8}
       />
       {!isCollapsed && (
-        <span className="label-mono flex-1 text-left text-[10px] tracking-[0.11em] truncate">
+        <span className="label-mono light:font-bold flex-1 text-left text-[10px] tracking-[0.11em] truncate">
           {label}
         </span>
       )}
@@ -202,7 +202,7 @@ export default function Sidebar() {
               isCollapsed
                 ? "w-10 h-10 justify-center px-0 mx-auto"
                 : "w-full px-3 gap-3"
-            } border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-white/2 hover:text-cyan-ice`}
+            } border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-muted-foreground/10 hover:text-cyan-ice`}
           >
             <ChevronLeft
               className={`size-4 shrink-0 transition-transform duration-300 ${

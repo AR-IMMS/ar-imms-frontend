@@ -210,7 +210,7 @@ export function UnmappedAssetsDrawer() {
             setActivePanelType(null);
           }
         }}
-        className="w-full flex items-center justify-between px-6 h-11 border-b border-border/30 font-mono text-[13px] text-foreground hover:bg-white/2 cursor-pointer"
+        className="w-full flex items-center justify-between px-6 h-11 border-b border-border/30 light:border-2 light:border-t-primary/50 font-mono text-[13px] text-foreground hover:bg-foreground/3 light:bg-accent hover:light:bg-accent-foreground/15 cursor-pointer"
       >
         <div className="flex items-center gap-2 font-semibold">
           <span>UNMAPPED ASSETS</span>
@@ -234,7 +234,7 @@ export function UnmappedAssetsDrawer() {
 
       {/* Drawer Content */}
       {isUnmappedDrawerOpen && (
-        <div className="h-53.25 overflow-x-auto overflow-y-hidden flex items-center gap-5 p-5 custom-scrollbar-h bg-background/50 animate-fade-in">
+        <div className="h-53.25 overflow-x-auto overflow-y-hidden flex items-center gap-5 p-5 custom-scrollbar-h bg-background/50 light:bg-muted animate-fade-in">
           {unifiedItems.map((item) => {
             /* RACK ITEM Content */
             if (item.type === "rack") {
@@ -287,7 +287,7 @@ export function UnmappedAssetsDrawer() {
                       <div>
                         Life State:{" "}
                         <span
-                          className={`text-semibold ${LIFECYCLE_COLOR_TEXT[item.lifecycleState]}`}
+                          className={`text-semibold light:font-bold ${LIFECYCLE_COLOR_TEXT[item.lifecycleState]}`}
                         >
                           {item.lifecycleState}
                         </span>
@@ -348,7 +348,7 @@ export function UnmappedAssetsDrawer() {
                         className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
                           isDiscovered
                             ? "bg-purple-500/10 text-purple-400 border-purple-500/30"
-                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 light:text-emerald-500 light:bg-emerald-500/15"
                         }`}
                       >
                         {isDiscovered ? "New Discovered" : "Available"}

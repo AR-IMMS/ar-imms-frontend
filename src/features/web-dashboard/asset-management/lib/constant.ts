@@ -7,12 +7,12 @@ export const CAPACITY_COLOR: Record<"AVAILABLE" | "EXPANDING" | "FULL", string> 
 };
 
 export const LIFECYCLE_COLOR: Record<NodeLifecycleState | RackLifecycleState, string> = {
-  CREATED: "text-zinc-400 border-zinc-500/30 bg-zinc-500/5",
-  DISCOVERED: "text-purple-400 border-purple-500/30 bg-purple-500/5",
-  READY: "text-cyan-400 border-cyan-500/30 bg-cyan-500/5",
-  ACTIVE: "text-neon-green border-neon-green/30 bg-neon-green/5",
-  DRAINING: "text-amber border-amber/30 bg-amber/5",
-  RETIRED: "text-critical border-critical/30 bg-critical/5",
+  CREATED: "text-zinc-400 border-zinc-500/30 bg-zinc-500/5 light:bg-zinc-500 light:border-background light:text-white",
+  DISCOVERED: "text-purple-400 border-purple-500/30 bg-purple-500/5 light:bg-purple-500 light:border-background light:text-white",
+  READY: "text-cyan-400 border-cyan-500/30 bg-cyan-500/5 light:bg-cyan-500 light:border-background light:text-white",
+  ACTIVE: "text-neon-green border-neon-green/30 bg-neon-green/5 light:bg-neon-green light:border-background light:text-white",
+  DRAINING: "text-amber border-amber/30 bg-amber/5 light:bg-amber light:border-background light:text-white",
+  RETIRED: "text-critical border-critical/30 bg-critical/5 light:bg-critical light:border-background light:text-white",
 };
 
 export const LIFECYCLE_COLOR_DOT: Record<NodeLifecycleState | RackLifecycleState, string> = {
@@ -25,12 +25,12 @@ export const LIFECYCLE_COLOR_DOT: Record<NodeLifecycleState | RackLifecycleState
 };
 
 export const LIFECYCLE_COLOR_BORDER: Record<NodeLifecycleState | RackLifecycleState, string> = {
-  CREATED: "border-zinc-400/40",
-  DISCOVERED: "border-purple-400/40",
-  READY: "border-cyan-400/40",
-  ACTIVE: "border-neon-green/40",
-  DRAINING: "border-amber/40",
-  RETIRED: "border-critical/60",
+  CREATED: "border-zinc-400/40 light:border-zinc-400/90",
+  DISCOVERED: "border-purple-400/40 light:border-purple-400/90",
+  READY: "border-cyan-400/40 light:border-cyan-400/90",
+  ACTIVE: "border-neon-green/40 light:border-neon-green/90",
+  DRAINING: "border-amber/40 light:border-amber/90",
+  RETIRED: "border-critical/60 light:border-critical",
 };
 
 export const LIFECYCLE_COLOR_TEXT: Record<NodeLifecycleState | RackLifecycleState, string> = {

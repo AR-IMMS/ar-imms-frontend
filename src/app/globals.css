@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
 
 /*
  * Design system definition.
@@ -76,6 +76,9 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* ==========================================
+   DARK THEME VALUES
+   ========================================== */
 :root {
   --radius: 0.625rem;
   --background: #0b1020;
@@ -122,6 +125,176 @@
   --sidebar-accent-foreground: #38bdf8;
   --sidebar-border: rgba(37, 48, 74, 0.6);
   --sidebar-ring: #00d1ff;
+  --topbar-bg: rgba(8, 18, 35, 0.95);
+  --topbar-border: rgba(0, 217, 255, 0.15);
+  --grid-color: rgba(255, 255, 255, 0.015);
+}
+
+/* ==========================================
+   1. LIGHT THEME VALUES
+   ========================================== */
+.light {
+  --radius: 0.625rem;
+
+  --background: oklch(0.9923 0.0042 236.4949);
+  --foreground: oklch(0.1884 0.0128 248.5103);
+
+  --surface-1: #ffffff;
+  --surface-2: #e2e8f0; /* Slate 200 */
+  --surface-3: #cbd5e1; /* Slate 300 */
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.1884 0.0128 248.5103);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1884 0.0128 248.5103);
+  --primary: oklch(0.6723 0.1606 244.9955);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9313 0.0383 236.0626);
+  --secondary-foreground: oklch(0.6723 0.1606 244.9955);
+  --muted: oklch(0.9771 0.0125 236.6197);
+  --muted-foreground: oklch(0.5596 0.0934 249.8189);
+  --accent: oklch(0.9388 0.0342 235.8601);
+  --accent-foreground: oklch(0.6723 0.1606 244.9955);
+
+  --destructive: #f75454;
+  --destructive-foreground: oklch(1 0 0);
+
+  /* Viền xám sạch sẽ */
+  --border: oklch(0.9317 0.0118 231.6594);
+  --input: oklch(0.9809 0.0025 228.7836);
+  --ring: oklch(0.6818 0.1584 243.354);
+
+  --cyan: #1798d8;
+  --cyan-soft: rgba(2, 132, 199, 0.1);
+  --cyan-ice: #1a9de4;
+  --electric: #437eff;
+  --neon-green: #0dd456;
+  --amber: #fdb632;
+  --critical: #f03737;
+  --offline: #64748b;
+  --purple: #8b5cf6;
+
+  --chart-1: oklch(0.7116 0.1812 22.8389);
+  --chart-2: oklch(0.8925 0.1667 94.5471);
+  --chart-3: oklch(0.7626 0.1496 146.6234);
+  --chart-4: oklch(0.677 0.172 257.7649);
+  --chart-5: oklch(0.7373 0.0909 300.4624);
+
+  /* Cấu hình Sidebar cho Light Theme */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.1884 0.0128 248.5103);
+  --sidebar-primary: oklch(0.6723 0.1606 244.9955);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9392 0.0166 250.8453);
+  --sidebar-accent-foreground: oklch(0.6723 0.1606 244.9955);
+  --sidebar-border: oklch(0.9271 0.0101 238.5177);
+  --sidebar-ring: oklch(0.6818 0.1584 243.354);
+
+  --shadow-x: 0px;
+  --shadow-y: 2px;
+  --shadow-blur: 10px;
+  --shadow-spread: -3.5px;
+  --shadow-opacity: 0.36;
+  --shadow-color: rgba(29, 161, 242, 0.15);
+  --shadow-2xs: 0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.18);
+  --shadow-xs: 0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.18);
+  --shadow-sm:
+    0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.36),
+    0px 1px 2px -4.5px hsl(202.8169 89.1213% 53.1373% / 0.36);
+  --shadow:
+    0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.36),
+    0px 1px 2px -4.5px hsl(202.8169 89.1213% 53.1373% / 0.36);
+  --shadow-md:
+    0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.36),
+    0px 2px 4px -4.5px hsl(202.8169 89.1213% 53.1373% / 0.36);
+  --shadow-lg:
+    0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.36),
+    0px 4px 6px -4.5px hsl(202.8169 89.1213% 53.1373% / 0.36);
+  --shadow-xl:
+    0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.36),
+    0px 8px 10px -4.5px hsl(202.8169 89.1213% 53.1373% / 0.36);
+  --shadow-2xl: 0px 2px 10px -3.5px hsl(202.8169 89.1213% 53.1373% / 0.9);
+  --tracking-normal: 0em;
+
+  --topbar-bg: rgba(255, 255, 255, 0.95);
+  --topbar-border: rgba(226, 232, 240, 0.8);
+  --grid-color: rgba(0, 0, 0, 0.03);
+
+  /* Overrides for hardcoded dark background/border color classes */
+  .bg-\[\#070b15\] {
+    background-color: var(--background) !important;
+  }
+  .bg-\[\#0b1020\],
+  .bg-\[\#0B1020\] {
+    background-color: var(--background) !important;
+  }
+  .bg-\[\#0b1020\]\/75,
+  .bg-\[\#0B1020\]\/75 {
+    background-color: rgba(255, 255, 255, 0.75) !important;
+  }
+  .bg-\[\#111827\] {
+    background-color: var(--surface-1) !important;
+  }
+  .bg-\[\#111827\]\/90 {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+  }
+  .bg-\[\#111827\]\/95 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+  .bg-\[\#141B2D\]\/55,
+  .bg-\[\#141b2d\]\/55 {
+    background-color: rgba(226, 232, 240, 0.55) !important;
+  }
+  .bg-\[\#090f1d\]\/95 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+  .bg-\[\#0d152a\] {
+    background-color: var(--surface-1) !important;
+  }
+  .bg-\[\#0d152a\]\/90 {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+  }
+  .bg-\[\#0e1422\] {
+    background-color: var(--surface-1) !important;
+  }
+  .bg-\[\#0e1321\] {
+    background-color: var(--surface-1) !important;
+  }
+  .border-\[\#25304A\],
+  .border-\[\#25304a\] {
+    border-color: var(--border) !important;
+  }
+  .border-\[\#25304A\]\/50,
+  .border-\[\#25304a\]\/50 {
+    border-color: rgba(226, 232, 240, 0.5) !important;
+  }
+  .border-\[\#25304A\]\/90,
+  .border-\[\#25304a\]\/90 {
+    border-color: rgba(226, 232, 240, 0.9) !important;
+  }
+  .bg-\[\#25304A\],
+  .bg-\[\#25304a\] {
+    background-color: var(--border) !important;
+  }
+  .hover\:bg-\[\#1b2338\]\/40:hover {
+    background-color: rgba(226, 232, 240, 0.4) !important;
+  }
+  .hover\:bg-white\/2:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+  .hover\:bg-white\/5:hover {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+  }
+  .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+  .bg-white\/5 {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+  .bg-white\/3 {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+  }
 }
 
 @layer base {
@@ -136,12 +309,12 @@
     background-image:
       radial-gradient(
         ellipse at 20% 0%,
-        rgba(0, 157, 255, 0.1),
+        rgba(0, 157, 255, 0.08),
         transparent 50%
       ),
       radial-gradient(
         ellipse at 80% 100%,
-        rgba(139, 92, 246, 0.08),
+        rgba(139, 92, 246, 0.05),
         transparent 50%
       );
     background-attachment: fixed;
@@ -160,12 +333,22 @@
     border-color 200ms ease-out,
     box-shadow 200ms ease-out,
     transform 200ms ease-out;
+
+  .light & {
+    background: oklch(0.9388 0.0342 235.8601);
+    border: 1px solid rgba(203, 213, 225, 0.8);
+  }
 }
 
 @utility panel-hover {
   &:hover {
     border-color: rgba(0, 209, 255, 0.5);
     box-shadow: 0 0 20px rgba(0, 209, 255, 0.15);
+
+    .light & {
+      border-color: rgba(2, 132, 199, 0.5);
+      box-shadow: 0 0 20px rgba(2, 132, 199, 0.1);
+    }
   }
 }
 
@@ -173,6 +356,12 @@
   background: rgba(20, 27, 45, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(37, 48, 74, 0.5);
+
+  .light & {
+    background: oklch(0.9313 0.0383 236.0626);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(203, 213, 225, 0.5);
+  }
 }
 
 @utility label-mono {
@@ -182,6 +371,10 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #94a3b8;
+
+  .light & {
+    color: var(--muted-foreground);
+  }
 }
 
 @utility title-display {
@@ -193,14 +386,23 @@
 
 @utility text-glow-cyan {
   text-shadow: 0 0 12px rgba(0, 209, 255, 0.6);
+  .light & {
+    text-shadow: 0 0 12px rgba(2, 132, 199, 0.35);
+  }
 }
 
 @utility text-glow-green {
   text-shadow: 0 0 12px rgba(0, 255, 156, 0.55);
+  .light & {
+    text-shadow: 0 0 12px rgba(27, 231, 102, 0.35);
+  }
 }
 
 @utility text-glow-red {
   text-shadow: 0 0 12px rgba(255, 77, 109, 0.6);
+  .light & {
+    text-shadow: 0 0 12px rgba(247, 84, 84, 0.35);
+  }
 }
 
 @keyframes pulse-dot {
@@ -291,7 +493,15 @@
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 217, 255, 0.2);
   border-radius: 8px;
+  .light & {
+    background: var(--cyan-soft);
+    /* background: rgba(2, 132, 199, 0.2); */
+  }
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 217, 255, 0.4);
+  .light & {
+    background: oklch(var(--primary) / 0.3);
+    /* background: rgba(2, 132, 199, 0.4); */
+  }
 }

@@ -15,7 +15,7 @@ export function Tooltip({
         {/* Triangle arrow */}
         <div className="h-0 w-0 border-y-[5px] border-y-transparent border-r-[5px] border-r-cyan/30" />
         {/* Tooltip box */}
-        <div className="rounded-md border border-cyan/30 bg-surface-2/95 px-2.5 py-1 text-[9px] font-mono tracking-wider text-cyan-ice shadow-[0_0_15px_rgba(0,209,255,0.25)] backdrop-blur-md whitespace-nowrap uppercase">
+        <div className="rounded-md border border-cyan/30 bg-surface-2/95 light:bg-primary px-2.5 py-1 text-[9px] font-mono tracking-wider text-cyan-ice light:text-background light:font-bold shadow-[0_0_15px_rgba(0,209,255,0.25)] backdrop-blur-md whitespace-nowrap uppercase">
           {content}
         </div>
       </div>

@@ -135,7 +135,7 @@ export default function UserListView() {
       />
 
       <div className="panel flex flex-col overflow-hidden">
-        <div className="grid grid-cols-12 border-b border-border bg-surface-1/50 px-4 py-3 shrink-0">
+        <div className="grid grid-cols-12 border-b border-border bg-surface-1/50 light:bg-accent px-4 py-3 shrink-0">
           <div className="col-span-3 label-mono text-[10px]">Full Name</div>
           <div className="col-span-2 label-mono text-[10px]">Username</div>
           <div className="col-span-1 label-mono text-[10px]">User ID</div>
@@ -187,7 +187,7 @@ export default function UserListView() {
                       setSelectedUsername(user.username);
                     }
                   }}
-                  className="group grid w-full grid-cols-12 items-center border-b border-border/60 px-4 py-3 text-left transition hover:bg-cyan/4"
+                  className="group grid w-full grid-cols-12 items-center border-b border-border/60 px-4 py-3 text-left transition light:bg-muted hover:bg-cyan/4 light:hover:bg-white"
                 >
                   <div className="col-span-3 flex min-w-0 items-center gap-3">
                     <Avatar
@@ -225,7 +225,7 @@ export default function UserListView() {
                   </div>
 
                   <div
-                    className={`col-span-2 font-mono text-xs text-center ${user.status === "ACTIVE" ? "text-neon-green" : user.status === "LOCKED" ? "text-critical" : "text-amber"}`}
+                    className={`col-span-2 font-mono text-xs text-center light:font-bold ${user.status === "ACTIVE" ? "text-neon-green" : user.status === "LOCKED" ? "text-critical" : "text-amber"}`}
                   >
                     {user.status}
                   </div>

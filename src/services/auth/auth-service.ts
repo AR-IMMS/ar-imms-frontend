@@ -27,7 +27,6 @@ export const authService = {
 
   logout: (): Promise<{ success: true }> =>
     httpPost<{ success: true }>(AUTH_ENDPOINTS.LOGOUT, undefined, {
-      skipAuthHooks: true,
       service: SERVICE_NAME,
     }),
 

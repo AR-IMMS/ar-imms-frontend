@@ -75,7 +75,7 @@ export default function UserDetailPanel({
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <div className="label-mono text-[10px] text-cyan-ice">
+            <div className="label-mono text-[10px] text-cyan-ice light:text-primary light:font-bold">
               OPERATOR PROFILE
             </div>
             <div className="title-display mt-1 text-lg text-foreground">
@@ -96,7 +96,7 @@ export default function UserDetailPanel({
         {/* User Details */}
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Stat label="Username" value={detailUser.username || "N/A"} mono />
-          <div className="panel p-3">
+          <div className="panel p-3 light:bg-muted">
             <div className="label-mono text-[9px] text-muted-foreground">
               Operator ID
             </div>
@@ -119,7 +119,7 @@ export default function UserDetailPanel({
             value={detailUser.mustChangePassword ? "YES" : "NO"}
             mono
             tone={
-              detailUser.mustChangePassword ? "text-amber" : "text-neon-green"
+              detailUser.mustChangePassword ? "text-amber light:font-bold" : "text-neon-green light:font-bold"
             }
           />
         </div>
@@ -144,7 +144,7 @@ export default function UserDetailPanel({
                   >
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="size-3.5 shrink-0" />
-                      <span className="label-mono whitespace-nowrap text-[10px] font-medium text-foreground">
+                      <span className="label-mono whitespace-nowrap text-[10px] font-medium text-foreground light:text-destructive-foreground">
                         {roleNameMap.get(roleCode) ??
                           roleCode.replace(/_/g, " ")}
                       </span>
@@ -172,7 +172,7 @@ export default function UserDetailPanel({
             disabled={
               detailUser.status === "LOCKED" || updateStatusMutation.isPending
             }
-            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               <Mail className="size-3.5 text-cyan" /> Resend Activation Email
@@ -186,7 +186,7 @@ export default function UserDetailPanel({
             disabled={
               detailUser.status === "LOCKED" || updateStatusMutation.isPending
             }
-            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               <KeyRound className="size-3.5 text-amber" /> Force Password Reset
@@ -199,7 +199,7 @@ export default function UserDetailPanel({
             type="button"
             onClick={() => handleStatusUpdate(currentStatusAction.nextStatus)}
             disabled={updateStatusMutation.isPending}
-            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
               {user.status === "ACTIVE" ? (

@@ -4,17 +4,19 @@ export default function Stat({
   value,
   mono,
   tone,
+  themeConfig,
 }: {
   icon?: React.ReactNode;
   label: string;
   value: string;
   mono?: boolean;
   tone?: string;
+  themeConfig?: string;
 }) {
   return (
-    <div className="panel p-3">
+    <div className={`panel ${themeConfig || "light:bg-muted"} p-3`}>
       <div className="flex justify-between items-center">
-        <div className="label-mono text-[9px] text-muted-foreground">
+        <div className="label-mono text-[9px] text-muted-foreground light:font-bold">
           {label}
         </div>
         {icon && <div className="mb-1">{icon}</div>}

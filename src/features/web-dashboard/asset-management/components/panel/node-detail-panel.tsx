@@ -74,7 +74,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
-        <div className="glass relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-6 pointer-events-auto bg-[#111827]/95 animate-pulse space-y-4">
+        <div className="glass light:bg-muted/90 light:border-2 light:border-l-primary/50 relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-6 pointer-events-auto animate-pulse space-y-4">
           <div className="h-6 bg-white/5 rounded w-1/3" />
           <div className="h-12 bg-white/5 rounded w-full" />
           <div className="h-32 bg-white/5 rounded w-full" />
@@ -87,19 +87,19 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
-      <div className="glass relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-6 pointer-events-auto bg-[#111827]/95 flex flex-col justify-between">
+      <div className="glass light:bg-muted/90 light:border-2 light:border-l-primary/50 relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-5 pointer-events-auto flex flex-col justify-between">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <div className="label-mono text-[10px] text-cyan-ice uppercase tracking-wider">
+              <div className="label-mono light:text-primary light:font-bold text-[10px] text-cyan-ice uppercase tracking-wider">
                 NODE DETAIL PROFILE
               </div>
               <div className="title-display mt-1 text-lg text-foreground truncate max-w-70">
                 {nodeInfo.displayName}
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="font-mono text-xs text-muted-foreground/60">
+                <div className="font-mono text-xs text-muted-foreground/60 light:text-muted-foreground/80 light:font-semibold">
                   NODE CODE{": "}
                 </div>
                 <CopyableUserId
@@ -143,13 +143,13 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
 
           {/* Section 1: Business & Coordinates */}
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground border-b border-[#25304A]/60 pb-1">
+            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-1">
               <MapPin className="size-3 text-cyan-ice" /> PHYSICAL PLACEMENT &
               CONTEXT
             </div>
 
             {/* business information */}
-            <div className="panel p-3 space-y-2.5 flex flex-col">
+            <div className="panel light:bg-secondary p-3 space-y-2.5 flex flex-col">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="label-mono uppercase text-[11px] text-muted-foreground">
                   NODE ID
@@ -213,6 +213,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
               label="LOCATION NETWORKS"
               value={`${nodeInfo.siteCode} · ${nodeInfo.roomCode} · ${nodeInfo.rowCode} · ${nodeInfo.rackPositionCode} · ${nodeInfo.positionCode}`}
               mono
+              themeConfig="light:bg-secondary"
             />
 
             {/* node state */}
@@ -221,26 +222,28 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
                 label="LIFECYCLE STATE"
                 value={nodeInfo.lifecycleState}
                 mono
-                tone={`${LIFECYCLE_COLOR_TEXT[nodeInfo.lifecycleState]}`}
+                tone={`${LIFECYCLE_COLOR_TEXT[nodeInfo.lifecycleState]} light:font-bold`}
+                themeConfig="light:bg-background light:border-2 light:border-cyan/45"
               />
               <Stat
                 label="ASSIGNMENT STATE"
                 value={nodeInfo.assignmentState}
                 mono
-                tone={`${ASSIGNMENT_COLOR_TEXT[nodeInfo.assignmentState]}`}
+                tone={`${ASSIGNMENT_COLOR_TEXT[nodeInfo.assignmentState]} light:font-bold`}
+                themeConfig="light:bg-background light:border-2 light:border-cyan/45"
               />
             </div>
           </div>
 
           {/* Section 2: Hardware Blueprint */}
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground border-b border-[#25304A]/60 pb-1">
+            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-1">
               <Monitor className="size-3 text-cyan-ice" /> HARDWARE
               SPECIFICATIONS
             </div>
 
             {/* hardware information */}
-            <div className="panel p-3 space-y-2.5 flex flex-col">
+            <div className="panel light:bg-secondary p-3 space-y-2.5 flex flex-col">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="label-mono uppercase text-[11px] text-muted-foreground">
                   Serial Number
@@ -303,19 +306,21 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
                 label="CPU ARCHITECTURE"
                 value={nodeInfo.arch.toUpperCase()}
                 mono
+                themeConfig="light:bg-background light:border-2 light:border-cyan/45"
               />
               <Stat
                 icon={<CpuIcon className="size-3.5 text-purple" />}
                 label="CPU LOGICAL CORES"
                 value={nodeInfo.cpus.toString()}
                 mono
+                themeConfig="light:bg-background light:border-2 light:border-cyan/45"
               />
             </div>
           </div>
 
           {/* Section 3: AR Marker Topology Mapping */}
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground border-b border-[#25304A]/60 pb-1">
+            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-1">
               <QrCode className="size-3.5 text-cyan-ice" /> AR SPATIAL TRACKING
               MARKERS
             </div>
@@ -379,8 +384,8 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
               ))}
 
               {nodeInfo.markers.length === 0 && (
-                <div className="text-center font-mono text-[11px] text-muted-foreground/55 py-6 border border-[#25304A]/25 border-dashed rounded-lg flex flex-col items-center gap-2">
-                  <AlertTriangle className="size-4 text-amber/60" />
+                <div className="text-center font-mono text-[11px] text-muted-foreground/65 py-6 border border-[#25304A]/25 border-dashed rounded-lg flex flex-col items-center gap-2">
+                  <AlertTriangle className="size-4 text-amber" />
                   <span>NO ACTIVE SPATIAL MARKERS ATTACHED</span>
                 </div>
               )}

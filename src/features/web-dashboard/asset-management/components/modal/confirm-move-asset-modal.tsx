@@ -100,38 +100,38 @@ export default function ConfirmMoveAsset() {
           <div className="grid grid-cols-7 items-center">
             {/* Current Coordinates */}
             <div className="col-span-3 border border-[#25304A]/50 bg-[#111827] rounded-lg p-4 space-y-3">
-              <div className="font-mono text-xs text-muted-foreground border-b border-[#25304A]/50 pb-1">
+              <div className="font-mono text-xs text-muted-foreground light:font-bold border-b border-[#25304A]/50 pb-1">
                 CURRENT COORDINATES
               </div>
               <div className="space-y-1.5 font-mono text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">SITE:</span>
-                  <span className="text-foreground">
+                  <span className="text-muted-foreground/70 light:font-bold">SITE:</span>
+                  <span className="text-foreground font-bold">
                     {currentCoords.siteCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">ROOM:</span>
-                  <span className="text-foreground truncate max-w-[120px]">
+                  <span className="text-muted-foreground/70 light:font-bold">ROOM:</span>
+                  <span className="text-foreground font-bold truncate max-w-[120px]">
                     {currentCoords.roomCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">ROW:</span>
-                  <span className="text-foreground">
+                  <span className="text-muted-foreground/70 light:font-bold">ROW:</span>
+                  <span className="text-foreground font-bold">
                     {currentCoords.rowCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 {assetType === "node" && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground/70">RACK:</span>
-                    <span className="text-foreground truncate max-w-[120px]">
+                    <span className="text-muted-foreground/70 light:font-bold">RACK:</span>
+                    <span className="text-foreground font-bold truncate max-w-[120px]">
                       {currentCoords.rackName ?? "UNASSIGNED"}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">POSITION:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">POSITION:</span>
                   <span className="text-foreground font-bold">
                     {currentCoords.positionCode ?? "UNASSIGNED"}
                   </span>
@@ -146,31 +146,31 @@ export default function ConfirmMoveAsset() {
 
             {/* Proposed Target Coordinates */}
             <div className="col-span-3 border border-cyan/20 bg-[#111827] shadow-[0_0_15px_rgba(0,209,255,0.05)] rounded-lg p-4 space-y-3">
-              <div className="font-mono text-xs text-cyan uppercase border-b border-cyan/20 pb-1">
+              <div className="font-mono text-xs text-cyan light:font-bold uppercase border-b border-cyan/20 pb-1">
                 PROPOSED TARGET
               </div>
               <div className="space-y-1.5 font-mono text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">SITE:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">SITE:</span>
                   <span className="text-cyan font-bold">
                     {targetCoords.siteCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">ROOM:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">ROOM:</span>
                   <span className="text-cyan font-bold truncate max-w-[120px]">
                     {targetCoords.roomCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">ROW:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">ROW:</span>
                   <span className="text-cyan font-bold">
                     {targetCoords.rowCode ?? "UNASSIGNED"}
                   </span>
                 </div>
                 {assetType === "node" && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground/70">RACK:</span>
+                    <span className="text-muted-foreground/70 light:font-bold">RACK:</span>
                     <span className="text-cyan font-bold truncate max-w-[120px]">
                       {targetCoords.rackName ??
                         targetCoords.rackId ??
@@ -179,7 +179,7 @@ export default function ConfirmMoveAsset() {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70">POSITION:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">POSITION:</span>
                   <span className="text-cyan font-bold">
                     {targetCoords.positionCode ?? "UNASSIGNED"}
                   </span>
