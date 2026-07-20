@@ -2,14 +2,18 @@ export interface ErrorResponse {
   code: string;
   message: string;
   details?: {
-    statusCode: number;
-    message: string;
+    status: number;
+    instance?: string;
+    type?: string;
+    reason?: string;
+    detail?: string;
   };
 }
 
 export interface MetaResponse {
   timestamp: string;
-  correlationId: string;
+  requestId?: string;
+  correlationId?: string;
   version: string;
 }
 

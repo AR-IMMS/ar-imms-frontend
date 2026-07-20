@@ -233,7 +233,7 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
         {/* Left Column: Form */}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-5 border-r-0 border-[#25304A] p-6 md:col-span-7 md:border-r"
+          className="flex flex-col gap-5 border-r-0 border-border p-6 md:col-span-7 md:border-r"
         >
           {/* Section: Operator Metadata */}
           <IdentityFields
@@ -258,19 +258,19 @@ export default function AddUserModal({ onClose }: AddUserModalProps) {
           />
 
           {/* Actions Bar */}
-          <div className="mt-2 flex items-center justify-center gap-3 border-t border-[#25304A] pt-4">
+          <div className="mt-2 flex items-center justify-center gap-3 border-t border-border pt-4">
             <button
               type="button"
               onClick={onClose}
               disabled={createUserMutation.isPending}
-              className="label-mono h-9 rounded-md border border-[#25304A] bg-transparent px-4 py-2 text-[10px] text-muted-foreground hover:bg-white/5 hover:text-foreground transition disabled:opacity-50"
+              className="label-mono h-9 rounded-md border border-border bg-transparent px-4 py-2 text-[10px] text-muted-foreground hover:bg-white/5 hover:text-foreground transition disabled:opacity-50 cursor-pointer"
             >
               Cancel Action
             </button>
             <button
               type="submit"
               disabled={createUserMutation.isPending}
-              className="label-mono h-9 rounded-md bg-[#009DFF] px-5 py-2 text-[10px] text-white hover:bg-[#008be2] hover:shadow-[0_0_15px_rgba(0,157,255,0.4)] transition disabled:opacity-50 disabled:hover:shadow-none flex items-center justify-center font-semibold"
+              className="label-mono h-9 rounded-md bg-cyan px-5 py-2 text-[10px] text-primary-foreground hover:bg-cyan/90 hover:shadow-[0_0_15px_rgba(0,209,255,0.25)] transition disabled:opacity-50 disabled:hover:shadow-none flex items-center justify-center font-semibold cursor-pointer"
             >
               {createUserMutation.isPending ? (
                 <span className="font-mono">{loadingText}</span>

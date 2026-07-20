@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ChevronDown, Hexagon } from "lucide-react";
-import { useAuth } from "@/hooks/auth/use-auth";
-import { getRoleName } from "@/lib/utils/roleConverter";
-import { Avatar } from "@/components/common/avatar";
+import { Hexagon } from "lucide-react";
+import { UserDropdown } from "./user-dropdown";
 
 function useCurrentTime() {
   const [t, setT] = useState(() => new Date());
@@ -22,17 +20,9 @@ function useCurrentTime() {
 
 export default function TopBar() {
   const { time, date } = useCurrentTime();
-  const { user } = useAuth();
 
   return (
-    <header
-      className="glass sticky top-0 z-30 flex h-15 items-center justify-between border-b border-sidebar-border px-4 sm:px-6"
-      style={{
-        background: "rgba(8, 18, 35, 0.95)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(0, 217, 255, 0.15)",
-      }}
-    >
+    <header className="glass sticky top-0 z-30 flex h-15 items-center justify-between border-b border-sidebar-border px-4 sm:px-6">
       <div className="flex items-center gap-6">
         <Link
           href="/"
@@ -42,11 +32,12 @@ export default function TopBar() {
             <Hexagon className="size-5 text-cyan" />
             <span className="pointer-events-none absolute inset-0 rounded-md shadow-[0_0_18px_rgba(0,217,255,0.45)]" />
           </div>
+          
           <div className="leading-tight">
             <div className="title-display text-[15px] text-cyan text-glow-cyan">
               AR-IMMS
             </div>
-            <div className="label-mono text-[9px] text-cyan-ice/70">
+            <div className="label-mono text-[9px] text-cyan-ice/70 light:text-foreground/70">
               Command Center · V1.0.0
             </div>
           </div>
@@ -55,34 +46,18 @@ export default function TopBar() {
 
       <div className="flex items-center gap-4">
         <div className="hidden flex-col items-end leading-tight md:flex">
-          <div className="font-mono text-sm tabular-nums text-cyan text-glow-cyan">
-            {time}{" "}
+          <div className="font-mono text-sm tabular-nums text-cyan text-glow-cyan light:font-bold">
+            {time} {" "}
             <span className="ml-1 text-[10px] text-muted-foreground">
               Viet Nam
             </span>
           </div>
-          <div className="label-mono text-[10px] tabular-nums text-muted-foreground">
+          <div className="label-mono text-[10px] tabular-nums text-muted-foreground light:text-foreground/65">
             {date} · SYNCED
           </div>
         </div>
 
-        <div className="flex items-center gap-2 border-l border-cyan/15 pl-3">
-          <Avatar
-            avatarUrl={user?.avatarUrl || null}
-            fullName={user?.fullName || user?.username || "N/A"}
-            size="sm"
-            variant="square"
-          />
-          <div className="hidden md:block leading-tight">
-            <div className="text-xs font-medium text-foreground">
-              {user?.username || "N/A"}
-            </div>
-            <div className="label-mono text-[9px] text-muted-foreground">
-              {getRoleName(user?.roleCodes?.[0]) || "N/A"}
-            </div>
-          </div>
-          <ChevronDown className="size-3.5 text-muted-foreground" />
-        </div>
+        <UserDropdown />
       </div>
     </header>
   );

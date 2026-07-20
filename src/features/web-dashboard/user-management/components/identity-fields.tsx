@@ -64,10 +64,10 @@ export default function IdentityFields({
             value={fullName}
             onChange={(e) => onFullNameChange(e.target.value)}
             placeholder="E.g., Lena Okafor"
-            className={`h-9 w-full rounded-md border bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
+            className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.fullName
-                ? "border-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.2)]"
-                : "border-[#25304A] focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
+                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
             }`}
           />
           {errors.fullName && (
@@ -86,10 +86,10 @@ export default function IdentityFields({
             value={username}
             onChange={(e) => onUsernameChange(e.target.value)}
             placeholder="alpha_numeric-only"
-            className={`h-9 w-full rounded-md border bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
+            className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.username
-                ? "border-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.2)]"
-                : "border-[#25304A] focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
+                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
             }`}
           />
           {errors.username && (
@@ -110,10 +110,10 @@ export default function IdentityFields({
             value={email}
             onChange={(e) => onEmailChange(e.target.value)}
             placeholder="name@gmail.com"
-            className={`h-9 w-full rounded-md border bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
+            className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.email
-                ? "border-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.2)]"
-                : "border-[#25304A] focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
+                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
             }`}
           />
           {errors.email && (
@@ -132,7 +132,7 @@ export default function IdentityFields({
             value={phoneNumber}
             onChange={(e) => onPhoneNumberChange(e.target.value)}
             placeholder="+1 (555) 000-0000"
-            className="h-9 w-full rounded-md border border-[#25304A] bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+            className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
           />
         </div>
       </div>
@@ -149,10 +149,10 @@ export default function IdentityFields({
             value={department}
             onChange={(e) => onDepartmentChange(e.target.value)}
             placeholder="E.g., Infrastructure, IT Support"
-            className={`h-9 w-full rounded-md border bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
+            className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.department
-                ? "border-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.2)]"
-                : "border-[#25304A] focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
+                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
             }`}
           />
           {errors.department && (
@@ -171,7 +171,7 @@ export default function IdentityFields({
             value={jobTitle}
             onChange={(e) => onJobTitleChange(e.target.value)}
             placeholder="E.g., Senior Systems Analyst"
-            className="h-9 w-full rounded-md border border-[#25304A] bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+            className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
           />
         </div>
       </div>
@@ -187,7 +187,7 @@ export default function IdentityFields({
           value={avatarUrl}
           onChange={(e) => onAvatarUrlChange(e.target.value)}
           placeholder="https://example.com/avatar.jpg"
-          className="h-9 w-full rounded-md border border-[#25304A] bg-[#0b1020] px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-[#009DFF] focus:shadow-[0_0_10px_rgba(0,157,255,0.15)]"
+          className="h-9 w-full rounded-md border border-border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
         />
       </div>
     </div>

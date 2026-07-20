@@ -14,7 +14,7 @@ export default function Header({
   return (
     <header className="flex items-end justify-between flex-wrap gap-4">
       <div>
-        {eyebrow && <p className="label-mono text-cyan-ice/70">{eyebrow}</p>}
+        {eyebrow && <p className="label-mono text-cyan-ice/70 light:text-primary light:font-bold">{eyebrow}</p>}
         <h1 className="title-display text-md md:text-3xl text-foreground mt-1">
           {title}
         </h1>

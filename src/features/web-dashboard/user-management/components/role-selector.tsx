@@ -68,8 +68,8 @@ export default function RoleSelector({
               onClick={() => !isPending && onRoleToggle(role.code)}
               className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-all duration-150 ${
                 isChecked
-                  ? `border-[#009DFF]/60 bg-[#009DFF]/10 text-foreground`
-                  : "border-[#25304A] bg-[#0b1020] hover:border-[#25304A]/90 hover:bg-[#1b2338]/40"
+                  ? `border-cyan/60 bg-cyan/10 text-foreground`
+                  : "border-border bg-background hover:border-cyan/30 hover:bg-surface-3/40"
               }`}
             >
               <input
@@ -77,7 +77,7 @@ export default function RoleSelector({
                 checked={isChecked}
                 disabled={isPending}
                 onChange={() => {}} // Controlled by wrapper div click
-                className="accent-[#009DFF] mt-1.5 h-3.5 w-3.5 cursor-pointer rounded border-[#25304A] bg-[#0b1020]"
+                className="accent-cyan mt-1.5 h-3.5 w-3.5 cursor-pointer rounded border-border bg-background"
               />
               <div className="flex-1">
                 <div className="flex items-center gap-2">

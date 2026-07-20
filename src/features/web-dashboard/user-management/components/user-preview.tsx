@@ -28,7 +28,7 @@ export default function UserPreview({
   selectedRoles,
 }: UserPreviewProps) {
   return (
-    <div className="hidden flex-col bg-[#141B2D]/55 p-6 md:col-span-5 md:flex">
+    <div className="hidden flex-col bg-surface-2/55 p-6 md:col-span-5 md:flex">
       <div className="label-mono text-[10px] text-cyan-ice tracking-wider">
         {"// VISUAL COMPLIANCE"}
       </div>
@@ -37,7 +37,7 @@ export default function UserPreview({
       </h3>
 
       {/* Preview Card */}
-      <div className="panel mt-6 flex flex-col items-center bg-[#111827]/90 p-5 shadow-lg border-[#25304A]">
+      <div className="panel mt-6 flex flex-col items-center bg-surface-1/90 p-5 shadow-lg border-border">
         {/* Profile Pic or Initials */}
         <Avatar
           avatarUrl={avatarUrl.trim() || null}
@@ -56,7 +56,7 @@ export default function UserPreview({
         </div>
 
         {/* Divider */}
-        <div className="my-4 h-px w-full bg-[#25304A]" />
+        <div className="my-4 h-px w-full bg-border" />
 
         {/* User attributes */}
         <div className="w-full space-y-3 font-mono text-xs">
@@ -118,7 +118,7 @@ export default function UserPreview({
             })}
           </div>
         ) : (
-          <div className="rounded-lg border border-dashed border-[#25304A] p-4 text-center font-mono text-[10px] text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-border p-4 text-center font-mono text-[10px] text-muted-foreground">
             No operational security roles checked.
           </div>
         )}

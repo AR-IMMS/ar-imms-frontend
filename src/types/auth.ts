@@ -36,19 +36,7 @@ export type PermissionCode =
   | "ar.diagnostics.read"
   | "ar.inspection-results.submit"
   | "simulation.scenarios.run"
-  | "simulation.faults.inject"
-  | "incidents.read"
-  | "tickets.read"
-  | "tickets.create"
-  | "tickets.assign"
-  | "tickets.status.update"
-  | "tickets.comment"
-  | "tickets.evidence.attach"
-  | "tickets.acknowledge"
-  | "tickets.work.start"
-  | "tickets.resolve"
-  | "tickets.close"
-  | "tickets.cancel";
+  | "simulation.faults.inject";
 
 export const USER_PERMISSION = {
   IDENTITY_USERS_MANAGE: "identity.users.manage",
@@ -62,19 +50,7 @@ export const USER_PERMISSION = {
   TELEMETRY_HISTORY_READ: "telemetry.history.read",
   ALERTS_QUEUE_READ: "alerts.queue.read",
   INCIDENTS_CREATE: "incidents.create",
-  INCIDENTS_READ: "incidents.read",
   TICKETS_DISPATCH: "tickets.dispatch",
-  TICKETS_READ: "tickets.read",
-  TICKETS_CREATE: "tickets.create",
-  TICKETS_ASSIGN: "tickets.assign",
-  TICKETS_STATUS_UPDATE: "tickets.status.update",
-  TICKETS_COMMENT: "tickets.comment",
-  TICKETS_EVIDENCE_ATTACH: "tickets.evidence.attach",
-  TICKETS_ACKNOWLEDGE: "tickets.acknowledge",
-  TICKETS_WORK_START: "tickets.work.start",
-  TICKETS_RESOLVE: "tickets.resolve",
-  TICKETS_CLOSE: "tickets.close",
-  TICKETS_CANCEL: "tickets.cancel",
   AR_INSPECTIONS_CONDUCT: "ar.inspections.conduct",
   AR_ASSETS_IDENTIFY: "ar.assets.identify",
   AR_DIAGNOSTICS_READ: "ar.diagnostics.read",
