@@ -2,16 +2,19 @@
 
 import {
   AlertCircle,
+  Box,
   CheckCircle2,
   ChevronRight,
   FileImage,
   Send,
+  Server,
   ShieldCheck,
   Trash2,
   Unlock,
   UserPlus,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import {
   useMemo,
   useState,
@@ -229,6 +232,30 @@ export default function TicketDetailPanel({
           <PanelStat label="Updated" value={formatDateTime(detailTicket.updatedAt)} />
           <PanelStat label="Evidence" value={String(evidenceItems.length)} tone="text-cyan-ice" />
         </div>
+
+        {detailTicket.assetRef ? (
+          <section className="mt-7">
+            <div className="label-mono mb-3 text-[10px] text-muted-foreground">Related Asset</div>
+            <Link
+              href={detailTicket.assetRef.type === "NODE" && detailTicket.assetRef.rackId
+                ? `/assets/${detailTicket.assetRef.rackId}/${detailTicket.assetRef.assetId}`
+                : detailTicket.assetRef.type === "RACK"
+                  ? `/assets/${detailTicket.assetRef.assetId}`
+                  : "/assets"}
+              className="flex items-center gap-3 rounded-2xl border border-cyan/30 bg-cyan/10 p-4 transition hover:border-cyan/55"
+            >
+              <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-cyan/25 bg-background/30">
+                {detailTicket.assetRef.type === "RACK" ? <Server className="size-5 text-cyan" /> : <Box className="size-5 text-cyan" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="label-mono text-[9px] text-cyan-ice">{detailTicket.assetRef.type} · {detailTicket.assetRef.code}</div>
+                <div className="mt-1 truncate text-sm font-semibold text-foreground">{detailTicket.assetRef.displayName}</div>
+                {detailTicket.assetRef.type === "NODE" && detailTicket.assetRef.rackCode ? <div className="mt-1 font-mono text-[10px] text-muted-foreground">Located in {detailTicket.assetRef.rackCode}</div> : null}
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </Link>
+          </section>
+        ) : null}
 
         <section className="mt-7">
           <div className="label-mono mb-3 text-[10px] text-muted-foreground">

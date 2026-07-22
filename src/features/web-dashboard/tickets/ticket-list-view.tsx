@@ -65,7 +65,11 @@ export default function TicketListView({ technicians }: TicketListViewProps) {
     const pendingTicketId = window.sessionStorage.getItem("ar-imms:open-ticket");
     if (!pendingTicketId) return;
     window.sessionStorage.removeItem("ar-imms:open-ticket");
-    setSelectedTicketId(pendingTicketId);
+    const timerId = window.setTimeout(
+      () => setSelectedTicketId(pendingTicketId),
+      0,
+    );
+    return () => window.clearTimeout(timerId);
   }, []);
 
   const deferredSearch = useDeferredValue(search.trim().toLowerCase());
@@ -275,6 +279,11 @@ export default function TicketListView({ technicians }: TicketListViewProps) {
                       {!ticket.assigneeUserId ? (
                         <span className="label-mono rounded border border-amber/30 bg-amber/10 px-1.5 py-0.5 text-[9px] text-amber">
                           UNASSIGNED
+                        </span>
+                      ) : null}
+                      {ticket.assetRef ? (
+                        <span className="label-mono max-w-32 truncate rounded border border-cyan/25 bg-cyan/8 px-1.5 py-0.5 text-[9px] text-cyan-ice">
+                          {ticket.assetRef.type} · {ticket.assetRef.code}
                         </span>
                       ) : null}
                     </div>

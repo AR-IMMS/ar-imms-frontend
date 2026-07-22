@@ -16,8 +16,9 @@ import {
 import { toast } from "sonner";
 import ModalLayout from "@/components/layout/modal-layout";
 import { useCreateTicketMutation } from "@/hooks/tickets/use-ticket-mutations";
-import type { TechnicianOption, TicketPriority } from "@/types/ticket";
+import type { TechnicianOption, TicketAssetReference, TicketPriority } from "@/types/ticket";
 import { PRIORITY_OPTIONS, priorityTone } from "../lib/ticket-ui";
+import TicketAssetPicker from "./ticket-asset-picker";
 
 type CreateTicketModalProps = {
   technicians: TechnicianOption[];
@@ -40,6 +41,7 @@ export default function CreateTicketModal({
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TicketPriority>("HIGH");
   const [assigneeUserId, setAssigneeUserId] = useState("");
+  const [assetRef, setAssetRef] = useState<TicketAssetReference | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const selectedTechnician = useMemo(
@@ -75,12 +77,18 @@ export default function CreateTicketModal({
         description: description.trim() || undefined,
         priority,
         assigneeUserId: assigneeUserId || undefined,
+        assetRef: assetRef ?? undefined,
       });
       onClose();
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
+          : error &&
+              typeof error === "object" &&
+              "message" in error &&
+              typeof error.message === "string"
+            ? error.message
           : "Could not create the ticket.";
       setErrors({ apiError: message });
       toast.error(message);
@@ -152,6 +160,11 @@ export default function CreateTicketModal({
                 placeholder="Add operational context, symptoms, or next action..."
               />
             </Field>
+
+            <div className="grid gap-2">
+              <div className="label-mono text-[10px] text-muted-foreground">Related Asset <span className="normal-case">(optional)</span></div>
+              <TicketAssetPicker value={assetRef} onChange={setAssetRef} />
+            </div>
           </section>
 
           <section className="grid gap-4">
@@ -260,6 +273,7 @@ export default function CreateTicketModal({
           description={description}
           priority={priority}
           technician={selectedTechnician}
+          assetRef={assetRef}
         />
       </div>
     </ModalLayout>
@@ -272,12 +286,14 @@ function TicketPreview({
   description,
   priority,
   technician,
+  assetRef,
 }: {
   ticketCode: string;
   title: string;
   description: string;
   priority: TicketPriority;
   technician: TechnicianOption | null;
+  assetRef: TicketAssetReference | null;
 }) {
   return (
     <aside className="flex flex-col gap-6 p-6 md:col-span-5">
@@ -320,6 +336,9 @@ function TicketPreview({
             {technician?.fullName ?? "Unassigned"}
           </span>
         </PreviewRow>
+        <PreviewRow label="Asset">
+          <span className="truncate font-mono text-xs text-foreground">{assetRef ? `${assetRef.type} · ${assetRef.code}` : "Not linked"}</span>
+        </PreviewRow>
         <PreviewRow label="Evidence">
           <span className="font-mono text-xs text-muted-foreground">
             Attached later
@@ -345,6 +364,7 @@ function TicketPreview({
             label="Technician preassigned"
             optional
           />
+          <ReadinessItem ready={Boolean(assetRef)} label="Rack or node linked" optional />
         </div>
       </div>
     </aside>
