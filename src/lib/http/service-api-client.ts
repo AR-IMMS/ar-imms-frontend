@@ -78,10 +78,11 @@ function toApiError<T>(
 ): ApiError {
   if (isApiFailure(payload)) {
     return {
-      status: payload.error.details?.statusCode ?? response.status,
+      status: payload.error.details?.status ?? response.status,
       code: payload.error.code ?? "HTTP_ERROR",
       message:
-        payload.error.details?.message ??
+        payload.error.details?.detail ??
+        payload.error.details?.reason ??
         payload.error.message ??
         response.statusText,
     };

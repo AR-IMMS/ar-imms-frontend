@@ -56,8 +56,8 @@ export default function TicketListFilters({
 
   return (
     <div className="panel space-y-4 p-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="flex h-11 min-w-70 flex-1 items-center gap-2 rounded-lg border border-cyan/15 bg-surface-1 px-4">
+      <div className="grid gap-3 lg:grid-cols-[minmax(280px,1fr)_auto_auto_auto]">
+        <label className="flex h-11 min-w-0 items-center gap-2 rounded-lg border border-cyan/15 bg-surface-1 px-4">
           <Search className="size-4 text-muted-foreground" />
           <input
             value={search}
@@ -194,12 +194,12 @@ function FilterDropdown({
   const isOpen = openMenu === menuKey;
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0">
       <button
         type="button"
         aria-expanded={isOpen}
         onClick={() => onOpenMenu(isOpen ? null : menuKey)}
-        className={`inline-flex h-11 items-center gap-2 rounded-lg border px-4 text-xs transition ${
+        className={`inline-flex h-11 w-full items-center justify-between gap-2 rounded-lg border px-4 text-xs transition lg:w-auto ${
           active || isOpen
             ? "border-cyan/45 bg-cyan/10 text-cyan-ice"
             : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice"

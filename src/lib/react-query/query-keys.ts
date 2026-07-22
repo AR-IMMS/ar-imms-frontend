@@ -1,4 +1,5 @@
 import type { ListUsersRequest } from "@/types/users";
+import type { ListTicketsParams } from "@/types/ticket";
 
 export const queryKeys = {
   auth: {
@@ -42,5 +43,16 @@ export const queryKeys = {
       overview: () => ["monitoring", "racks", "overview"] as const,
       // state: () => ["monitoring", "racks", "state"] as const,
     },
+  },
+  tickets: {
+    all: ["tickets"] as const,
+    lists: () => ["tickets", "list"] as const,
+    list: (params?: ListTicketsParams) =>
+      ["tickets", "list", params ?? {}] as const,
+    detail: (ticketId: string) =>
+      ["tickets", "detail", ticketId] as const,
+    evidence: (ticketId: string) =>
+      ["tickets", "detail", ticketId, "evidence"] as const,
+    technicians: () => ["tickets", "technicians"] as const,
   },
 } as const;
