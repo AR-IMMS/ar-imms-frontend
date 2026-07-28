@@ -11,10 +11,10 @@ import {
   useRetireAndReplaceNodeMutation,
   useRetireAndReplaceRackMutation,
 } from "@/hooks/asset/use-asset-mutations";
-import { useAssetStore } from "./hooks/useAssetStore";
-import { parseCoordinate } from "./lib/utils/parse-coordinate";
+import { useAssetStore } from "../../hooks/useAssetStore";
+import { parseCoordinate } from "../../lib/utils/parse-coordinate";
 import { PendingAssignmentNodeView, RackEntity } from "@/types/assets";
-import { LIFECYCLE_COLOR_TEXT } from "./lib/constant";
+import { LIFECYCLE_COLOR_TEXT } from "../../lib/constant";
 
 type DrawerRackItem = Omit<RackEntity, "metadata" | "capacityState"> & {
   type: "rack";
@@ -36,8 +36,10 @@ export function UnmappedAssetsDrawer() {
     usePendingAssignmentNodesQuery();
 
   const {
-    selectedAsset,
-    setSelectedAsset,
+    selectedRackId,
+    selectedNodeCode,
+    setSelectedRackId,
+    setSelectedNodeCode,
     isUnmappedDrawerOpen,
     setIsUnmappedDrawerOpen,
     setActivePanelType,
@@ -206,7 +208,8 @@ export function UnmappedAssetsDrawer() {
           const nextOpen = !isUnmappedDrawerOpen;
           setIsUnmappedDrawerOpen(nextOpen);
           if (nextOpen) {
-            setSelectedAsset(null);
+            setSelectedRackId(null);
+            setSelectedNodeCode(null);
             setActivePanelType(null);
           }
         }}
@@ -238,7 +241,7 @@ export function UnmappedAssetsDrawer() {
           {unifiedItems.map((item) => {
             /* RACK ITEM Content */
             if (item.type === "rack") {
-              const isSelected = selectedAsset?.id === item.id;
+              const isSelected = selectedRackId === item.id;
 
               return (
                 <div
@@ -248,9 +251,10 @@ export function UnmappedAssetsDrawer() {
                   onDragEnd={handleDragEnd}
                   onClick={() => {
                     if (isSelected) {
-                      setSelectedAsset(null);
+                      setSelectedRackId(null);
                     } else {
-                      setSelectedAsset({ id: item.id, assetType: "rack" });
+                      setSelectedRackId(item.id);
+                      setSelectedNodeCode(null);
                     }
                     setActivePanelType(null);
                   }}
@@ -312,7 +316,7 @@ export function UnmappedAssetsDrawer() {
             } else {
               /* NODE ITEM Content */
               const nodeItem = item as DrawerNodeItem;
-              const isSelected = selectedAsset?.id === nodeItem.id;
+              const isSelected = selectedNodeCode === nodeItem.id;
               const isDiscovered = nodeItem.origin === "redis";
 
               return (
@@ -323,9 +327,10 @@ export function UnmappedAssetsDrawer() {
                   onDragEnd={handleDragEnd}
                   onClick={() => {
                     if (isSelected) {
-                      setSelectedAsset(null);
+                      setSelectedNodeCode(null);
                     } else {
-                      setSelectedAsset({ id: nodeItem.id, assetType: "node" });
+                      setSelectedNodeCode(nodeItem.id);
+                      setSelectedRackId(null);
                     }
                     setActivePanelType(null);
                   }}

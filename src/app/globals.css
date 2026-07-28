@@ -354,12 +354,12 @@
 
 @utility glass {
   background: rgba(20, 27, 45, 0.8);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(30px);
   border: 1px solid rgba(37, 48, 74, 0.5);
 
   .light & {
     background: oklch(0.9313 0.0383 236.0626);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(30px);
     border: 1px solid rgba(203, 213, 225, 0.5);
   }
 }

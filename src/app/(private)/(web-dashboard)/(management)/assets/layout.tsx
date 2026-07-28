@@ -3,7 +3,7 @@
 import Header from "@/components/layout/web-dashboard/header";
 import BulkMarkerExport from "@/features/web-dashboard/asset-management/bulk-marker-export";
 import HierarchicalTreeSidebar from "@/features/web-dashboard/asset-management/components/hierachical-tree";
-import { UnmappedAssetsDrawer } from "@/features/web-dashboard/asset-management/unmapped-asset-drawer";
+import { UnmappedAssetsDrawer } from "@/features/web-dashboard/asset-management/components/panel/unmapped-asset-drawer";
 import { QrCode, Plus } from "lucide-react";
 import { ReactNode, useState, useEffect } from "react";
 import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
@@ -12,7 +12,7 @@ import {
   type NavigationPathItem,
 } from "@/stores/ui-config-store";
 import { motion } from "framer-motion";
-import { WorkspaceBreadcrumbs } from "@/features/web-dashboard/asset-management/components/workspace-breadcrumbs";
+import { WorkspaceBreadcrumbs } from "@/components/common/workspace-breadcrumbs";
 
 export default function AssetManagementLayout({
   children,
@@ -24,7 +24,7 @@ export default function AssetManagementLayout({
 
   const { isTopologyTreeCollapsed, setActiveNavigationPath } =
     useUiConfigStore();
-  const { selectedSiteCode, selectedRoomCode, selectedAsset, topologyData } =
+  const { selectedSiteCode, selectedRoomCode, selectedRackId, topologyData } =
     useAssetStore();
 
   // Dynamic hierarchy synchronization
@@ -44,15 +44,15 @@ export default function AssetManagementLayout({
           type: "room",
         });
 
-        if (selectedAsset !== null && selectedAsset.assetType === "rack") {
+        if (selectedRackId !== null) {
           const rack = topologyData.find(
-            (t) => t.rack.id === selectedAsset.id,
+            (t) => t.rack.id === selectedRackId,
           )?.rack;
           const rackName = rack
             ? rack.displayName || rack.rackCode
-            : selectedAsset.id;
+            : selectedRackId;
           path.push({
-            id: selectedAsset.id,
+            id: selectedRackId,
             name: rackName,
             type: "rack",
           });
@@ -63,7 +63,7 @@ export default function AssetManagementLayout({
   }, [
     selectedSiteCode,
     selectedRoomCode,
-    selectedAsset,
+    selectedRackId,
     topologyData,
     setActiveNavigationPath,
   ]);
@@ -112,7 +112,7 @@ export default function AssetManagementLayout({
         </motion.aside>
 
         <main className="relative flex-1 min-w-0 overflow-hidden flex flex-col">
-          <WorkspaceBreadcrumbs />
+          <WorkspaceBreadcrumbs className={`absolute top-0 ${isTopologyTreeCollapsed ? "left-0" : "left-4"}`} />
           <div className="flex-1 min-h-0 h-full w-full">{children}</div>
         </main>
 

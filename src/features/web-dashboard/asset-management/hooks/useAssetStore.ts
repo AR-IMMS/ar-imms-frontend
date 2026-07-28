@@ -5,10 +5,10 @@ interface AssetStoreState {
   // Active Filters
   selectedSiteCode: string | null;
   selectedRoomCode: string | null;
-  searchQuery: string;
 
   // Selected Assets
-  selectedAsset: { id: string; assetType: "rack" | "node" } | null;
+  selectedRackId: string | null;
+  selectedNodeCode: string | null;
 
   // Active panel type (mutual exclusion details panels)
   activePanelType: "site" | "rack" | "node" | null;
@@ -67,12 +67,10 @@ interface AssetStoreState {
   // Filter Actions
   setSelectedSiteCode: (siteCode: string | null) => void;
   setSelectedRoomCode: (roomCode: string | null) => void;
-  setSearchQuery: (query: string) => void;
 
   // Asset Selection Actions
-  setSelectedAsset: (
-    asset: { id: string; assetType: "rack" | "node" } | null,
-  ) => void;
+  setSelectedRackId: (rackId: string | null) => void;
+  setSelectedNodeCode: (nodeCode: string | null) => void;
 
   // Panel inspection actions
   setActivePanelType: (type: "site" | "rack" | "node" | null) => void;
@@ -82,8 +80,6 @@ interface AssetStoreState {
 
   // Data & State Sync Actions
   setTopologyData: (data: RackTopologyResult[]) => void;
-  setLoadingState: (key: "topology" | "telemetry", value: boolean) => void;
-  setErrorState: (key: "topology" | "telemetry", value: boolean) => void;
   resetFilters: () => void;
 
   // Modal Actions
@@ -133,8 +129,8 @@ export const useAssetStore = create<AssetStoreState>()((set) => ({
   // Initial State
   selectedSiteCode: null,
   selectedRoomCode: null,
-  searchQuery: "",
-  selectedAsset: null,
+  selectedRackId: null,
+  selectedNodeCode: null,
   activePanelType: null,
   isUnmappedDrawerOpen: true,
   topologyData: [],
@@ -163,24 +159,21 @@ export const useAssetStore = create<AssetStoreState>()((set) => ({
     set({
       selectedSiteCode: siteCode,
       selectedRoomCode: null,
-      selectedAsset: null,
+      selectedRackId: null,
+      selectedNodeCode: null,
       activePanelType: siteCode ? "site" : null,
     }),
 
   setSelectedRoomCode: (roomCode) =>
     set({
       selectedRoomCode: roomCode,
-      selectedAsset: null,
+      selectedRackId: null,
+      selectedNodeCode: null,
       activePanelType: null,
     }),
 
-  setSearchQuery: (query) => set({ searchQuery: query }),
-
-  setSelectedAsset: (asset) =>
-    set({
-      selectedAsset: asset,
-      // activePanelType: asset ? "node" : null,
-    }),
+  setSelectedRackId: (rackId) => set({ selectedRackId: rackId }),
+  setSelectedNodeCode: (nodeCode) => set({ selectedNodeCode: nodeCode }),
 
   setActivePanelType: (type) => set({ activePanelType: type }),
 
@@ -197,35 +190,13 @@ export const useAssetStore = create<AssetStoreState>()((set) => ({
       return { topologyData: data };
     }),
 
-  setLoadingState: (key, value) =>
-    set((state) => {
-      if (state.loadingStates[key] === value) return {};
-      return {
-        loadingStates: {
-          ...state.loadingStates,
-          [key]: value,
-        },
-      };
-    }),
-
-  setErrorState: (key, value) =>
-    set((state) => {
-      if (state.errorStates[key] === value) return {};
-      return {
-        errorStates: {
-          ...state.errorStates,
-          [key]: value,
-        },
-      };
-    }),
-
   resetFilters: () =>
     set({
       selectedSiteCode: null,
       selectedRoomCode: null,
-      selectedAsset: null,
+      selectedRackId: null,
+      selectedNodeCode: null,
       activePanelType: null,
-      searchQuery: "",
     }),
 
   // Modal Actions implementation

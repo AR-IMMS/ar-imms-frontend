@@ -39,8 +39,15 @@ export const queryKeys = {
     all: ["monitoring"] as const,
     racks: {
       all: ["monitoring", "racks"] as const,
-      overview: () => ["monitoring", "racks", "overview"] as const,
-      // state: () => ["monitoring", "racks", "state"] as const,
+      overview: (rackId: string) =>
+        ["monitoring", "racks", "overview", rackId] as const,
+    },
+    nodes: {
+      all: ["monitoring", "nodes"] as const,
+      overview: (nodeCode: string) =>
+        ["monitoring", "nodes", "overview", nodeCode] as const,
+      metrics: (nodeCode: string, params?: Record<string, unknown>) =>
+        ["monitoring", "nodes", "metrics", nodeCode, params ?? {}] as const,
     },
   },
 } as const;

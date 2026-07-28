@@ -1,19 +1,31 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { assetService } from "@/services/asset/asset-service";
 import { queryKeys } from "@/lib/react-query/query-keys";
+import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
+import { RackTopologyResult } from "@/types/assets";
 
 const DEFAULT_STALE_TIME = 30_000; // 30 seconds
 
 export function useTopologyTreeQuery(enabled = true) {
   return useQuery({
     queryKey: queryKeys.asset.topologyTree(),
-    queryFn: () => assetService.getTopologyTree(),
+    queryFn: async () => {
+      const data = await assetService.getTopologyTree();
+      useAssetStore.getState().setTopologyData(data);
+      return data;
+    },
     enabled,
     staleTime: DEFAULT_STALE_TIME,
   });
 }
 
-export function useRackTopologyQuery(rackId: string, enabled = true) {
+export function useRackTopologyQuery<TData = RackTopologyResult>(
+  rackId: string,
+  enabled = true,
+  options?: {
+    select?: (data: RackTopologyResult) => TData;
+  },
+) {
   const normalizedRackId = rackId?.trim() ?? "";
 
   return useQuery({
@@ -21,6 +33,7 @@ export function useRackTopologyQuery(rackId: string, enabled = true) {
     queryFn: () => assetService.getRackTopology(normalizedRackId),
     enabled: enabled && normalizedRackId.length > 0,
     staleTime: DEFAULT_STALE_TIME,
+    ...options,
   });
 }
 

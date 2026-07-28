@@ -25,11 +25,11 @@ interface NodeDetailPanelProps {
 }
 
 export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
-  const { selectedAsset, setLifecycleModalState } = useAssetStore();
+  const { selectedNodeCode, setLifecycleModalState } = useAssetStore();
 
   const { data: context, isLoading } = useNodeContextQuery(
-    selectedAsset?.assetType === "node" ? selectedAsset.id : "",
-    !!selectedAsset && selectedAsset.assetType === "node",
+    selectedNodeCode || "",
+    !!selectedNodeCode,
   );
 
   const nodeInfo = useMemo(() => {

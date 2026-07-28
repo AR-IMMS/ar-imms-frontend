@@ -6,7 +6,7 @@ import {
   TransformComponent,
   ReactZoomPanPinchRef,
 } from "react-zoom-pan-pinch";
-import { ZoomIn, ZoomOut, RotateCcw, Loader2 } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { RackTopologyResult } from "@/types/assets";
 import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
@@ -19,26 +19,16 @@ import { SiteDetailPanel } from "./components/panel/site-detail-panel";
 import { RackDetailPanel } from "./components/panel/rack-detail-panel";
 import { NodeDetailPanel } from "./components/panel/node-detail-panel";
 
-// Import mutation modals
-import CreateEditRackModal from "./components/modal/create-edit-rack-modal";
-import ConfirmRetireModal from "./components/modal/confirm-activate-retire-modal";
-import AssignUnmapNodeModal from "./components/modal/select-node-slot-modal";
-import ConfirmMoveAsset from "./components/modal/confirm-move-asset-modal";
-
 export function TopologyPage() {
-  const {
-    data: topology = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useTopologyTreeQuery();
+  const { data: topology = [] } = useTopologyTreeQuery();
 
   const {
     selectedSiteCode,
     selectedRoomCode,
-    selectedAsset,
-    searchQuery,
-    setSelectedAsset,
+    selectedRackId,
+    selectedNodeCode,
+    setSelectedRackId,
+    setSelectedNodeCode,
     activePanelType,
     setActivePanelType,
 
@@ -49,7 +39,6 @@ export function TopologyPage() {
     setDragOverGridCell,
 
     // Modal state controllers
-    createEditRackModal,
     setConfirmMoveModalState,
   } = useAssetStore();
 
@@ -61,26 +50,10 @@ export function TopologyPage() {
   useEffect(() => {
     if (!transformComponentRef.current) return;
 
-    if (selectedAsset?.id) {
-      if (selectedAsset.assetType === "node") {
-        const node = topology
-          .flatMap((item) => item.nodes)
-          .find((n) => n.id === selectedAsset.id);
-        if (node && node.rackId) {
-          transformComponentRef.current?.zoomToElement(
-            `rack-card-${node.rackId}`,
-            1.75,
-            500,
-            "easeOut",
-            0,
-            -125,
-          );
-        }
-        return;
-      }
+    if (selectedRackId) {
       setTimeout(() => {
         transformComponentRef.current?.zoomToElement(
-          `rack-card-${selectedAsset.id}`,
+          `rack-card-${selectedRackId}`,
           1.75,
           500,
           "easeOut",
@@ -89,32 +62,25 @@ export function TopologyPage() {
         );
       }, 100);
     }
-  }, [selectedAsset, topology]);
+  }, [selectedRackId, topology]);
 
   const activePanel = useMemo(() => {
-    if (
-      activePanelType === "node" &&
-      selectedAsset?.assetType === "node" &&
-      selectedAsset.id
-    ) {
+    if (activePanelType === "node" && selectedNodeCode) {
       return (
         <NodeDetailPanel
           onClose={() => {
-            setSelectedAsset(null);
+            setSelectedNodeCode(null);
             setActivePanelType(null);
           }}
         />
       );
     }
-    if (
-      activePanelType === "rack" &&
-      selectedAsset?.assetType === "rack" &&
-      selectedAsset.id
-    ) {
+    if (activePanelType === "rack" && selectedRackId) {
       return (
         <RackDetailPanel
           onClose={() => {
-            setSelectedAsset(null);
+            setSelectedNodeCode(null);
+            setSelectedRackId(null);
             setActivePanelType(null);
           }}
         />
@@ -126,6 +92,9 @@ export function TopologyPage() {
           onClose={() => {
             const { setSelectedSiteCode } = useAssetStore.getState();
             setSelectedSiteCode(null);
+            setSelectedNodeCode(null);
+            setSelectedRackId(null);
+            setActivePanelType(null);
           }}
         />
       );
@@ -133,42 +102,29 @@ export function TopologyPage() {
     return null;
   }, [
     activePanelType,
-    selectedAsset,
+    selectedNodeCode,
+    selectedRackId,
     selectedSiteCode,
-    setSelectedAsset,
+    setSelectedNodeCode,
+    setSelectedRackId,
     setActivePanelType,
   ]);
 
   // Filter topology based on tree selections
   const filteredTopology = useMemo(() => {
+    // Determine active room code based on selection or default to first rack's room code
+    const activeRoomCode = selectedRoomCode ? selectedRoomCode : topology[0]?.rack.roomCode || null;
+
     return topology.filter((item) => {
       const site = item.rack.siteCode || "";
       const room = item.rack.roomCode || "";
 
       if (selectedSiteCode !== null && site !== selectedSiteCode) return false;
-      if (selectedRoomCode !== null && room !== selectedRoomCode) return false;
-
-      // Filter by search query if set
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase().trim();
-        const rackMatch =
-          item.rack.rackCode.toLowerCase().includes(q) ||
-          (item.rack.displayName &&
-            item.rack.displayName.toLowerCase().includes(q));
-
-        const nodeMatch = item.nodes.some(
-          (node) =>
-            node.nodeCode.toLowerCase().includes(q) ||
-            (node.displayName && node.displayName.toLowerCase().includes(q)) ||
-            (node.managementIp && node.managementIp.toLowerCase().includes(q)),
-        );
-
-        return rackMatch || nodeMatch;
-      }
+      if (activeRoomCode !== null && room !== activeRoomCode) return false;
 
       return true;
     });
-  }, [topology, selectedSiteCode, selectedRoomCode, searchQuery]);
+  }, [topology, selectedSiteCode, selectedRoomCode]);
 
   // Separate into Placed (with Row/Position)
   const placedRacks = useMemo(() => {
@@ -257,44 +213,12 @@ export function TopologyPage() {
     setDragOverGridCell(null);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex-1 h-full w-full flex flex-col items-center justify-center gap-3 p-8">
-        <Loader2 className="size-8 text-cyan animate-spin" />
-        <span className="font-mono text-xs text-muted-foreground">
-          Initializing Spatial Canvas...
-        </span>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="flex-1 h-full w-full flex flex-col items-center justify-center gap-4 text-center p-8">
-        <div>
-          <div className="text-sm font-mono font-semibold text-critical">
-            Failed to fetch asset telemetry
-          </div>
-          <div className="text-xs font-mono text-muted-foreground/60 mt-1">
-            Please check your network status
-          </div>
-        </div>
-        <button
-          onClick={() => refetch()}
-          className="px-4 py-2 bg-white/5 border border-critical/40 rounded-lg text-xs label-mono text-foreground hover:border-critical/70 transition cursor-pointer"
-        >
-          Retry Loading
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full h-full flex-1 min-h-0 flex overflow-hidden rounded-2xl border border-border/10 relative">
       {/* Left/Main Spatial Canvas */}
       <div
-        className={`flex-1 relative min-w-0 transition-all duration-300 flex flex-col ${
-          activePanelType ? "pr-[448px]" : ""
+        className={`flex-1 relative min-w-0 transition-all flex flex-col ${
+          activePanelType ? "pr-112" : ""
         }`}
       >
         <div className="flex-1 min-h-0 relative">
@@ -334,7 +258,7 @@ export function TopologyPage() {
                     {Array.from({ length: maxCol }).map((_, cIdx) => (
                       <div
                         key={`col-head-${cIdx}`}
-                        className="flex items-center justify-center font-mono text-[10px] text-cyan-ice/50 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded px-4 py-2 select-none tracking-widest"
+                        className="flex items-center justify-center font-mono text-[9px] text-cyan-ice/50 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded px-4 py-2 select-none tracking-widest"
                       >
                         POS {cIdx + 1}
                       </div>
@@ -349,7 +273,7 @@ export function TopologyPage() {
                           style={{ display: "contents" }}
                         >
                           {/* Row Coordinator Label (Col 0) */}
-                          <div className="flex items-center justify-end font-mono text-[10px] text-cyan-ice/70 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded pr-4 pl-6 select-none tracking-widest">
+                          <div className="flex items-center justify-center font-mono text-[9px] text-cyan-ice/70 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded px-2 select-none tracking-widest">
                             ROW {rowNum}
                           </div>
 
@@ -450,18 +374,6 @@ export function TopologyPage() {
 
       {/* Right details panel overlay */}
       {activePanel}
-
-      {/* Mounting Modals */}
-      <CreateEditRackModal
-        key={
-          createEditRackModal?.isOpen
-            ? createEditRackModal?.rackId || "new"
-            : "closed"
-        }
-      />
-      <ConfirmRetireModal />
-      <AssignUnmapNodeModal />
-      <ConfirmMoveAsset />
     </div>
   );
 }
