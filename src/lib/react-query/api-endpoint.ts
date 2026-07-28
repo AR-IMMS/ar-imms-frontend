@@ -94,6 +94,7 @@ export const MONITORING_ENDPOINTS = {
 
 export const TICKET_ENDPOINTS = {
   TICKETS: "/tickets",
+  EVENTS: "/tickets/events",
   TICKET_BY_ID: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}`,
   ASSIGNMENT: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/assignment`,
   CLOSE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/close`,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Bell, CheckCheck, CircleAlert, MessageSquareText, TicketCheck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
+import { useTicketEventNotifications } from "@/hooks/tickets/use-ticket-event-notifications";
 import { useTicketsQuery } from "@/hooks/tickets/use-ticket-queries";
 import {
   buildTicketNotifications,
@@ -12,27 +13,39 @@ import {
   type TicketNotificationTone,
 } from "@/features/web-dashboard/tickets/lib/ticket-notifications";
 
-const POLL_INTERVAL_MS = 20_000;
+const MAX_VISIBLE_NOTIFICATIONS = 40;
 
 export function TicketNotificationCenter() {
   const router = useRouter();
-  const { user } = useAuth();
-  const ticketsQuery = useTicketsQuery(undefined, true, POLL_INTERVAL_MS);
-  const notifications = useMemo(
+  const { accessToken, isAuthenticated, user } = useAuth();
+  const ticketsQuery = useTicketsQuery(undefined, true);
+  const realtime = useTicketEventNotifications({
+    accessToken,
+    enabled: isAuthenticated,
+    userId: user?.id,
+  });
+  const snapshotNotifications = useMemo(
     () => buildTicketNotifications(ticketsQuery.data ?? []),
     [ticketsQuery.data],
+  );
+  const notifications = useMemo(
+    () =>
+      mergeNotifications([
+        ...realtime.notifications,
+        ...snapshotNotifications,
+      ]),
+    [realtime.notifications, snapshotNotifications],
   );
   const storageKey = `ar-imms:ticket-notifications:read:${user?.id ?? "operator"}`;
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(storageKey);
-      setReadIds(new Set(stored ? (JSON.parse(stored) as string[]) : []));
-    } catch {
-      setReadIds(new Set());
-    }
+    const hydrateTimer = window.setTimeout(() => {
+      setReadIds(readStoredIds(storageKey));
+    }, 0);
+
+    return () => window.clearTimeout(hydrateTimer);
   }, [storageKey]);
 
   const unreadCount = notifications.filter((item) => !readIds.has(item.id)).length;
@@ -81,6 +94,7 @@ export function TicketNotificationCenter() {
               <div className="text-sm font-bold text-foreground">Notifications</div>
               <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
                 {unreadCount ? `${unreadCount} unread workflow updates` : "You're up to date"}
+                {realtime.status === "reconnecting" ? " · reconnecting live feed" : ""}
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -150,4 +164,26 @@ function formatRelativeTime(value: string) {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
   return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+function mergeNotifications(notifications: TicketNotification[]) {
+  const seenIds = new Set<string>();
+
+  return notifications
+    .filter((item) => {
+      if (seenIds.has(item.id)) return false;
+      seenIds.add(item.id);
+      return true;
+    })
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
+    .slice(0, MAX_VISIBLE_NOTIFICATIONS);
+}
+
+function readStoredIds(storageKey: string) {
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    return new Set(stored ? (JSON.parse(stored) as string[]) : []);
+  } catch {
+    return new Set<string>();
+  }
 }

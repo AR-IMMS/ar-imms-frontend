@@ -20,6 +20,16 @@ export interface TicketAssetReference {
   rackCode?: string;
 }
 
+export interface TechnicianOption {
+  id: string;
+  username?: string;
+  email?: string;
+  fullName: string;
+  jobTitle?: string;
+  avatarUrl?: string;
+  roleCodes?: string[];
+}
+
 export type EvidenceType =
   | "IMAGE"
   | "NOTE"
@@ -78,6 +88,32 @@ export interface Ticket {
 }
 
 export type TicketProps = Ticket;
+
+export type TicketRealtimeEventType =
+  | "ticket.created"
+  | "ticket.assigned"
+  | "ticket.status_changed"
+  | "ticket.deleted"
+  | "ticket.comment_added"
+  | "ticket.evidence_attached";
+
+export interface TicketRealtimeEventTicket {
+  id: string;
+  ticketCode: string;
+  title: string;
+  priority: TicketPriority;
+  status: TicketStatus;
+  incidentId?: string | null;
+  assigneeUserId?: string | null;
+}
+
+export interface TicketRealtimeEvent {
+  id: string;
+  type: TicketRealtimeEventType;
+  occurredAt: string;
+  ticket: TicketRealtimeEventTicket;
+  actorUserId?: string;
+}
 
 export interface CreateTicketInput {
   ticketCode: string;

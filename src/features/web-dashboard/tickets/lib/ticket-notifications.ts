@@ -1,4 +1,8 @@
-import type { TicketActivity, TicketProps } from "@/types/ticket";
+import type {
+  TicketActivity,
+  TicketProps,
+  TicketRealtimeEvent,
+} from "@/types/ticket";
 
 export type TicketNotificationTone = "cyan" | "purple" | "amber" | "green" | "red";
 
@@ -20,6 +24,70 @@ export function buildTicketNotifications(tickets: TicketProps[]): TicketNotifica
     .filter((item): item is TicketNotification => Boolean(item))
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
     .slice(0, 40);
+}
+
+export function toTicketNotificationFromEvent(
+  event: TicketRealtimeEvent,
+): TicketNotification {
+  const common = {
+    id: event.id,
+    ticketId: event.ticket.id,
+    ticketCode: event.ticket.ticketCode,
+    createdAt: event.occurredAt,
+  };
+
+  switch (event.type) {
+    case "ticket.created":
+      return {
+        ...common,
+        title: event.ticket.incidentId ? "Incident ticket created" : "Ticket created",
+        body: event.ticket.title,
+        tone: event.ticket.priority === "CRITICAL" ? "red" : "cyan",
+      };
+    case "ticket.assigned":
+      return {
+        ...common,
+        title: "Assignment updated",
+        body: event.ticket.assigneeUserId
+          ? `Assigned to technician ${event.ticket.assigneeUserId}`
+          : event.ticket.title,
+        tone: "purple",
+      };
+    case "ticket.status_changed":
+      return {
+        ...common,
+        title:
+          event.ticket.status === "RESOLVED" || event.ticket.status === "CLOSED"
+            ? "Ticket ready for review"
+            : "Ticket status changed",
+        body: `${event.ticket.ticketCode} is now ${formatStatus(event.ticket.status)}`,
+        tone:
+          event.ticket.status === "RESOLVED" || event.ticket.status === "CLOSED"
+            ? "green"
+            : "cyan",
+      };
+    case "ticket.comment_added":
+      return {
+        ...common,
+        title: "New ticket note",
+        body: event.ticket.title,
+        tone: "amber",
+      };
+    case "ticket.evidence_attached":
+      return {
+        ...common,
+        title: "Evidence attached",
+        body: event.ticket.title,
+        tone: "amber",
+      };
+    case "ticket.deleted":
+      return {
+        ...common,
+        title: "Ticket removed",
+        body: event.ticket.title,
+        tone: "red",
+      };
+  }
 }
 
 function toNotification(
@@ -63,4 +131,8 @@ function toNotification(
     default:
       return null;
   }
+}
+
+function formatStatus(status: string) {
+  return status.toLowerCase().replaceAll("_", " ");
 }
