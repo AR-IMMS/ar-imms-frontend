@@ -45,12 +45,3 @@ export function useTicketEvidenceQuery(
     staleTime: DEFAULT_TICKETS_STALE_TIME,
   });
 }
-
-export function useTechniciansQuery(enabled = true) {
-  return useQuery({
-    queryKey: queryKeys.tickets.technicians(),
-    queryFn: () => ticketService.listTechnicians(),
-    enabled,
-    staleTime: DEFAULT_TECHNICIANS_STALE_TIME,
-  });
-}

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import Header from "@/components/layout/web-dashboard/header";
-import { useTechniciansQuery } from "@/hooks/tickets/use-ticket-queries";
 import CreateTicketModal from "./components/create-ticket-modal";
 import TicketListView from "./ticket-list-view";
+import { useTechniciansQuery } from "@/hooks/identity/use-identity-queries";
 
 export default function TicketManagementPage() {
   const [createOpen, setCreateOpen] = useState(false);

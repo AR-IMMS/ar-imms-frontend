@@ -13,6 +13,7 @@ export const queryKeys = {
       all: ["identity", "users"] as const,
       list: (params: ListUsersRequest) =>
         ["identity", "users", "list", params] as const,
+      technicians: () => ["identity", "users", "technicians"] as const,
       detailById: (userId: string) =>
         ["identity", "users", "detail", userId] as const,
       detailByUsername: (
@@ -60,6 +61,5 @@ export const queryKeys = {
       ["tickets", "detail", ticketId] as const,
     evidence: (ticketId: string) =>
       ["tickets", "detail", ticketId, "evidence"] as const,
-    technicians: () => ["tickets", "technicians"] as const,
   },
 } as const;

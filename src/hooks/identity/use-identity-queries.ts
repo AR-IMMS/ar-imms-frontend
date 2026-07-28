@@ -25,6 +25,15 @@ export function useUsersQuery(params: ListUsersRequest, enabled = true) {
   });
 }
 
+export function useTechniciansQuery(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.identity.users.technicians(),
+    queryFn: () => identityService.listTechnicians(),
+    enabled,
+    staleTime: DEFAULT_USERS_STALE_TIME,
+  });
+}
+
 export function useUserByIdQuery(userId: string, enabled = true) {
   const normalizedUserId = userId?.trim() ?? "";
 

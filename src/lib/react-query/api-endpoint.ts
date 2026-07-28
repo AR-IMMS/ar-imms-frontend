@@ -18,6 +18,7 @@ export const IDENTITY_ENDPOINTS = {
     `/admin/users/${encodeURIComponent(userId)}/status`,
   UPDATE_USER_ROLES: (userId: string) =>
     `/admin/users/${encodeURIComponent(userId)}/roles`,
+  GET_TECHNICIANS: "/technicians",
 } as const;
 
 export const ASSET_ENDPOINTS = {
@@ -89,4 +90,14 @@ export const MONITORING_ENDPOINTS = {
     `/monitoring/nodes/${encodeURIComponent(nodeCode)}/metrics`,
   NODE_METRICS_LIVE: (nodeCode: string) =>
     `/monitoring/nodes/${encodeURIComponent(nodeCode)}/metrics/live`,
+} as const;
+
+export const TICKET_ENDPOINTS = {
+  TICKETS: "/tickets",
+  TICKET_BY_ID: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}`,
+  ASSIGNMENT: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/assignment`,
+  CLOSE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/close`,
+  COMMENTS: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/comments`,
+  EVIDENCE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence`,
+  EVIDENCE_UPLOAD_URL: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
 } as const;

@@ -31,6 +31,11 @@ export const identityService = {
       { service: SERVICE_NAME },
     ),
 
+  listTechnicians: (): Promise<UserProfileResponse[]> =>
+    httpGet<UserProfileResponse[]>(IDENTITY_ENDPOINTS.GET_TECHNICIANS, {
+      service: SERVICE_NAME,
+    }),
+
   getUserByUsername: (
     params: GetUserByUsernameRequest,
   ): Promise<PaginatedResponse<UserProfileResponse>> =>

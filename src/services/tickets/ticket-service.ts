@@ -1,7 +1,6 @@
-import {
-  requestServiceJson,
-  serviceApiConfig,
-} from "@/lib/http/service-api-client";
+import { httpGet, httpPost, httpPatch, httpDelete } from "@/lib/http/http-methods";
+import { TICKET_ENDPOINTS } from "@/lib/react-query/api-endpoint";
+import buildQueryString from "@/lib/utils/buildQueryString";
 import type {
   AddTicketCommentInput,
   AssignTicketInput,
@@ -9,149 +8,91 @@ import type {
   CreateEvidenceUploadUrlInput,
   CreateTicketInput,
   ListTicketsParams,
-  TechnicianOption,
   Ticket,
   TicketEvidence,
-  TicketProps,
   UploadTarget,
 } from "@/types/ticket";
 
-function unwrapTicket(ticket: Ticket | TicketProps): TicketProps {
-  return "props" in ticket && ticket.props ? ticket.props : (ticket as TicketProps);
-}
-
-function buildQueryString(params?: ListTicketsParams): string {
-  const query = new URLSearchParams();
-
-  if (params?.ticketCode) {
-    query.set("ticketCode", params.ticketCode);
-  }
-
-  if (params?.status) {
-    query.set("status", params.status);
-  }
-
-  const value = query.toString();
-  return value ? `?${value}` : "";
-}
+const INCIDENT_SERVICE_NAME = "incident";
 
 export const ticketService = {
-  listTickets: async (params?: ListTicketsParams): Promise<TicketProps[]> => {
-    const tickets = await requestServiceJson<Array<Ticket | TicketProps>>(
-      serviceApiConfig.incidentApiUrl,
-      `/tickets${buildQueryString(params)}`,
+  listTickets: (params?: ListTicketsParams): Promise<Ticket[]> => {
+    const queryString = params ? buildQueryString(params) : "";
+    return httpGet<Ticket[]>(
+      `${TICKET_ENDPOINTS.TICKETS}${queryString}`,
+      { service: INCIDENT_SERVICE_NAME },
     );
-
-    return tickets.map(unwrapTicket);
   },
 
-  getTicket: async (ticketId: string): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        `/tickets/${encodeURIComponent(ticketId)}`,
-      ),
+  getTicket: (ticketId: string): Promise<Ticket> =>
+    httpGet<Ticket>(
+      TICKET_ENDPOINTS.TICKET_BY_ID(ticketId),
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
-  createTicket: async (payload: CreateTicketInput): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        "/tickets",
-        {
-          method: "POST",
-          body: JSON.stringify(payload),
-        },
-      ),
+  createTicket: (payload: CreateTicketInput): Promise<Ticket> =>
+    httpPost<Ticket>(
+      TICKET_ENDPOINTS.TICKETS,
+      payload,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
-  deleteTicket: async (ticketId: string): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        `/tickets/${encodeURIComponent(ticketId)}`,
-        {
-          method: "DELETE",
-        },
-      ),
+  deleteTicket: (ticketId: string): Promise<Ticket> =>
+    httpDelete<Ticket>(
+      TICKET_ENDPOINTS.TICKET_BY_ID(ticketId),
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
-  assignTicket: async (
+  assignTicket: (
     ticketId: string,
     payload: AssignTicketInput,
-  ): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        `/tickets/${encodeURIComponent(ticketId)}/assignment`,
-        {
-          method: "PATCH",
-          body: JSON.stringify(payload),
-        },
-      ),
+  ): Promise<Ticket> =>
+    httpPatch<Ticket>(
+      TICKET_ENDPOINTS.ASSIGNMENT(ticketId),
+      payload,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
-  closeTicket: async (ticketId: string): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        `/tickets/${encodeURIComponent(ticketId)}/close`,
-        {
-          method: "POST",
-        },
-      ),
+  closeTicket: (ticketId: string): Promise<Ticket> =>
+    httpPost<Ticket>(
+      TICKET_ENDPOINTS.CLOSE(ticketId),
+      undefined,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
-  addComment: async (
+  addComment: (
     ticketId: string,
     payload: AddTicketCommentInput,
-  ): Promise<TicketProps> =>
-    unwrapTicket(
-      await requestServiceJson<Ticket | TicketProps>(
-        serviceApiConfig.incidentApiUrl,
-        `/tickets/${encodeURIComponent(ticketId)}/comments`,
-        {
-          method: "POST",
-          body: JSON.stringify(payload),
-        },
-      ),
+  ): Promise<Ticket> =>
+    httpPost<Ticket>(
+      TICKET_ENDPOINTS.COMMENTS(ticketId),
+      payload,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
   listEvidence: (ticketId: string): Promise<TicketEvidence[]> =>
-    requestServiceJson<TicketEvidence[]>(
-      serviceApiConfig.incidentApiUrl,
-      `/tickets/${encodeURIComponent(ticketId)}/evidence`,
+    httpGet<TicketEvidence[]>(
+      TICKET_ENDPOINTS.EVIDENCE(ticketId),
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
   createEvidenceUploadUrl: (
     ticketId: string,
     payload: CreateEvidenceUploadUrlInput,
   ): Promise<UploadTarget> =>
-    requestServiceJson<UploadTarget>(
-      serviceApiConfig.incidentApiUrl,
-      `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      },
+    httpPost<UploadTarget>(
+      TICKET_ENDPOINTS.EVIDENCE_UPLOAD_URL(ticketId),
+      payload,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 
   attachEvidence: (
     ticketId: string,
     payload: AttachTicketEvidenceInput,
   ): Promise<TicketEvidence> =>
-    requestServiceJson<TicketEvidence>(
-      serviceApiConfig.incidentApiUrl,
-      `/tickets/${encodeURIComponent(ticketId)}/evidence`,
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      },
-    ),
-
-  listTechnicians: (): Promise<TechnicianOption[]> =>
-    requestServiceJson<TechnicianOption[]>(
-      serviceApiConfig.identityApiUrl,
-      "/technicians",
+    httpPost<TicketEvidence>(
+      TICKET_ENDPOINTS.EVIDENCE(ticketId),
+      payload,
+      { service: INCIDENT_SERVICE_NAME },
     ),
 };

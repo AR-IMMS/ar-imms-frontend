@@ -60,10 +60,6 @@ export interface TicketActivity {
 }
 
 export interface Ticket {
-  props?: TicketProps;
-}
-
-export interface TicketProps {
   id: string;
   ticketCode: string;
   title: string;
@@ -80,6 +76,8 @@ export interface TicketProps {
   createdAt: string;
   updatedAt: string;
 }
+
+export type TicketProps = Ticket;
 
 export interface CreateTicketInput {
   ticketCode: string;
@@ -131,13 +129,4 @@ export interface UploadTarget {
 export interface ListTicketsParams {
   ticketCode?: string;
   status?: TicketStatus;
-}
-
-export interface TechnicianOption {
-  id: string;
-  username: string;
-  email: string;
-  fullName: string;
-  jobTitle?: string;
-  department?: string;
 }

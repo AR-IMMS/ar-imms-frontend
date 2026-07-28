@@ -7,15 +7,16 @@ export interface ExtendedHttpOptions extends Options {
   includeAuth?: boolean; // Mặc định là true, nếu truyền false sẽ không đính kèm Token
   skipAuthHooks?: boolean; // Nếu là true, sẽ bypass qua cơ chế đính token và tự động refresh
   timeout?: number;
-  service?: "identity" | "asset" | "monitoring"; // Tự động chọn base URL theo service
+  service?: "identity" | "asset" | "monitoring" | "ticket" | "incident"; // Tự động chọn base URL theo service
 }
 
 // Cấu hình URL cho từng service
 const SERVICE_URLS: Record<string, string> = {
   identity: process.env.NEXT_PUBLIC_IDENTITY_API_URL || "",
-  asset:
-    process.env.NEXT_PUBLIC_ASSET_API_URL || "http://localhost:4002/api/v1",
+  asset: process.env.NEXT_PUBLIC_ASSET_API_URL || "",
   monitoring: process.env.NEXT_PUBLIC_MONITORING_API_URL || "",
+  ticket: process.env.NEXT_PUBLIC_TICKET_API_URL || "",
+  incident: process.env.NEXT_PUBLIC_INCIDENT_API_URL || "",
 };
 
 // Wrapper function to handle API requests with error handling and response parsing

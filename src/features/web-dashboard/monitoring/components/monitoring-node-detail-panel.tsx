@@ -10,11 +10,11 @@ interface MonitoringNodeDetailPanelProps {
   nodeCode: string;
 }
 
-const DEFAULT_OVERVIEW_STATE = { overview: null, loading: false, error: null };
-
-export function MonitoringNodeDetailPanel({ nodeCode }: MonitoringNodeDetailPanelProps) {
+export function MonitoringNodeDetailPanel({
+  nodeCode,
+}: MonitoringNodeDetailPanelProps) {
   const overviewState = useMonitoringStore(
-    (s) => s.nodesOverview[nodeCode || ""] || DEFAULT_OVERVIEW_STATE,
+    (s) => s.nodesOverview[nodeCode || ""],
   );
 
   const overview = overviewState.overview;
