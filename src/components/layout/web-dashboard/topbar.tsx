@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Hexagon } from "lucide-react";
 import { UserDropdown } from "./user-dropdown";
+import { TicketNotificationCenter } from "./ticket-notification-center";
 
 function useCurrentTime() {
   const [t, setT] = useState(() => new Date());
@@ -57,6 +58,7 @@ export default function TopBar() {
           </div>
         </div>
 
+        <TicketNotificationCenter />
         <UserDropdown />
       </div>
     </header>

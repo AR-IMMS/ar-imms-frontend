@@ -64,7 +64,7 @@ export function LoginPage() {
     };
 
     await loginMutation.mutateAsync(payload);
-    router.replace("/assets");
+    router.replace("/tickets");
   }
 
   return (

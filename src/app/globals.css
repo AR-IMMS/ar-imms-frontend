@@ -384,6 +384,16 @@
   text-transform: uppercase;
 }
 
+/* Match the stronger light-mode typography used by Asset detail views,
+   while keeping the adjustment isolated to the Ticket workspace. */
+.light .ticket-readable .label-mono {
+  font-weight: 700;
+}
+
+.light .ticket-readable .text-muted-foreground {
+  font-weight: 600;
+}
+
 @utility text-glow-cyan {
   text-shadow: 0 0 12px rgba(0, 209, 255, 0.6);
   .light & {

@@ -41,8 +41,7 @@ const sections: NavSection[] = [
       {
         icon: AlertTriangle,
         label: "Alerts & Tickets",
-        to: "/incidents",
-        badge: "7",
+        to: "/tickets",
       },
       { icon: FileText, label: "Audit Logs", to: "/audit" },
     ],

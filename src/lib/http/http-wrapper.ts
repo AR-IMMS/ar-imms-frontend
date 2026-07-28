@@ -13,7 +13,8 @@ export interface ExtendedHttpOptions extends Options {
 // Cấu hình URL cho từng service
 const SERVICE_URLS: Record<string, string> = {
   identity: process.env.NEXT_PUBLIC_IDENTITY_API_URL || "",
-  asset: process.env.NEXT_PUBLIC_ASSET_API_URL || "",
+  asset:
+    process.env.NEXT_PUBLIC_ASSET_API_URL || "http://localhost:4002/api/v1",
   monitoring: process.env.NEXT_PUBLIC_MONITORING_API_URL || "",
 };
 
