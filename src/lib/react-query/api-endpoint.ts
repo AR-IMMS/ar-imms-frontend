@@ -81,7 +81,12 @@ export const ASSET_ENDPOINTS = {
 } as const;
 
 export const MONITORING_ENDPOINTS = {
-  RACKS_OVERVIEW: "/monitoring/racks/overview",
-  RACKS_STATE: "/monitoring/racks/state",
+  RACKS_OVERVIEW: (rackId: string) =>
+    `/monitoring/racks/${encodeURIComponent(rackId)}/overview`,
+  NODE_OVERVIEW: (nodeCode: string) =>
+    `/monitoring/nodes/${encodeURIComponent(nodeCode)}/overview`,
+  NODE_METRICS: (nodeCode: string) =>
+    `/monitoring/nodes/${encodeURIComponent(nodeCode)}/metrics`,
+  NODE_METRICS_LIVE: (nodeCode: string) =>
+    `/monitoring/nodes/${encodeURIComponent(nodeCode)}/metrics/live`,
 } as const;
-

@@ -26,14 +26,18 @@ export function RackCard({ rackResult }: RackCardProps) {
   const nodes = rackResult.nodes;
 
   const {
-    selectedAsset,
-    setSelectedAsset,
+    selectedRackId,
+    selectedNodeCode,
+    setSelectedNodeCode,
+    setSelectedRackId,
     draggedAsset,
     setDraggedAsset,
     dragOverRackId,
     setDragOverRackId,
     setIsUnmappedDrawerOpen,
     setActivePanelType,
+    setSelectedSiteCode,
+    setSelectedRoomCode,
     setAssignNodeModalState,
     setDragOverGridCell,
   } = useAssetStore();
@@ -47,8 +51,7 @@ export function RackCard({ rackResult }: RackCardProps) {
     });
   }, [nodes]);
 
-  const isSelectedRack =
-    selectedAsset?.id === rack.id && selectedAsset?.assetType === "rack";
+  const isSelectedRack = selectedRackId === rack.id;
   const isDragOver = dragOverRackId === rack.id;
 
   // #region - handle drag and drop events
@@ -125,16 +128,20 @@ export function RackCard({ rackResult }: RackCardProps) {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => {
-        if (isSelectedRack) {
-          setSelectedAsset(null);
+        if (isSelectedRack && selectedNodeCode === null) {
+          setSelectedRackId(null);
+          setSelectedNodeCode(null);
           setActivePanelType(null);
         } else {
-          setSelectedAsset({ id: rack.id, assetType: "rack" });
-          setIsUnmappedDrawerOpen(false);
+          setSelectedSiteCode(rack.siteCode ?? null);
+          setSelectedRoomCode(rack.roomCode ?? null);
+          setSelectedRackId(rack.id);
           setActivePanelType("rack");
+          setSelectedNodeCode(null);
+          setIsUnmappedDrawerOpen(false);
         }
       }}
-      className={`relative w-full rounded-2xl border p-3 flex flex-col justify-between transition-all duration-300 cursor-pointer hover:border-cyan/50 hover:light:border-cyan/70 active:scale-99 ${
+      className={`relative w-full rounded-2xl border p-3 flex flex-col justify-between cursor-pointer hover:border-cyan/50 hover:light:border-cyan/70 ${
         isDragOver
           ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)]"
           : isSelectedRack
@@ -164,9 +171,7 @@ export function RackCard({ rackResult }: RackCardProps) {
           {sortedNodes.map((node) => {
             const state = node.lifecycleState || "UNKNOWN";
             const color = LIFECYCLE_COLOR_DOT[state];
-            const isSelected =
-              selectedAsset?.id === node.id &&
-              selectedAsset?.assetType === "node";
+            const isSelected = selectedNodeCode === node.id;
 
             return (
               <button
@@ -177,15 +182,18 @@ export function RackCard({ rackResult }: RackCardProps) {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (isSelected) {
-                    setSelectedAsset(null);
-                    setActivePanelType(null);
+                    setSelectedNodeCode(null);
+                    setActivePanelType("rack");
                   } else {
-                    setSelectedAsset({ id: node.id, assetType: "node" });
-                    setIsUnmappedDrawerOpen(false);
+                    setSelectedSiteCode(rack.siteCode ?? null);
+                    setSelectedRoomCode(rack.roomCode ?? null);
+                    setSelectedRackId(rack.id);
+                    setSelectedNodeCode(node.id);
                     setActivePanelType("node");
+                    setIsUnmappedDrawerOpen(false);
                   }
                 }}
-                className={`relative flex w-full items-center gap-2 rounded bg-accent/70 light:bg-background border-l-3 ${LIFECYCLE_COLOR_BORDER[state]} hover:bg-cyan/10 px-2 py-1 text-left transition-all hover:border-cyan/40 cursor-pointer ${
+                className={`relative flex w-full items-center gap-2 rounded bg-accent/70 light:bg-background border-l-3 ${LIFECYCLE_COLOR_BORDER[state]} hover:bg-cyan/10 px-2 py-1 text-left hover:border-cyan/40 cursor-pointer ${
                   isSelected ? "bg-cyan/20 light:bg-primary" : ""
                 }`}
               >
@@ -195,16 +203,20 @@ export function RackCard({ rackResult }: RackCardProps) {
                 />
 
                 {/* Node name */}
-                <span className={`font-mono grow truncate text-[9px] text-foreground/80 ${
-                  isSelected ? "light:text-white font-bold" : ""
-                }`}>
+                <span
+                  className={`font-mono grow truncate text-[9px] text-foreground/80 ${
+                    isSelected ? "light:text-white font-bold" : ""
+                  }`}
+                >
                   {node.displayName || node.nodeCode}
                 </span>
 
                 {/* Slot/Unit label */}
-                <span className={`font-mono text-[7.5px] text-muted-foreground/70 shrink-0 ${
-                  isSelected ? "light:text-white" : ""
-                }`}>
+                <span
+                  className={`font-mono text-[7.5px] text-muted-foreground/70 shrink-0 ${
+                    isSelected ? "light:text-white" : ""
+                  }`}
+                >
                   {node.positionCode || "U--"}
                 </span>
               </button>

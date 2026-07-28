@@ -1,7 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { X, AlertTriangle, Cpu, StoreIcon, Edit, Power, CpuIcon, QrCode } from "lucide-react";
+import {
+  X,
+  AlertTriangle,
+  Cpu,
+  StoreIcon,
+  Edit,
+  Power,
+  CpuIcon,
+  QrCode,
+} from "lucide-react";
 import { useAssetStore } from "../../hooks/useAssetStore";
 import { CAPACITY_COLOR, LIFECYCLE_COLOR_TEXT } from "../../lib/constant";
 import Stat from "@/components/common/stat";
@@ -17,9 +26,9 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [createdQrMarker, setCreatedQrMarker] = useState<MarkerEntity>();
   const {
-    selectedAsset,
+    selectedRackId,
     topologyData,
-    setSelectedAsset,
+    setSelectedNodeCode,
     setCreateEditRackModal,
     setLifecycleModalState,
     setDraggedAsset,
@@ -28,9 +37,9 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
   } = useAssetStore();
 
   const rackTopology = useMemo(() => {
-    if (!selectedAsset || selectedAsset.assetType !== "rack") return null;
-    return topologyData.find((item) => item.rack.id === selectedAsset.id);
-  }, [topologyData, selectedAsset]);
+    if (!selectedRackId) return null;
+    return topologyData.find((item) => item.rack.id === selectedRackId);
+  }, [topologyData, selectedRackId]);
 
   const unmappedNodes = useMemo(() => {
     if (!rackTopology?.nodes) return [];
@@ -268,7 +277,7 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
                     setDragOverRackId(null);
                   }}
                   onClick={() =>
-                    setSelectedAsset({ id: node.id, assetType: "node" })
+                    setSelectedNodeCode(node.id)
                   }
                   className="w-full flex items-center justify-between panel light:bg-primary p-3 font-mono text-xs hover:border-cyan hover:bg-cyan/5 hover:light:bg-primary/80 text-left transition duration-200 cursor-pointer pointer-events-auto active:scale-[0.98]"
                 >
