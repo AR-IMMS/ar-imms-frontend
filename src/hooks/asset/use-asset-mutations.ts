@@ -6,6 +6,7 @@ import type {
   CreateRackRequestDto,
   UpdateRackRequestDto,
   AssignNodeToRackRequestDto,
+  CreateMarkerRequestDto,
 } from "@/types/assets";
 
 // --- Admin Topology - Racks Mutations ---
@@ -297,15 +298,31 @@ export function useRetireAndReplaceNodeMutation() {
 
 // --- Admin Markers Mutations ---
 
-// export function useCreateMarkerMutation() {
-//   return useMutation({
-//     mutationFn: (payload: CreateMarkerRequestDto) =>
-//       assetService.createMarker(payload),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: queryKeys.asset.search() });
-//     },
-//   });
-// }
+export function useCreateMarkerMutation() {
+  return useMutation({
+    mutationFn: (payload: CreateMarkerRequestDto) =>
+      assetService.createMarker(payload),
+    onSuccess: (marker) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.asset.search() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.asset.resolveMarker(marker.markerCode),
+      });
+      if (marker.targetType === "node" && marker.targetId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.asset.nodeContext(marker.targetId),
+        });
+      }
+      if (marker.targetType === "rack" && marker.targetId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.asset.topologyTree(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.asset.rackTopology(marker.targetId),
+        });
+      }
+    },
+  });
+}
 
 // export function useUpdateMarkerMutation() {
 //   return useMutation({

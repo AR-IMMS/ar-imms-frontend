@@ -134,6 +134,7 @@ export interface AssetSummary {
 export interface RackTopologyResult {
   rack: RackEntity;
   nodes: NodeEntity[];
+  markers?: MarkerEntity[];
 }
 
 export interface NodeContextResult {
@@ -193,26 +194,25 @@ export interface AssignNodeToRackRequestDto {
   allowDraining?: boolean;
 }
 
-// export interface MarkerResolutionResult {
-//   marker: MarkerEntity;
-//   target: AssetSummary;
-//   rack?: RackEntity;
-//   node?: NodeEntity;
-//   runtimeSnapshot?: NodeRuntimeSnapshotEntity;
-//   topologyPath: { rackId?: string; rackCode?: string };
-//   externalContext: { workloadSource: "monitoring-service-or-bff" };
-// }
+export interface MarkerResolutionResult {
+  marker: MarkerEntity;
+  target: AssetSummary;
+  rack?: RackEntity;
+  node?: NodeEntity;
+  topologyPath: { rackId?: string; rackCode?: string };
+  externalContext: { workloadSource: "monitoring-service-or-bff" };
+}
 
-// export interface CreateMarkerRequestDto {
-//   markerCode: string;
-//   displayLabel?: string;
-//   targetType?: MarkerTargetType;
-//   targetId?: string;
-//   imageTargetId?: string;
-//   worldTrackingEnabled?: boolean;
-//   notes?: string;
-//   metadata?: Record<string, unknown>;
-// }
+export interface CreateMarkerRequestDto {
+  markerCode: string;
+  displayLabel?: string;
+  targetType?: MarkerTargetType;
+  targetId?: string;
+  imageTargetId?: string;
+  worldTrackingEnabled?: boolean;
+  notes?: string;
+  metadata?: Record<string, unknown>;
+}
 
 // export interface UpdateMarkerRequestDto {
 //   markerCode?: string;

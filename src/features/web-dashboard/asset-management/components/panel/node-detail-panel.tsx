@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   X,
   MapPin,
@@ -19,6 +19,7 @@ import {
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
 import { DiscoveredNodeEntity, MarkerEntity } from "@/types/assets";
+import AssetQrModal from "../modal/asset-qr-modal";
 
 interface NodeDetailPanelProps {
   onClose: () => void;
@@ -26,6 +27,7 @@ interface NodeDetailPanelProps {
 
 export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
   const { selectedAsset, setLifecycleModalState } = useAssetStore();
+  const [qrMarker, setQrMarker] = useState<MarkerEntity | null | undefined>();
 
   const { data: context, isLoading } = useNodeContextQuery(
     selectedAsset?.assetType === "node" ? selectedAsset.id : "",
@@ -86,7 +88,8 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
   if (!nodeInfo) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
+    <>
+      <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
       <div className="glass light:bg-muted/90 light:border-2 light:border-l-primary/50 relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-5 pointer-events-auto flex flex-col justify-between">
         <div className="space-y-6">
           {/* Header */}
@@ -320,9 +323,18 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
 
           {/* Section 3: AR Marker Topology Mapping */}
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-1">
-              <QrCode className="size-3.5 text-cyan-ice" /> AR SPATIAL TRACKING
-              MARKERS
+            <div className="flex items-center justify-between gap-3 border-b border-[#25304A]/60 pb-1">
+              <div className="flex items-center gap-1.5 label-mono text-[11px] text-muted-foreground light:font-bold">
+                <QrCode className="size-3.5 text-cyan-ice" /> AR SPATIAL
+                TRACKING MARKERS
+              </div>
+              <button
+                type="button"
+                onClick={() => setQrMarker(nodeInfo.markers[0] ?? null)}
+                className="shrink-0 rounded border border-cyan/30 bg-cyan/5 px-2 py-1 font-mono text-[9px] font-bold text-cyan transition hover:bg-cyan/15"
+              >
+                {nodeInfo.markers.length > 0 ? "VIEW QR" : "CREATE QR"}
+              </button>
             </div>
 
             <div className="space-y-2">
@@ -392,7 +404,20 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+      {qrMarker !== undefined && (
+        <AssetQrModal
+          target={{
+            id: nodeInfo.id,
+            type: "node",
+            code: nodeInfo.nodeCode,
+            name: nodeInfo.displayName,
+          }}
+          existingMarker={qrMarker ?? undefined}
+          onClose={() => setQrMarker(undefined)}
+        />
+      )}
+    </>
   );
 }

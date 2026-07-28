@@ -29,8 +29,8 @@ export const ASSET_ENDPOINTS = {
   SEARCH_ASSETS: "/assets/search",
   NODE_CONTEXT: (nodeId: string) =>
     `/nodes/${encodeURIComponent(nodeId)}/context`,
-  // RESOLVE_MARKER: (markerCode: string) =>
-  //   `/markers/resolve/${encodeURIComponent(markerCode)}`,
+  RESOLVE_MARKER: (markerCode: string) =>
+    `/markers/resolve/${encodeURIComponent(markerCode)}`,
 
   // Admin Topology
   ADMIN_RACKS: "/admin/topology/racks",
@@ -61,7 +61,7 @@ export const ASSET_ENDPOINTS = {
   //   `/admin/topology/nodes/${encodeURIComponent(nodeId)}/drain`,
 
   // Admin Markers
-  // ADMIN_MARKERS: "/admin/markers",
+  ADMIN_MARKERS: "/admin/markers",
   // ADMIN_MARKER_BY_ID: (markerId: string) =>
   //   `/admin/markers/${encodeURIComponent(markerId)}`,
   // GENERATE_MARKER: (markerId: string) =>

@@ -1,17 +1,21 @@
 "use client";
 
-import { useMemo } from "react";
-import { X, AlertTriangle, Cpu, StoreIcon, Edit, Power, CpuIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { X, AlertTriangle, Cpu, StoreIcon, Edit, Power, CpuIcon, QrCode } from "lucide-react";
 import { useAssetStore } from "../../hooks/useAssetStore";
 import { CAPACITY_COLOR, LIFECYCLE_COLOR_TEXT } from "../../lib/constant";
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
+import AssetQrModal from "../modal/asset-qr-modal";
+import type { MarkerEntity } from "@/types/assets";
 
 interface RackDetailPanelProps {
   onClose: () => void;
 }
 
 export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
+  const [isQrOpen, setIsQrOpen] = useState(false);
+  const [createdQrMarker, setCreatedQrMarker] = useState<MarkerEntity>();
   const {
     selectedAsset,
     topologyData,
@@ -36,11 +40,15 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
   if (!rackTopology) return null;
 
   const { rack, nodes } = rackTopology;
+  const rackQrMarker =
+    rackTopology.markers?.[0] ??
+    (createdQrMarker?.targetId === rack.id ? createdQrMarker : undefined);
 
   // #region - render section
 
   return (
-    <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
+    <>
+      <div className="fixed inset-0 z-40 flex justify-end pointer-events-none">
       <div className="glass light:bg-muted/90 light:border-2 light:border-l-primary/50 relative h-full w-full max-w-md overflow-y-auto border-l border-cyan/20 p-6 pointer-events-auto flex flex-col justify-between">
         <div className="space-y-6">
           {/* Header */}
@@ -63,6 +71,14 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsQrOpen(true)}
+                className="rounded p-1 text-muted-foreground transition hover:bg-white/5 hover:text-cyan"
+                title={rackQrMarker ? "View Rack QR" : "Create Rack QR"}
+              >
+                <QrCode className="size-4" />
+              </button>
               <button
                 onClick={() =>
                   setCreateEditRackModal({ isOpen: true, rackId: rack.id })
@@ -278,8 +294,22 @@ export function RackDetailPanel({ onClose }: RackDetailPanelProps) {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+      {isQrOpen && (
+        <AssetQrModal
+          target={{
+            id: rack.id,
+            type: "rack",
+            code: rack.rackCode,
+            name: rack.displayName || rack.rackCode,
+          }}
+          existingMarker={rackQrMarker}
+          onCreated={setCreatedQrMarker}
+          onClose={() => setIsQrOpen(false)}
+        />
+      )}
+    </>
   );
 
   // #endregion - render section

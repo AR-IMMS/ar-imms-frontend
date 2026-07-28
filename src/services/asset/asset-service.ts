@@ -12,6 +12,9 @@ import type {
   AssignNodeToRackRequestDto,
   NodeContextResult,
   UpdateNodeRequestDto,
+  CreateMarkerRequestDto,
+  MarkerEntity,
+  MarkerResolutionResult,
 } from "@/types/assets";
 
 const ASSET_SERVICE_NAME = "asset";
@@ -132,18 +135,18 @@ export const assetService = {
 
   // --- Admin Markers ---
 
-  // resolveMarker: (markerCode: string): Promise<MarkerResolutionResult> =>
-  //   httpGet<MarkerResolutionResult>(
-  //     ASSET_ENDPOINTS.RESOLVE_MARKER(markerCode),
-  //     {
-  //       service: ASSET_SERVICE_NAME,
-  //     },
-  //   ),
+  resolveMarker: (markerCode: string): Promise<MarkerResolutionResult> =>
+    httpGet<MarkerResolutionResult>(
+      ASSET_ENDPOINTS.RESOLVE_MARKER(markerCode),
+      {
+        service: ASSET_SERVICE_NAME,
+      },
+    ),
 
-  // createMarker: (payload: CreateMarkerRequestDto): Promise<MarkerEntity> =>
-  //   httpPost<MarkerEntity>(ASSET_ENDPOINTS.ADMIN_MARKERS, payload, {
-  //     service: ASSET_SERVICE_NAME,
-  //   }),
+  createMarker: (payload: CreateMarkerRequestDto): Promise<MarkerEntity> =>
+    httpPost<MarkerEntity>(ASSET_ENDPOINTS.ADMIN_MARKERS, payload, {
+      service: ASSET_SERVICE_NAME,
+    }),
 
   // updateMarker: (
   //   markerId: string,
