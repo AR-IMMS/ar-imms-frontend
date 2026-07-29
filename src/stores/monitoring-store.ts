@@ -5,6 +5,7 @@ import type {
   NodeMetricsData,
   NodeMetricsUpdatedPayload,
   NodeOverviewData,
+  SeedWindow,
 } from "@/types/monitoring";
 
 interface NodeOverviewState {
@@ -21,15 +22,12 @@ interface NodeMetricsState {
 
 interface MonitoringState {
   nodesOverview: Record<string, NodeOverviewState>;
-  // Key dạng `${nodeId}_${mode}` (VD: "node-1_standard" hoặc "node-1_live")
   nodesMetrics: Record<string, NodeMetricsState>;
 
-  // Overview Actions
   setOverviewLoading: (nodeCode: string, loading: boolean) => void;
   setOverviewData: (nodeCode: string, data: NodeOverviewData) => void;
   setOverviewError: (nodeCode: string, error: ErrorResponse | null) => void;
 
-  // Metrics Actions
   setMetricsLoading: (
     nodeCode: string,
     mode: MetricMode,
@@ -46,7 +44,6 @@ interface MonitoringState {
     error: ErrorResponse | null,
   ) => void;
 
-  // Socket Actions
   appendMetricPoint: (
     nodeCode: string,
     mode: MetricMode,
@@ -55,6 +52,111 @@ interface MonitoringState {
 }
 
 const getMetricsKey = (nodeId: string, mode: MetricMode) => `${nodeId}_${mode}`;
+
+const cloneSeedWindow = (seedWindow: SeedWindow): SeedWindow => ({
+  from: seedWindow.from,
+  to: seedWindow.to,
+  resolutionSec: seedWindow.resolutionSec,
+  timestamps: [...seedWindow.timestamps],
+  nodeMetrics: {
+    cpuUsagePct: [...seedWindow.nodeMetrics.cpuUsagePct],
+    memoryUsagePct: [...seedWindow.nodeMetrics.memoryUsagePct],
+    diskUsagePct: [...seedWindow.nodeMetrics.diskUsagePct],
+    cpuTemperatureC: [...seedWindow.nodeMetrics.cpuTemperatureC],
+    networkRxBytesSec: [...seedWindow.nodeMetrics.networkRxBytesSec],
+    networkTxBytesSec: [...seedWindow.nodeMetrics.networkTxBytesSec],
+  },
+  workloadMetrics: Object.entries(seedWindow.workloadMetrics).reduce<
+    Record<string, SeedWindow["workloadMetrics"][string]>
+  >((acc, [wlId, series]) => {
+    acc[wlId] = {
+      cpuUsagePct: [...series.cpuUsagePct],
+      memoryUsagePct: [...series.memoryUsagePct],
+    };
+    return acc;
+  }, {}),
+});
+
+const appendToWindow = (
+  window: SeedWindow,
+  payload: NodeMetricsUpdatedPayload,
+  maxPoints: number,
+): SeedWindow => {
+  const nextTimestamps = [...window.timestamps, payload.ts];
+
+  const nextNodeMetrics = {
+    cpuUsagePct: [...window.nodeMetrics.cpuUsagePct, payload.node.cpuUsagePct],
+    memoryUsagePct: [
+      ...window.nodeMetrics.memoryUsagePct,
+      payload.node.memoryUsagePct,
+    ],
+    diskUsagePct: [...window.nodeMetrics.diskUsagePct, payload.node.diskUsagePct],
+    cpuTemperatureC: [
+      ...window.nodeMetrics.cpuTemperatureC,
+      payload.node.cpuTemperatureC,
+    ],
+    networkRxBytesSec: [
+      ...window.nodeMetrics.networkRxBytesSec,
+      payload.node.networkRxBytesSec,
+    ],
+    networkTxBytesSec: [
+      ...window.nodeMetrics.networkTxBytesSec,
+      payload.node.networkTxBytesSec,
+    ],
+  };
+
+  const nextWorkloadMetrics: SeedWindow["workloadMetrics"] = {};
+  Object.entries(window.workloadMetrics).forEach(([wlId, series]) => {
+    const wlUpdate = payload.workloads[wlId];
+    nextWorkloadMetrics[wlId] = {
+      cpuUsagePct: [...series.cpuUsagePct, wlUpdate?.cpuUsagePct ?? null],
+      memoryUsagePct: [...series.memoryUsagePct, wlUpdate?.memoryUsagePct ?? null],
+    };
+  });
+
+  if (Number.isNaN(new Date(payload.ts).getTime())) {
+    return window;
+  }
+
+  const overflowCount = nextTimestamps.length - maxPoints;
+  if (overflowCount <= 0) {
+    return {
+      ...window,
+      from: nextTimestamps[0] || window.from,
+      to: payload.ts,
+      timestamps: nextTimestamps,
+      nodeMetrics: nextNodeMetrics,
+      workloadMetrics: nextWorkloadMetrics,
+    };
+  }
+
+  const slicedTimestamps = nextTimestamps.slice(overflowCount);
+  const sliceSeries = <T,>(series: T[]) => series.slice(overflowCount);
+
+  return {
+    ...window,
+    from: slicedTimestamps[0] || window.from,
+    to: payload.ts,
+    timestamps: slicedTimestamps,
+    nodeMetrics: {
+      cpuUsagePct: sliceSeries(nextNodeMetrics.cpuUsagePct),
+      memoryUsagePct: sliceSeries(nextNodeMetrics.memoryUsagePct),
+      diskUsagePct: sliceSeries(nextNodeMetrics.diskUsagePct),
+      cpuTemperatureC: sliceSeries(nextNodeMetrics.cpuTemperatureC),
+      networkRxBytesSec: sliceSeries(nextNodeMetrics.networkRxBytesSec),
+      networkTxBytesSec: sliceSeries(nextNodeMetrics.networkTxBytesSec),
+    },
+    workloadMetrics: Object.entries(nextWorkloadMetrics).reduce<
+      SeedWindow["workloadMetrics"]
+    >((acc, [wlId, series]) => {
+      acc[wlId] = {
+        cpuUsagePct: sliceSeries(series.cpuUsagePct),
+        memoryUsagePct: sliceSeries(series.memoryUsagePct),
+      };
+      return acc;
+    }, {}),
+  };
+};
 
 export const useMonitoringStore = create<MonitoringState>((set) => ({
   nodesOverview: {},
@@ -114,7 +216,10 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
       nodesMetrics: {
         ...state.nodesMetrics,
         [key]: {
-          metrics: data,
+          metrics: {
+            ...data,
+            chartWindow: cloneSeedWindow(data.seedWindow),
+          },
           loading: false,
           error: null,
         },
@@ -141,71 +246,18 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
     set((state) => {
       const nodeMetricState = state.nodesMetrics[key];
       if (!nodeMetricState?.metrics) {
-        return state; // No metrics data to append to
+        return state;
       }
 
       const { metrics } = nodeMetricState;
-      const { retentionSec } = metrics.metricsConfig;
-      const seedWindow = metrics.seedWindow;
-
-      // 1. Immutable Append new timestamp
-      let timestamps = [...seedWindow.timestamps, payload.ts];
-
-      const nodeMetrics = { ...seedWindow.nodeMetrics };
-      (Object.keys(nodeMetrics) as Array<keyof typeof nodeMetrics>).forEach(
-        (key) => {
-          const val = payload.node[key] ?? null;
-          nodeMetrics[key] = [...nodeMetrics[key], val];
-        },
+      const currentWindow = metrics.chartWindow
+        ? metrics.chartWindow
+        : cloneSeedWindow(metrics.seedWindow);
+      const nextWindow = appendToWindow(
+        currentWindow,
+        payload,
+        currentWindow.timestamps.length,
       );
-
-      const workloadMetrics = { ...seedWindow.workloadMetrics };
-      Object.keys(workloadMetrics).forEach((wlId) => {
-        const wlUpdate = payload.workloads[wlId];
-        const series = workloadMetrics[wlId];
-        workloadMetrics[wlId] = {
-          cpuUsagePct: [...series.cpuUsagePct, wlUpdate?.cpuUsagePct ?? null],
-          memoryUsagePct: [
-            ...series.memoryUsagePct,
-            wlUpdate?.memoryUsagePct ?? null,
-          ],
-        };
-      });
-
-      // 2. Slide the window to satisfy retention rules
-      const newLatestTime = new Date(payload.ts).getTime();
-      if (isNaN(newLatestTime)) {
-        return state; // Escape nếu payload.ts không hợp lệ
-      }
-
-      const retentionMs = retentionSec * 1000;
-      let cutIndex = 0;
-
-      // Tìm vị trí point đầu tiên thỏa mãn khung retentionSec
-      while (
-        cutIndex < timestamps.length - 1 &&
-        newLatestTime - new Date(timestamps[cutIndex]).getTime() > retentionMs
-      ) {
-        cutIndex++;
-      }
-
-      // 3. Slice mảng nếu có point quá hạn
-      if (cutIndex > 0) {
-        timestamps = timestamps.slice(cutIndex);
-        (Object.keys(nodeMetrics) as Array<keyof typeof nodeMetrics>).forEach(
-          (key) => {
-            nodeMetrics[key] = nodeMetrics[key].slice(cutIndex);
-          },
-        );
-
-        Object.keys(workloadMetrics).forEach((wlId) => {
-          workloadMetrics[wlId] = {
-            cpuUsagePct: workloadMetrics[wlId].cpuUsagePct.slice(cutIndex),
-            memoryUsagePct:
-              workloadMetrics[wlId].memoryUsagePct.slice(cutIndex),
-          };
-        });
-      }
 
       return {
         nodesMetrics: {
@@ -214,14 +266,7 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
             ...nodeMetricState,
             metrics: {
               ...metrics,
-              seedWindow: {
-                ...seedWindow,
-                timestamps,
-                nodeMetrics,
-                workloadMetrics,
-                to: payload.ts,
-                from: timestamps[0] || seedWindow.from,
-              },
+              chartWindow: nextWindow,
             },
           },
         },

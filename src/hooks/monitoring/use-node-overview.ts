@@ -8,8 +8,9 @@ import type { ApiError } from "@/types/api";
 import type { NodeOverviewChangedPayload } from "@/types/monitoring";
 
 export const useNodeOverview = (nodeCode: string) => {
-  const { setOverviewError, setOverviewData } = useMonitoringStore();
   const overviewState = useMonitoringStore((s) => s.nodesOverview[nodeCode]);
+  const setOverviewError = useMonitoringStore((s) => s.setOverviewError);
+  const setOverviewData = useMonitoringStore((s) => s.setOverviewData);
 
   const queryKey = queryKeys.monitoring.nodes.overview(nodeCode);
 

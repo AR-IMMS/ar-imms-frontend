@@ -149,6 +149,7 @@ export interface NodeMetricsData {
   };
   workloads: TrackedWorkload[];
   seedWindow: SeedWindow;
+  chartWindow?: SeedWindow;
 }
 // #endregion Node Metrics Data
 

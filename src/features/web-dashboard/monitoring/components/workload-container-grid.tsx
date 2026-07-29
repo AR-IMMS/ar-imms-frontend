@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, memo } from "react";
+import { useMemo, memo, useRef, useEffect } from "react";
 import { ShieldAlert, CheckCircle, RefreshCcw } from "lucide-react";
 import ReactECharts from "echarts-for-react";
 import type { ChartDataPoint, NodeOverviewData, WorkloadItem } from "@/types/monitoring";
@@ -77,6 +77,32 @@ const WorkloadCard = memo(function WorkloadCard({
     [memSeries, memColor]
   );
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cpuChartRef = useRef<any>(null);
+  const memChartRef = useRef<any>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      const cpuInstance = cpuChartRef.current?.getEchartsInstance();
+      if (cpuInstance) {
+        cpuInstance.resize();
+      }
+      const memInstance = memChartRef.current?.getEchartsInstance();
+      if (memInstance) {
+        memInstance.resize();
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const isAbnormal =
     workload.healthStatus?.toLowerCase().trim() === "unhealthy" ||
     workload.status?.toLowerCase().trim() !== "running" ||
@@ -84,6 +110,7 @@ const WorkloadCard = memo(function WorkloadCard({
 
   return (
     <div
+      ref={containerRef}
       className={`panel bg-surface-2/30 p-3 border flex flex-col justify-between h-44 transition-all duration-200 hover:border-cyan/40 hover:shadow-[0_0_12px_rgba(0,209,255,0.05)] ${
         isAbnormal
           ? "border-critical/30 bg-critical/5 shadow-[0_0_8px_rgba(255,77,109,0.05)]"
@@ -131,6 +158,7 @@ const WorkloadCard = memo(function WorkloadCard({
           </div>
           <div className="flex-1 h-6">
             <ReactECharts
+              ref={cpuChartRef}
               option={cpuOption}
               style={{ height: "100%", width: "100%" }}
               opts={{ devicePixelRatio: 2 }}
@@ -148,6 +176,7 @@ const WorkloadCard = memo(function WorkloadCard({
           </div>
           <div className="flex-1 h-6">
             <ReactECharts
+              ref={memChartRef}
               option={memOption}
               style={{ height: "100%", width: "100%" }}
               opts={{ devicePixelRatio: 2 }}
@@ -213,7 +242,7 @@ function WorkloadContainerGrid({
   }, [metrics, topWorkloads]);
 
   return (
-    <div className="space-y-2 flex-1 flex flex-col min-h-0">
+    <div className="mt-3 space-y-2 flex-1 flex flex-col min-h-0">
       {/* Header Summary */}
       <div className="flex justify-between items-center shrink-0 border-b border-border pb-2 font-mono text-xs">
         <span className="font-bold text-slate-300 uppercase tracking-wider">
