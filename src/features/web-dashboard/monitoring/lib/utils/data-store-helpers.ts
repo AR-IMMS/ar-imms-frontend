@@ -4,7 +4,6 @@ import {
   ChartDataPoint,
   NodeMetricsData,
   NodeOverviewData,
-  NodeSeverity,
   NodeStatus,
   WorkloadItem,
 } from "@/types/monitoring";
@@ -57,46 +56,14 @@ export const selectDerivedNodeStatus = (
   if (!overview) return "unknown";
   const { alertCounters } = overview.summaryMetrics;
   if (
-    alertCounters.staleMetricCount > 0 &&
-    alertCounters.criticalMetricCount === 0 &&
-    alertCounters.warningMetricCount === 0
+    alertCounters.stale > 0 &&
+    alertCounters.critical === 0 &&
+    alertCounters.warning === 0
   ) {
     return "unknown";
   }
-  if (
-    alertCounters.criticalMetricCount > 0 ||
-    alertCounters.warningMetricCount > 0
-  ) {
+  if (alertCounters.critical > 0 || alertCounters.warning > 0) {
     return "alerting";
-  }
-  return "healthy";
-};
-
-// Helper function to derive NodeSeverity from NodeOverviewData
-export const selectDerivedNodeSeverity = (
-  overview: NodeOverviewData | null,
-): NodeSeverity => {
-  if (!overview) return "healthy";
-  const { alertCounters } = overview.summaryMetrics;
-  const severityMapping: Record<NodeSeverity, number> = {
-    healthy: 0,
-    stale: 1,
-    warning: 2,
-    high: 3,
-    critical: 4,
-  };
-  const baseSeverity = overview.node.severity;
-  const maxSeverityCode = severityMapping[baseSeverity] ?? 0;
-
-  if (maxSeverityCode >= 4) return "critical";
-  if (maxSeverityCode >= 3 || alertCounters.criticalMetricCount > 0) {
-    return "high";
-  }
-  if (maxSeverityCode >= 2 || alertCounters.warningMetricCount > 0) {
-    return "warning";
-  }
-  if (maxSeverityCode >= 1 || alertCounters.staleMetricCount > 0) {
-    return "stale";
   }
   return "healthy";
 };

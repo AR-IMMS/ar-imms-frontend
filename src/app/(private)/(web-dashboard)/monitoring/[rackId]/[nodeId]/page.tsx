@@ -56,7 +56,7 @@ export default function NodeMonitoringPage({ params }: Props) {
   return (
     <div className="flex gap-1 w-full flex-1 min-h-0 overflow-hidden">
       <MonitoringTelemetryViewport nodeCode={nodeContext.node.nodeCode} />
-      <MonitoringNodeDetailPanel nodeCode={nodeContext.node.nodeCode} />
+      <MonitoringNodeDetailPanel nodeItem={nodeContext.node} />
     </div>
   );
 }

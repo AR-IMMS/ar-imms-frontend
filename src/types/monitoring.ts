@@ -1,21 +1,20 @@
 export type MetricMode = "standard" | "live";
 
 export type NodeStatus = "healthy" | "alerting" | "unknown";
-export type NodeSeverity =
-  | "healthy"
-  | "stale"
-  | "warning"
-  | "high"
-  | "critical";
+export type CollectorStatus = "ONLINE" | "OFFLINE" | "UNKNOWN";
 
 // #region Node Overview Data
 export interface NodeOverviewDataNode {
   nodeId: string;
   status: NodeStatus;
-  severity: NodeSeverity;
+  reason: string | null;
   lastSeenAt: string;
-  freshnessSec: number;
   fingerprintSeenAt: string | null;
+  hardware: NodeHardwareInfo;
+  collector: CollectorStatusInfo;
+}
+
+export interface NodeHardwareInfo {
   batteryModel: string | null;
   cpuArchitecture: string | null;
   cpuModel: string | null;
@@ -29,47 +28,46 @@ export interface NodeOverviewDataNode {
   ssdModelPrimary: string | null;
 }
 
-interface MetricValueState {
-  value: string | null;
-  unit: string | null;
+export interface CollectorStatusInfo {
+  status: CollectorStatus;
+  reason: string | null;
+  lastHeartbeatAt: string | null;
+  heartbeatTimeoutSec: number | null;
 }
 
 interface WorstMetric {
+  type: string | null;
   metricKey: string | null;
-  metricValueNumeric: number | null;
-  metricValueText: string | null;
+  value?: string | null;
 }
 
 interface AlertCounters {
-  criticalMetricCount: number;
-  warningMetricCount: number;
-  staleMetricCount: number;
+  critical: number;
+  warning: number;
+  stale: number;
 }
 
 export interface SummaryMetrics {
-  primaryNicStatus: MetricValueState;
-  worstMetric: WorstMetric;
+  primaryNicStatus: string | null;
+  uptimeSec: number | null;
+  primaryIssue: WorstMetric;
   alertCounters: AlertCounters;
 }
 
 export interface WorkloadSummary {
   total: number;
+  healthy: number;
   unhealthy: number;
-  nonRunning: number;
-  returned: number;
-  selectionMode: "abnormal_first_then_top_cpu";
 }
 
 export interface WorkloadItem {
   workloadId: string;
-  workloadType: "container";
+  type: "container";
   name: string;
-  serviceName: string;
   status: string;
   healthStatus: string;
   restartCount: number;
-  worstMetricKey: string | null;
-  isAbnormal: boolean;
+  primaryIssue: WorstMetric;
 }
 
 export interface RealtimeConfig {

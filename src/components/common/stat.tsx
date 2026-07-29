@@ -15,11 +15,15 @@ export default function Stat({
 }) {
   return (
     <div className={`panel ${themeConfig || "light:bg-muted"} p-3`}>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center h-4">
         <div className="label-mono text-[9px] text-muted-foreground light:font-bold">
           {label}
         </div>
-        {icon && <div className="mb-1">{icon}</div>}
+        {icon ? (
+          <div className="flex items-center">{icon}</div>
+        ) : (
+          <div className="w-3 h-3 invisible" />
+        )}
       </div>
       <div
         className={`mt-1 text-sm ${mono ? "font-mono" : ""} ${tone ?? "text-foreground"}`}

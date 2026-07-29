@@ -5,7 +5,7 @@ import NodeHardwareGrid from "./components/node-hardware-grid";
 import WorkloadContainerGrid from "./components/workload-container-grid";
 import { useNodeOverview } from "@/hooks/monitoring/use-node-overview";
 import { useNodeMetrics } from "@/hooks/monitoring/use-node-metrics";
-import { ShieldAlert, AlertTriangle, RefreshCcw, Activity } from "lucide-react";
+import { ShieldAlert, AlertTriangle, RefreshCcw } from "lucide-react";
 import { transformToChartData } from "./lib/utils/data-store-helpers";
 import { WorkspaceBreadcrumbs } from "@/components/common/workspace-breadcrumbs";
 
@@ -98,14 +98,14 @@ export default function MonitoringTelemetryViewport({
   const alertCounters = useMemo(() => {
     return (
       overview?.summaryMetrics.alertCounters || {
-        criticalMetricCount: 0,
-        warningMetricCount: 0,
-        staleMetricCount: 0,
+        critical: 0,
+        warning: 0,
+        stale: 0,
       }
     );
   }, [overview?.summaryMetrics.alertCounters]);
 
-  const worstMetric = overview?.summaryMetrics.worstMetric;
+  const worstMetric = overview?.summaryMetrics.primaryIssue;
   const isViewportLoading = loadingOverview || loadingMetrics;
 
   return (
@@ -139,51 +139,52 @@ export default function MonitoringTelemetryViewport({
               ),
             )}
           </div>
-
-          {/* Alert Counters */}
-          <div className="flex items-center gap-2 font-mono text-[10px]">
-            <div className="flex items-center gap-1 bg-critical/15 text-critical border border-critical/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(255,77,109,0.1)]">
-              <ShieldAlert className="size-3 animate-pulse" />
-              <span>CRIT: {alertCounters.criticalMetricCount}</span>
-            </div>
-            <div className="flex items-center gap-1 bg-amber/15 text-amber border border-amber/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(255,200,87,0.1)]">
-              <AlertTriangle className="size-3" />
-              <span>WARN: {alertCounters.warningMetricCount}</span>
-            </div>
-            <div className="flex items-center gap-1 bg-purple/15 text-purple border border-purple/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(139,92,246,0.1)]">
-              <RefreshCcw className="size-3" />
-              <span>STALE: {alertCounters.staleMetricCount}</span>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Diagnostics Text Ticker Banner */}
-      <div className="panel py-2 px-3 bg-slate-950 border border-border/80 flex items-center gap-3 shrink-0 overflow-hidden font-mono text-[10px]">
-        <div className="size-2 rounded-full bg-critical animate-ping shrink-0" />
-        <div className="flex-1 truncate">
-          {worstMetric?.metricKey ? (
-            <span className="text-critical uppercase tracking-wider font-semibold animate-pulse">
-              DIAGNOSTIC EXCURSION FAULT AT SITE: {worstMetric.metricKey} ={" "}
-              {worstMetric.metricValueText}
-            </span>
-          ) : (
-            <span className="text-emerald-400 uppercase tracking-wider">
-              SYSTEM STATE OPTIMIZED — ZERO ACTIVE CRITICAL TELEMETRY EXCURSIONS
-              DETECTED
-            </span>
-          )}
+      <div className="flex w-full items-center gap-2">
+        <div className="panel rounded py-1.5 px-3 bg-slate-950 border border-border/80 flex items-center flex-1 gap-3 shrink-0 overflow-hidden font-mono text-[10px]">
+          <div className="size-2 rounded-full bg-critical animate-ping shrink-0" />
+          <div className="flex-1 truncate">
+            {worstMetric?.metricKey ? (
+              <span className="text-critical uppercase tracking-wider font-semibold animate-pulse">
+                DIAGNOSTIC EXCURSION FAULT AT SITE: {worstMetric.metricKey} ={" "}
+                {worstMetric.value}
+              </span>
+            ) : (
+              <span className="text-emerald-400 uppercase tracking-wider">
+                SYSTEM STATE OPTIMIZED — ZERO ACTIVE CRITICAL TELEMETRY
+                EXCURSIONS DETECTED
+              </span>
+            )}
+          </div>
         </div>
-        <div className="text-muted-foreground/60 text-[9px] uppercase font-semibold flex items-center gap-1">
-          <Activity className="size-3 text-cyan-ice animate-pulse" />
-          <span>Realtime Feed Active</span>
+        {/* Alert Counters */}
+        <div className="flex items-center gap-2 font-mono text-[10px]">
+          <div className="flex items-center gap-1 bg-critical/15 text-critical border border-critical/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(255,77,109,0.1)]">
+            <ShieldAlert className="size-3 animate-pulse" />
+            <span>CRIT: {alertCounters.critical}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-amber/15 text-amber border border-amber/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(255,200,87,0.1)]">
+            <AlertTriangle className="size-3" />
+            <span>WARN: {alertCounters.warning}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-purple/15 text-purple border border-purple/30 px-2 py-1 rounded shadow-[0_0_6px_rgba(139,92,246,0.1)]">
+            <RefreshCcw className="size-3" />
+            <span>STALE: {alertCounters.stale}</span>
+          </div>
         </div>
       </div>
 
       {/* Upper Grid (Node Hardware) */}
       <NodeHardwareGrid
         metrics={chartData}
-        primaryNicStatus={overview?.summaryMetrics.primaryNicStatus ?? null}
+        primaryNicStatus={
+          overview?.summaryMetrics.primaryNicStatus
+            ? { value: overview.summaryMetrics.primaryNicStatus, unit: "state" }
+            : null
+        }
       />
 
       {/* Lower Grid (Workloads) */}

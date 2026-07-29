@@ -77,7 +77,10 @@ const WorkloadCard = memo(function WorkloadCard({
     [memSeries, memColor]
   );
 
-  const isAbnormal = workload.isAbnormal;
+  const isAbnormal =
+    workload.healthStatus?.toLowerCase().trim() === "unhealthy" ||
+    workload.status?.toLowerCase().trim() !== "running" ||
+    workload.restartCount > 0;
 
   return (
     <div
@@ -108,7 +111,7 @@ const WorkloadCard = memo(function WorkloadCard({
         </div>
         <div className="flex justify-between text-[9px] text-muted-foreground">
           <span>
-            Type: <b className="text-slate-400">{workload.workloadType}</b>
+            Type: <b className="text-slate-400">{workload.type}</b>
           </span>
           <span>
             Restarts: <b className="text-slate-400">{workload.restartCount}</b>
@@ -156,7 +159,7 @@ const WorkloadCard = memo(function WorkloadCard({
       {/* Status Footer */}
       <div className="border-t border-border/10 pt-1.5 mt-2 flex items-center justify-between font-mono text-[8px] text-muted-foreground">
         <span className="truncate max-w-[80px]">
-          Rule: {workload.worstMetricKey || "none"}
+          Rule: {workload.primaryIssue?.metricKey || "none"}
         </span>
         <span
           className={`uppercase font-bold ${
@@ -174,7 +177,7 @@ function WorkloadContainerGrid({
   overview,
   metrics,
 }: WorkloadContainerGridProps) {
-  const summary = overview?.workloadSummary || { total: 0, unhealthy: 0, nonRunning: 0 };
+  const summary = overview?.workloadSummary || { total: 0, unhealthy: 0, healthy: 0 };
   const workloads = overview?.workloads || [];
 
   // Lấy ra 5 workload đầu tiên
@@ -237,7 +240,7 @@ function WorkloadContainerGrid({
           <span>|</span>
           <span className="flex items-center gap-1">
             <RefreshCcw className="size-3 text-slate-400" />
-            Non-Running: <b className="text-slate-200">{summary.nonRunning}</b>
+            Healthy: <b className="text-slate-200">{summary.healthy}</b>
           </span>
         </div>
       </div>

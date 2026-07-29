@@ -19,6 +19,7 @@ import {
 import Stat from "@/components/common/stat";
 import CopyableUserId from "@/components/common/copyable-user-id";
 import { DiscoveredNodeEntity, MarkerEntity } from "@/types/assets";
+import { formatToExactDateTime } from "@/lib/utils/formatTime";
 
 interface NodeDetailPanelProps {
   onClose: () => void;
@@ -57,6 +58,7 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
       rowCode: rack?.rowCode || "Unassigned",
       rackPositionCode: rack?.positionCode || "Unassigned",
       // Node hardware
+      registeredAt: nodeMetaData?.registeredAt || "N/A",
       ip: node.managementIp || nodeMetaData?.hardware?.primaryIpv4 || "N/A",
       mac: nodeMetaData?.hardware?.macAddress || "N/A",
       serial:
@@ -192,6 +194,15 @@ export function NodeDetailPanel({ onClose }: NodeDetailPanelProps) {
                 </div>
                 <div className="text-xs font-semibold text-foreground/80 truncate">
                   {nodeInfo.source}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="label-mono uppercase text-[11px] text-muted-foreground">
+                  REGISTERED AT
+                </div>
+                <div className="text-xs font-semibold text-foreground/80 truncate">
+                  {formatToExactDateTime(nodeInfo.registeredAt)}
                 </div>
               </div>
 
