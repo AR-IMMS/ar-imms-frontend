@@ -14,7 +14,10 @@ import type {
   TicketStatus,
 } from "@/types/ticket";
 
-const INCIDENT_API_URL = process.env.NEXT_PUBLIC_INCIDENT_API_URL ?? "";
+const INCIDENT_API_URL =
+  process.env.NEXT_PUBLIC_INCIDENT_WORKFLOW_API_URL ??
+  process.env.NEXT_PUBLIC_INCIDENT_API_URL ??
+  "";
 const MAX_REALTIME_NOTIFICATIONS = 40;
 const INITIAL_RETRY_DELAY_MS = 1_000;
 const MAX_RETRY_DELAY_MS = 30_000;

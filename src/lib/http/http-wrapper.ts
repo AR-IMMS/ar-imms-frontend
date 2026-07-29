@@ -16,7 +16,10 @@ const SERVICE_URLS: Record<string, string> = {
   asset: process.env.NEXT_PUBLIC_ASSET_API_URL || "",
   monitoring: process.env.NEXT_PUBLIC_MONITORING_API_URL || "",
   ticket: process.env.NEXT_PUBLIC_TICKET_API_URL || "",
-  incident: process.env.NEXT_PUBLIC_INCIDENT_API_URL || "",
+  incident:
+    process.env.NEXT_PUBLIC_INCIDENT_WORKFLOW_API_URL ||
+    process.env.NEXT_PUBLIC_INCIDENT_API_URL ||
+    "",
 };
 
 // Wrapper function to handle API requests with error handling and response parsing
