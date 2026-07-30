@@ -14,6 +14,18 @@ import { z } from "zod";
 import { useLoginMutation } from "@/hooks/auth/use-auth-mutation";
 import type { LoginRequestPayload } from "@/types/auth";
 
+function getPostLoginRoute(roleCodes: readonly string[]) {
+  if (
+    roleCodes.includes("MAINTENANCE_TECHNICIAN") &&
+    !roleCodes.includes("SYSTEM_MONITORING_OPERATOR") &&
+    !roleCodes.includes("IT_ADMINISTRATOR")
+  ) {
+    return "/tickets/me";
+  }
+
+  return "/tickets";
+}
+
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -63,8 +75,8 @@ export function LoginPage() {
       password: values.password,
     };
 
-    await loginMutation.mutateAsync(payload);
-    router.replace("/tickets");
+    const response = await loginMutation.mutateAsync(payload);
+    router.replace(getPostLoginRoute(response.user.roleCodes));
   }
 
   return (

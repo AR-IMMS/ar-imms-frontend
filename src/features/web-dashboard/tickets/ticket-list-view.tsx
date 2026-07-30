@@ -8,6 +8,7 @@ import {
   type MouseEventHandler,
   type ReactNode,
 } from "react";
+import Link from "next/link";
 import {
   CheckCircle2,
   ChevronRight,
@@ -20,7 +21,10 @@ import {
   useCloseTicketMutation,
   useDeleteTicketMutation,
 } from "@/hooks/tickets/use-ticket-mutations";
-import { useTicketsQuery } from "@/hooks/tickets/use-ticket-queries";
+import {
+  useMyTicketsQuery,
+  useTicketsQuery,
+} from "@/hooks/tickets/use-ticket-queries";
 import type {
   TechnicianOption,
   TicketPriority,
@@ -40,6 +44,7 @@ import {
 
 type TicketListViewProps = {
   technicians: TechnicianOption[];
+  mode?: "all" | "assigned-to-me";
 };
 
 type AssigneeFilter = "ALL" | "UNASSIGNED" | string;
@@ -50,7 +55,10 @@ type PendingListAction =
     }
   | null;
 
-export default function TicketListView({ technicians }: TicketListViewProps) {
+export default function TicketListView({
+  technicians,
+  mode = "all",
+}: TicketListViewProps) {
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<
     TicketPriority | "ALL"
@@ -73,7 +81,13 @@ export default function TicketListView({ technicians }: TicketListViewProps) {
   }, []);
 
   const deferredSearch = useDeferredValue(search.trim().toLowerCase());
-  const ticketsQuery = useTicketsQuery();
+  const allTicketsQuery = useTicketsQuery(undefined, mode === "all");
+  const assignedTicketsQuery = useMyTicketsQuery(
+    undefined,
+    mode === "assigned-to-me",
+  );
+  const ticketsQuery =
+    mode === "assigned-to-me" ? assignedTicketsQuery : allTicketsQuery;
   const closeTicketMutation = useCloseTicketMutation();
   const deleteTicketMutation = useDeleteTicketMutation();
 
@@ -273,9 +287,13 @@ export default function TicketListView({ technicians }: TicketListViewProps) {
                   />
                   <div className="min-w-0">
                     <div className="flex min-w-0 items-center gap-2">
-                      <span className="font-mono text-xs text-cyan">
+                      <Link
+                        href={`/tickets/${ticket.id}`}
+                        onClick={(event) => event.stopPropagation()}
+                        className="font-mono text-xs text-cyan underline-offset-4 transition hover:text-cyan-ice hover:underline"
+                      >
                         {ticket.ticketCode}
-                      </span>
+                      </Link>
                       {!ticket.assigneeUserId ? (
                         <span className="label-mono rounded border border-amber/30 bg-amber/10 px-1.5 py-0.5 text-[9px] text-amber">
                           UNASSIGNED

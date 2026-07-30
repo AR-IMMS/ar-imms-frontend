@@ -94,11 +94,18 @@ export const MONITORING_ENDPOINTS = {
 
 export const TICKET_ENDPOINTS = {
   TICKETS: "/tickets",
+  MY_TICKETS: "/tickets/me",
   EVENTS: "/tickets/events",
   TICKET_BY_ID: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}`,
+  STATUS: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/status`,
   ASSIGNMENT: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/assignment`,
   CLOSE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/close`,
   COMMENTS: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/comments`,
   EVIDENCE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence`,
   EVIDENCE_UPLOAD_URL: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
+} as const;
+
+export const INCIDENT_ENDPOINTS = {
+  INCIDENT_BY_ID: (incidentId: string) =>
+    `/incidents/${encodeURIComponent(incidentId)}`,
 } as const;

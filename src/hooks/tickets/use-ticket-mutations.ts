@@ -9,6 +9,7 @@ import type {
   AttachTicketEvidenceInput,
   CreateTicketInput,
   TicketProps,
+  TicketStatus,
 } from "@/types/ticket";
 
 function syncTicketCaches(ticket: TicketProps) {
@@ -87,6 +88,23 @@ export function useCloseTicketMutation() {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
       toast.success("Ticket closed.");
+    },
+  });
+}
+
+export function useUpdateTicketStatusMutation() {
+  return useMutation({
+    mutationFn: ({
+      ticketId,
+      status,
+    }: {
+      ticketId: string;
+      status: TicketStatus;
+    }) => ticketService.updateStatus(ticketId, status),
+    onSuccess: (ticket) => {
+      syncTicketCaches(ticket);
+      invalidateTicketCollections(ticket.id);
+      toast.success("Ticket status updated.");
     },
   });
 }

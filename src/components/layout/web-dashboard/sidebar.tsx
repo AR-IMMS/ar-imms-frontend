@@ -18,6 +18,9 @@ import type { LucideIcon } from "lucide-react";
 import isActivePath from "@/lib/utils/isActivePath";
 import { useSidebar } from "@/hooks/common/use-ui-config";
 import { Tooltip } from "@/components/common/tooltip";
+import { useAuth } from "@/hooks/auth/use-auth";
+import { hasAnyRole, hasRole } from "@/lib/auth/auth-permissions";
+import type { UserProfileResponse } from "@/types/auth";
 
 type NavItem = {
   icon: LucideIcon;
@@ -59,6 +62,28 @@ const footerItems: NavItem[] = [
   { icon: Settings, label: "Settings", to: "/settings" },
   { icon: LifeBuoy, label: "Support", to: "/support" },
 ];
+
+function getTicketNavTarget(user: UserProfileResponse | null) {
+  if (
+    hasRole(user, "MAINTENANCE_TECHNICIAN") &&
+    !hasAnyRole(user, ["IT_ADMINISTRATOR", "SYSTEM_MONITORING_OPERATOR"])
+  ) {
+    return "/tickets/me";
+  }
+
+  return "/tickets";
+}
+
+function buildSections(user: UserProfileResponse | null): NavSection[] {
+  const ticketTarget = getTicketNavTarget(user);
+
+  return sections.map((section) => ({
+    ...section,
+    items: section.items.map((item) =>
+      item.to === "/tickets" ? { ...item, to: ticketTarget } : item,
+    ),
+  }));
+}
 
 /* ---------- Helper Components ---------- */
 function NavLink({
@@ -153,6 +178,8 @@ function SidebarSection({
 export default function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { user } = useAuth();
+  const visibleSections = buildSections(user as UserProfileResponse | null);
 
   return (
     <div
@@ -161,7 +188,7 @@ export default function Sidebar() {
       }`}
     >
       <nav className="space-y-5">
-        {sections.map((section, idx) => (
+        {visibleSections.map((section, idx) => (
           <SidebarSection
             key={section.title}
             {...section}

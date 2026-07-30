@@ -10,71 +10,150 @@ import type {
   ListTicketsParams,
   Ticket,
   TicketEvidence,
+  TicketStatus,
   UploadTarget,
 } from "@/types/ticket";
 
 const INCIDENT_SERVICE_NAME = "incident";
 
+type EntityWrapped<T> = {
+  props?: T;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function unwrapEntity<T>(value: unknown): T {
+  if (isRecord(value) && isRecord(value.props)) {
+    return value.props as T;
+  }
+
+  return value as T;
+}
+
+function normalizeTicket(value: unknown): Ticket {
+  const ticket = unwrapEntity<Ticket & EntityWrapped<Ticket>>(value);
+
+  if (!ticket.id) {
+    throw new Error("Ticket response is missing an id.");
+  }
+
+  return ticket;
+}
+
+function normalizeTickets(value: unknown): Ticket[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((ticket) => normalizeTicket(ticket));
+}
+
+function normalizeEvidence(value: unknown): TicketEvidence {
+  return unwrapEntity<TicketEvidence>(value);
+}
+
+function normalizeEvidenceList(value: unknown): TicketEvidence[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((evidence) => normalizeEvidence(evidence));
+}
+
 export const ticketService = {
-  listTickets: (params?: ListTicketsParams): Promise<Ticket[]> => {
+  listTickets: async (params?: ListTicketsParams): Promise<Ticket[]> => {
     const queryString = params ? buildQueryString(params) : "";
-    return httpGet<Ticket[]>(
+    const response = await httpGet<unknown>(
       `${TICKET_ENDPOINTS.TICKETS}${queryString}`,
       { service: INCIDENT_SERVICE_NAME },
     );
+    return normalizeTickets(response);
   },
 
-  getTicket: (ticketId: string): Promise<Ticket> =>
-    httpGet<Ticket>(
+  listAssignedTickets: async (
+    params?: ListTicketsParams,
+  ): Promise<Ticket[]> => {
+    const queryString = params ? buildQueryString(params) : "";
+    const response = await httpGet<unknown>(
+      `${TICKET_ENDPOINTS.MY_TICKETS}${queryString}`,
+      { service: INCIDENT_SERVICE_NAME },
+    );
+    return normalizeTickets(response);
+  },
+
+  getTicket: async (ticketId: string): Promise<Ticket> => {
+    const response = await httpGet<unknown>(
       TICKET_ENDPOINTS.TICKET_BY_ID(ticketId),
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    );
+    return normalizeTicket(response);
+  },
 
-  createTicket: (payload: CreateTicketInput): Promise<Ticket> =>
-    httpPost<Ticket>(
+  createTicket: async (payload: CreateTicketInput): Promise<Ticket> => {
+    const response = await httpPost<unknown>(
       TICKET_ENDPOINTS.TICKETS,
       payload,
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    );
+    return normalizeTicket(response);
+  },
 
-  deleteTicket: (ticketId: string): Promise<Ticket> =>
-    httpDelete<Ticket>(
+  deleteTicket: async (ticketId: string): Promise<Ticket> => {
+    const response = await httpDelete<unknown>(
       TICKET_ENDPOINTS.TICKET_BY_ID(ticketId),
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    );
+    return normalizeTicket(response);
+  },
 
   assignTicket: (
     ticketId: string,
     payload: AssignTicketInput,
   ): Promise<Ticket> =>
-    httpPatch<Ticket>(
+    httpPatch<unknown>(
       TICKET_ENDPOINTS.ASSIGNMENT(ticketId),
       payload,
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    ).then((response) => normalizeTicket(response)),
 
-  closeTicket: (ticketId: string): Promise<Ticket> =>
-    httpPost<Ticket>(
+  updateStatus: (
+    ticketId: string,
+    status: TicketStatus,
+  ): Promise<Ticket> =>
+    httpPatch<unknown>(
+      TICKET_ENDPOINTS.STATUS(ticketId),
+      { status },
+      { service: INCIDENT_SERVICE_NAME },
+    ).then((response) => normalizeTicket(response)),
+
+  closeTicket: async (ticketId: string): Promise<Ticket> => {
+    const response = await httpPost<unknown>(
       TICKET_ENDPOINTS.CLOSE(ticketId),
       undefined,
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    );
+    return normalizeTicket(response);
+  },
 
   addComment: (
     ticketId: string,
     payload: AddTicketCommentInput,
   ): Promise<Ticket> =>
-    httpPost<Ticket>(
+    httpPost<unknown>(
       TICKET_ENDPOINTS.COMMENTS(ticketId),
       payload,
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    ).then((response) => normalizeTicket(response)),
 
-  listEvidence: (ticketId: string): Promise<TicketEvidence[]> =>
-    httpGet<TicketEvidence[]>(
+  listEvidence: async (ticketId: string): Promise<TicketEvidence[]> => {
+    const response = await httpGet<unknown>(
       TICKET_ENDPOINTS.EVIDENCE(ticketId),
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    );
+    return normalizeEvidenceList(response);
+  },
 
   createEvidenceUploadUrl: (
     ticketId: string,
@@ -90,9 +169,9 @@ export const ticketService = {
     ticketId: string,
     payload: AttachTicketEvidenceInput,
   ): Promise<TicketEvidence> =>
-    httpPost<TicketEvidence>(
+    httpPost<unknown>(
       TICKET_ENDPOINTS.EVIDENCE(ticketId),
       payload,
       { service: INCIDENT_SERVICE_NAME },
-    ),
+    ).then((response) => normalizeEvidence(response)),
 };

@@ -57,9 +57,16 @@ export const queryKeys = {
     lists: () => ["tickets", "list"] as const,
     list: (params?: ListTicketsParams) =>
       ["tickets", "list", params ?? {}] as const,
+    myList: (params?: ListTicketsParams) =>
+      ["tickets", "list", "me", params ?? {}] as const,
     detail: (ticketId: string) =>
       ["tickets", "detail", ticketId] as const,
     evidence: (ticketId: string) =>
       ["tickets", "detail", ticketId, "evidence"] as const,
+  },
+  incidents: {
+    all: ["incidents"] as const,
+    detail: (incidentId: string) =>
+      ["incidents", "detail", incidentId] as const,
   },
 } as const;

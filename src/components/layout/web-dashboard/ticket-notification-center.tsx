@@ -6,19 +6,36 @@ import { Bell, CheckCheck, CircleAlert, MessageSquareText, TicketCheck, X } from
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
 import { useTicketEventNotifications } from "@/hooks/tickets/use-ticket-event-notifications";
-import { useTicketsQuery } from "@/hooks/tickets/use-ticket-queries";
+import {
+  useMyTicketsQuery,
+  useTicketsQuery,
+} from "@/hooks/tickets/use-ticket-queries";
+import { hasAnyRole, hasRole } from "@/lib/auth/auth-permissions";
 import {
   buildTicketNotifications,
   type TicketNotification,
   type TicketNotificationTone,
 } from "@/features/web-dashboard/tickets/lib/ticket-notifications";
+import type { UserProfileResponse } from "@/types/auth";
 
 const MAX_VISIBLE_NOTIFICATIONS = 40;
 
 export function TicketNotificationCenter() {
   const router = useRouter();
   const { accessToken, isAuthenticated, user } = useAuth();
-  const ticketsQuery = useTicketsQuery(undefined, true);
+  const profile = user as UserProfileResponse | null;
+  const shouldUseAssignedTickets =
+    hasRole(profile, "MAINTENANCE_TECHNICIAN") &&
+    !hasAnyRole(profile, ["IT_ADMINISTRATOR", "SYSTEM_MONITORING_OPERATOR"]);
+  const allTicketsQuery = useTicketsQuery(undefined, !shouldUseAssignedTickets);
+  const assignedTicketsQuery = useMyTicketsQuery(
+    undefined,
+    shouldUseAssignedTickets,
+  );
+  const ticketsQuery = shouldUseAssignedTickets
+    ? assignedTicketsQuery
+    : allTicketsQuery;
+  const ticketRoute = shouldUseAssignedTickets ? "/tickets/me" : "/tickets";
   const realtime = useTicketEventNotifications({
     accessToken,
     enabled: isAuthenticated,
@@ -63,7 +80,7 @@ export function TicketNotificationCenter() {
     persistRead(new Set([...readIds, item.id]));
     window.sessionStorage.setItem("ar-imms:open-ticket", item.ticketId);
     setOpen(false);
-    router.push("/tickets");
+    router.push(ticketRoute);
   }
 
   return (

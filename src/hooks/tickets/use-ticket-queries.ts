@@ -4,7 +4,6 @@ import { ticketService } from "@/services/tickets/ticket-service";
 import type { ListTicketsParams } from "@/types/ticket";
 
 const DEFAULT_TICKETS_STALE_TIME = 15_000;
-const DEFAULT_TECHNICIANS_STALE_TIME = 60_000;
 
 export function useTicketsQuery(
   params?: ListTicketsParams,
@@ -14,6 +13,21 @@ export function useTicketsQuery(
   return useQuery({
     queryKey: queryKeys.tickets.list(params),
     queryFn: () => ticketService.listTickets(params),
+    enabled,
+    staleTime: DEFAULT_TICKETS_STALE_TIME,
+    refetchInterval,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useMyTicketsQuery(
+  params?: ListTicketsParams,
+  enabled = true,
+  refetchInterval?: number,
+) {
+  return useQuery({
+    queryKey: queryKeys.tickets.myList(params),
+    queryFn: () => ticketService.listAssignedTickets(params),
     enabled,
     staleTime: DEFAULT_TICKETS_STALE_TIME,
     refetchInterval,

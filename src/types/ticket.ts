@@ -65,8 +65,23 @@ export interface TicketActivity {
   id: string;
   type: TicketActivityType | string;
   actorUserId: string;
+  fromUserId?: string | null;
+  toUserId?: string | null;
   message?: string;
   createdAt: string;
+}
+
+export interface TicketMetadata {
+  source?: string;
+  incidentCode?: string;
+  site?: string;
+  room?: string;
+  severity?: string;
+  affectedNodes?: number;
+  totalNodes?: number;
+  dashboardUrl?: string;
+  runbookUrl?: string;
+  [key: string]: unknown;
 }
 
 export interface Ticket {
@@ -79,10 +94,12 @@ export interface Ticket {
   incidentId?: string | null;
   ownerUserId?: string | null;
   assigneeUserId?: string | null;
+  assignedAt?: string | null;
   acknowledgedAt?: string | null;
   evidence?: TicketEvidence[];
   activities?: TicketActivity[];
   assetRef?: TicketAssetReference | null;
+  metadata?: TicketMetadata;
   createdAt: string;
   updatedAt: string;
 }
