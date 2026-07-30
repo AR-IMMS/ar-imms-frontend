@@ -215,3 +215,158 @@ export interface ChartDataPoint extends RealtimeNodeMetrics {
   workloads: Record<string, RealtimeWorkloadMetrics>;
 }
 // #endregion Chart Data
+
+// #region Rack Investigation Overview Data Types
+export type RackSeverity = "healthy" | "stale" | "warning" | "high" | "critical";
+export type RackStatus = "healthy" | "alerting" | "unknown";
+
+export type RackAlertSeverity = "warning" | "critical";
+export type RackAlertScope = "node" | "rack" | "workload" | "service";
+export type RackAlertCategory =
+  | "availability"
+  | "resource"
+  | "thermal"
+  | "runtime"
+  | "network"
+  | "connectivity";
+export type RackAlertStatus = "firing" | "resolved";
+export type RackAlertTriageStatus =
+  | "new"
+  | "acknowledged"
+  | "incident_created"
+  | "suppressed";
+
+export interface RackInvestigationAlert {
+  fingerprint: string;
+  alertName: string;
+  scopeType: RackAlertScope;
+  nodeId: string | null;
+  workloadId: string | null;
+  severity: RackAlertSeverity;
+  category: RackAlertCategory;
+  status: RackAlertStatus;
+  summary: string;
+  description: string;
+  metricKey: string | null;
+  currentValue: string | null;
+  threshold: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  dashboardUrl: string | null;
+  runbookUrl: string | null;
+  triageStatus: RackAlertTriageStatus;
+  incident: {
+    incidentId: string;
+    incidentCode: string;
+    status: string;
+    severity: "HIGH" | "CRITICAL";
+    title: string;
+    createdAt: string;
+    linkedAt: string | null;
+  } | null;
+}
+
+export interface RackNodeSnapshotItem {
+  nodeId: string;
+  status: RackStatus;
+  severity: RackSeverity;
+  lastSeenAt: string;
+  freshnessSec: number;
+  collectorStatus: "UNKNOWN";
+  alertCounters: {
+    criticalMetricCount: number;
+    warningMetricCount: number;
+    staleMetricCount: number;
+  };
+  currentMetrics: {
+    cpuUsagePct: number | null;
+    memoryUsedPct: number | null;
+    diskUsedPct: number | null;
+    cpuTemperatureC: number | null;
+  };
+  worstMetric: {
+    metricKey: string | null;
+    metricValueNumeric: number | null;
+    metricValueText: string | null;
+  };
+}
+
+export interface RackInvestigationOverviewResponse {
+  generatedAt: string;
+  scope: "rack";
+  view: "rack_investigation_overview";
+  rack: {
+    rackInfo: {
+      id: string;
+      rackCode: string;
+      displayName: string;
+      lifecycleState: string | null;
+      capacityState: string | null;
+      siteCode: string | null;
+      roomCode: string | null;
+      rowCode: string | null;
+      positionCode: string | null;
+      capacityLimit: number | null;
+      notes: string | null;
+      vendor: string | null;
+      metadata: Record<string, unknown>;
+      updatedAt: string;
+    };
+    healthStatus: {
+      severityCode: number;
+      severityText: "HEALTHY" | "STALE" | "WARNING" | "HIGH" | "CRITICAL";
+      isRackLevelFailure: boolean;
+      hasSignalLoss: boolean;
+      hasOverrideFlag: boolean;
+    };
+    blastRadius: {
+      totalNodes: number;
+      badNodes: number;
+      criticalNodes: number;
+      warningNodes: number;
+      staleNodes: number;
+      silentDeadNodes: number;
+      badNodeRatio: number;
+    };
+    aggregateMetrics: {
+      avgCpuUsagePct: number | null;
+      avgMemoryUsedPct: number | null;
+      maxDiskUsedPct: number | null;
+      maxCpuTemperatureC: number | null;
+      sumNetworkRxBytesSec: number | null;
+      sumNetworkTxBytesSec: number | null;
+    };
+    culprit: {
+      worstNodeId: string;
+      worstMetricKey: string;
+      worstMetricTags: Record<string, unknown>;
+      worstMetricValueNumeric: number | null;
+      worstMetricValueText: string | null;
+    };
+    trend: {
+      delta1m: number;
+      delta5m: number;
+      lastChangeAgeSec: number | null;
+    };
+  };
+  alerts: {
+    summary: {
+      rackAlertCount: number;
+      childAlertCount: number;
+      criticalCount: number;
+      warningCount: number;
+    };
+    rack: RackInvestigationAlert[];
+    child: RackInvestigationAlert[];
+  };
+  nodeSnapshot: {
+    totalNodes: number;
+    returned: number;
+    selectionMode: "problem_first_then_recent";
+    items: RackNodeSnapshotItem[];
+  };
+  navigation: {
+    nodesUrl: string;
+  };
+}
+// #endregion Rack Investigation Overview Data Types

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import NodeHardwareGrid from "./components/node-hardware-grid";
-import WorkloadContainerGrid from "./components/workload-container-grid";
+import NodeHardwareGrid from "./components/node-level/node-hardware-grid";
+import WorkloadContainerGrid from "./components/node-level/workload-container-grid";
 import { useNodeOverview } from "@/hooks/monitoring/use-node-overview";
 import { useNodeMetrics } from "@/hooks/monitoring/use-node-metrics";
 import { ShieldAlert, AlertTriangle, RefreshCcw } from "lucide-react";

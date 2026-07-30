@@ -4,7 +4,11 @@ import { memo, useMemo, useRef, useEffect } from "react";
 import { Activity, Cpu, Thermometer, Database } from "lucide-react";
 import ReactECharts from "echarts-for-react";
 import type { ChartDataPoint } from "@/types/monitoring";
-import { buildLineChartOption, formatBytes, getLatestValue } from "../lib/utils/metrics-chart-helpers";
+import {
+  buildLineChartOption,
+  formatBytes,
+  getLatestValue,
+} from "../../lib/utils/metrics-chart-helpers";
 
 type NetworkTooltipParam = {
   name: string;
@@ -100,7 +104,7 @@ function NodeHardwareGrid({
       extractedMetrics.cpuSeries,
       extractedMetrics.timestamps,
       "CPU",
-      "#00d1ff"
+      "#00d1ff",
     );
   }, [extractedMetrics.cpuSeries, extractedMetrics.timestamps]);
 
@@ -110,7 +114,7 @@ function NodeHardwareGrid({
       extractedMetrics.memSeries,
       extractedMetrics.timestamps,
       "Memory",
-      "#38bdf8"
+      "#38bdf8",
     );
   }, [extractedMetrics.memSeries, extractedMetrics.timestamps]);
 
@@ -126,7 +130,7 @@ function NodeHardwareGrid({
         formatter: (params: any) => {
           const val = params[0].value;
           return `TEMP: ${val !== null && val !== undefined ? val.toFixed(1) : "N/A"}°C`;
-        }
+        },
       },
       grid: { top: 15, bottom: 20, left: 32, right: 32 },
       xAxis: {
@@ -227,7 +231,7 @@ function NodeHardwareGrid({
           let html = `<span style="font-size:9px;color:#64748b">${params[0].name}</span><br/>`;
           params.forEach((p) => {
             html += `<span style="color:${p.color}">${p.seriesName}: <b>${formatBytes(
-              p.value
+              p.value,
             )}</b></span><br/>`;
           });
           return html;
@@ -283,11 +287,13 @@ function NodeHardwareGrid({
     extractedMetrics.timestamps,
   ]);
 
-  const isDormant =
-    primaryNicStatus?.value?.trim().toLowerCase() === "dormant";
+  const isDormant = primaryNicStatus?.value?.trim().toLowerCase() === "dormant";
 
   return (
-    <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
+    <div
+      ref={gridRef}
+      className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0"
+    >
       {/* CPU Panel */}
       <div className="panel col-span-2 p-3 bg-surface-2/40 border border-border/80 flex flex-col justify-between h-48">
         <div className="flex justify-between items-center px-1">
@@ -344,7 +350,9 @@ function NodeHardwareGrid({
           <span className="text-[10px] text-foreground font-bold uppercase tracking-wider flex items-center gap-1.5">
             <Database className="size-3.5 text-cyan-ice" /> Disk Usage
           </span>
-          <span className="text-[10px] text-muted-foreground">Max Limit 85%</span>
+          <span className="text-[10px] text-muted-foreground">
+            Max Limit 85%
+          </span>
         </div>
 
         {/* Circular Progress dial container */}
@@ -363,19 +371,28 @@ function NodeHardwareGrid({
               {/* Progress Circle with custom shadow-glow filter */}
               <circle
                 className="transition-all duration-500 ease-out"
-                stroke={extractedMetrics.latestDisk >= 85 ? "#ff4d6d" : "#00d1ff"}
+                stroke={
+                  extractedMetrics.latestDisk >= 85 ? "#ff4d6d" : "#00d1ff"
+                }
                 fill="transparent"
                 strokeWidth="8"
                 strokeDasharray={2 * Math.PI * 46}
-                strokeDashoffset={2 * Math.PI * 46 - (Math.min(extractedMetrics.latestDisk, 100) / 100) * 2 * Math.PI * 46}
+                strokeDashoffset={
+                  2 * Math.PI * 46 -
+                  (Math.min(extractedMetrics.latestDisk, 100) / 100) *
+                    2 *
+                    Math.PI *
+                    46
+                }
                 strokeLinecap="round"
                 r="46"
                 cx="60"
                 cy="60"
                 style={{
-                  filter: extractedMetrics.latestDisk >= 85 
-                    ? "drop-shadow(0 0 6px rgba(255, 77, 109, 0.6))" 
-                    : "drop-shadow(0 0 6px rgba(0, 209, 255, 0.4))",
+                  filter:
+                    extractedMetrics.latestDisk >= 85
+                      ? "drop-shadow(0 0 6px rgba(255, 77, 109, 0.6))"
+                      : "drop-shadow(0 0 6px rgba(0, 209, 255, 0.4))",
                 }}
               />
             </svg>
@@ -403,8 +420,8 @@ function NodeHardwareGrid({
               extractedMetrics.latestTemp >= 80
                 ? "text-critical drop-shadow-[0_0_8px_rgba(255,77,109,0.5)]"
                 : extractedMetrics.latestTemp >= 70
-                ? "text-amber drop-shadow-[0_0_8px_rgba(255,200,87,0.5)]"
-                : "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]"
+                  ? "text-amber drop-shadow-[0_0_8px_rgba(255,200,87,0.5)]"
+                  : "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]"
             }`}
           >
             {extractedMetrics.latestTemp.toFixed(0)}°C

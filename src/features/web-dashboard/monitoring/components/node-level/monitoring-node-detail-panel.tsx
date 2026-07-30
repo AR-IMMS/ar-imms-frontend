@@ -3,13 +3,13 @@
 import React, { useMemo } from "react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Monitor, CpuIcon, Activity, RefreshCcw } from "lucide-react";
-import { useMonitoringStore } from "@/stores/monitoring-store";
+import { useMonitoringStore } from "@/stores/node-monitoring-store";
 import CopyableUserId from "@/components/common/copyable-user-id";
 import {
   COLLECTOR_STATUS_COLOR_TEXT,
   STATUS_COLOR_TEXT,
   STATUS_EXPLANATIONS,
-} from "../lib/constant";
+} from "../../lib/constant";
 import Stat from "@/components/common/stat";
 import { DiscoveredNodeEntity, NodeEntity } from "@/types/assets";
 import { InfoTooltip } from "@/components/common/infor-tooltip";

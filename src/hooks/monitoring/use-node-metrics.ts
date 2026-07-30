@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { queryKeys } from "@/lib/react-query/query-keys";
 import { socketManager } from "@/lib/socket/socket-manager";
 import { monitoringService } from "@/services/monitoring/monitoring-service";
-import { useMonitoringStore } from "@/stores/monitoring-store";
+import { useMonitoringStore } from "@/stores/node-monitoring-store";
 import type { ApiError } from "@/types/api";
 import type {
   MetricMode,
