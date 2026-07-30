@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, memo } from "react";
+import { useMemo, memo, useRef, useEffect } from "react";
 import { ShieldAlert, CheckCircle, RefreshCcw } from "lucide-react";
 import ReactECharts from "echarts-for-react";
 import type { ChartDataPoint, NodeOverviewData, WorkloadItem } from "@/types/monitoring";
@@ -77,10 +77,40 @@ const WorkloadCard = memo(function WorkloadCard({
     [memSeries, memColor]
   );
 
-  const isAbnormal = workload.isAbnormal;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const cpuChartRef = useRef<any>(null);
+  const memChartRef = useRef<any>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      const cpuInstance = cpuChartRef.current?.getEchartsInstance();
+      if (cpuInstance) {
+        cpuInstance.resize();
+      }
+      const memInstance = memChartRef.current?.getEchartsInstance();
+      if (memInstance) {
+        memInstance.resize();
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  const isAbnormal =
+    workload.healthStatus?.toLowerCase().trim() === "unhealthy" ||
+    workload.status?.toLowerCase().trim() !== "running" ||
+    workload.restartCount > 0;
 
   return (
     <div
+      ref={containerRef}
       className={`panel bg-surface-2/30 p-3 border flex flex-col justify-between h-44 transition-all duration-200 hover:border-cyan/40 hover:shadow-[0_0_12px_rgba(0,209,255,0.05)] ${
         isAbnormal
           ? "border-critical/30 bg-critical/5 shadow-[0_0_8px_rgba(255,77,109,0.05)]"
@@ -108,7 +138,7 @@ const WorkloadCard = memo(function WorkloadCard({
         </div>
         <div className="flex justify-between text-[9px] text-muted-foreground">
           <span>
-            Type: <b className="text-slate-400">{workload.workloadType}</b>
+            Type: <b className="text-slate-400">{workload.type}</b>
           </span>
           <span>
             Restarts: <b className="text-slate-400">{workload.restartCount}</b>
@@ -128,6 +158,7 @@ const WorkloadCard = memo(function WorkloadCard({
           </div>
           <div className="flex-1 h-6">
             <ReactECharts
+              ref={cpuChartRef}
               option={cpuOption}
               style={{ height: "100%", width: "100%" }}
               opts={{ devicePixelRatio: 2 }}
@@ -145,6 +176,7 @@ const WorkloadCard = memo(function WorkloadCard({
           </div>
           <div className="flex-1 h-6">
             <ReactECharts
+              ref={memChartRef}
               option={memOption}
               style={{ height: "100%", width: "100%" }}
               opts={{ devicePixelRatio: 2 }}
@@ -156,7 +188,7 @@ const WorkloadCard = memo(function WorkloadCard({
       {/* Status Footer */}
       <div className="border-t border-border/10 pt-1.5 mt-2 flex items-center justify-between font-mono text-[8px] text-muted-foreground">
         <span className="truncate max-w-[80px]">
-          Rule: {workload.worstMetricKey || "none"}
+          Rule: {workload.primaryIssue?.metricKey || "none"}
         </span>
         <span
           className={`uppercase font-bold ${
@@ -174,7 +206,7 @@ function WorkloadContainerGrid({
   overview,
   metrics,
 }: WorkloadContainerGridProps) {
-  const summary = overview?.workloadSummary || { total: 0, unhealthy: 0, nonRunning: 0 };
+  const summary = overview?.workloadSummary || { total: 0, unhealthy: 0, healthy: 0 };
   const workloads = overview?.workloads || [];
 
   // Lấy ra 5 workload đầu tiên
@@ -210,7 +242,7 @@ function WorkloadContainerGrid({
   }, [metrics, topWorkloads]);
 
   return (
-    <div className="space-y-2 flex-1 flex flex-col min-h-0">
+    <div className="mt-3 space-y-2 flex-1 flex flex-col min-h-0">
       {/* Header Summary */}
       <div className="flex justify-between items-center shrink-0 border-b border-border pb-2 font-mono text-xs">
         <span className="font-bold text-slate-300 uppercase tracking-wider">
@@ -237,7 +269,7 @@ function WorkloadContainerGrid({
           <span>|</span>
           <span className="flex items-center gap-1">
             <RefreshCcw className="size-3 text-slate-400" />
-            Non-Running: <b className="text-slate-200">{summary.nonRunning}</b>
+            Healthy: <b className="text-slate-200">{summary.healthy}</b>
           </span>
         </div>
       </div>

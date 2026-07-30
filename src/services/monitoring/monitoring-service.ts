@@ -5,11 +5,17 @@ import type {
   NodeMetricsData,
   NodeMetricsQueryParams,
   NodeOverviewData,
+  RackInvestigationOverviewResponse,
 } from "@/types/monitoring";
 
 const SERVICE_NAME = "monitoring";
 
 export const monitoringService = {
+  getRackOverview: (rackId: string): Promise<RackInvestigationOverviewResponse> =>
+    httpGet<RackInvestigationOverviewResponse>(MONITORING_ENDPOINTS.RACKS_OVERVIEW(rackId), {
+      service: SERVICE_NAME,
+    }),
+
   getNodeOverview: (nodeCode: string): Promise<NodeOverviewData> =>
     httpGet<NodeOverviewData>(MONITORING_ENDPOINTS.NODE_OVERVIEW(nodeCode), {
       service: SERVICE_NAME,

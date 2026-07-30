@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { format } from "date-fns";
 import { ChevronDown, ChevronUp, Layers, Cpu } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -15,6 +16,7 @@ import { useAssetStore } from "../../hooks/useAssetStore";
 import { parseCoordinate } from "../../lib/utils/parse-coordinate";
 import { PendingAssignmentNodeView, RackEntity } from "@/types/assets";
 import { LIFECYCLE_COLOR_TEXT } from "../../lib/constant";
+import { formatToExactDateTime } from "@/lib/utils/formatTime";
 
 type DrawerRackItem = Omit<RackEntity, "metadata" | "capacityState"> & {
   type: "rack";
@@ -270,8 +272,19 @@ export function UnmappedAssetsDrawer() {
                       <span className="font-mono text-xs font-bold text-foreground truncate flex-1">
                         {item.displayName ?? item.rackCode ?? "N/A"}
                       </span>
+                      <span
+                        className="text-[8px] font-bold px-1.5 py-0.5 mr-2 rounded border uppercase tracking-wider bg-cyan/10 text-cyan-400 border-cyan-500/30"
+                      >
+                        Rack
+                      </span>
                     </div>
                     <div className="space-y-1 text-[10px] font-mono text-muted-foreground">
+                       <div>
+                        ID:{" "}
+                        <span className="text-foreground font-semibold">
+                          {item.id ?? "N/A"}
+                        </span>
+                      </div>
                       <div>
                         Code:{" "}
                         <span className="text-foreground font-semibold">
@@ -350,13 +363,13 @@ export function UnmappedAssetsDrawer() {
                         {nodeItem.displayName}
                       </span>
                       <span
-                        className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
+                        className={`text-[8px] font-bold px-1.5 py-0.5 mr-2 rounded border uppercase tracking-wider ${
                           isDiscovered
                             ? "bg-purple-500/10 text-purple-400 border-purple-500/30"
                             : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 light:text-emerald-500 light:bg-emerald-500/15"
                         }`}
                       >
-                        {isDiscovered ? "New Discovered" : "Available"}
+                        {isDiscovered ? "New Discovered Node" : "Available Node"}
                       </span>
                     </div>
 
@@ -405,6 +418,18 @@ export function UnmappedAssetsDrawer() {
                         Vendor:{" "}
                         <span className="text-foreground">
                           {nodeItem.discoveredNode?.hardware?.vendor || "N/A"}
+                        </span>
+                      </div>
+                      <div className="truncate">
+                        Registered At:{" "}
+                        <span className="text-foreground">
+                          {nodeItem.discoveredNode?.createdAt ? formatToExactDateTime(nodeItem.discoveredNode.createdAt) : "N/A"}
+                        </span>
+                      </div>
+                      <div className="truncate">
+                        Updated At:{" "}
+                        <span className="text-foreground">
+                          {nodeItem.discoveredNode?.updatedAt ? formatToExactDateTime(nodeItem.discoveredNode.updatedAt) : "N/A"}
                         </span>
                       </div>
                     </div>

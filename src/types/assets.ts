@@ -105,6 +105,7 @@ export interface DiscoveredNodeEntity {
   hardware: DiscoveredNodeHardwareEntity;
   createdAt?: string;
   updatedAt?: string;
+  registeredAt?: string;
   siteCode?: string;
   logicalRackId?: string | null;
 }
