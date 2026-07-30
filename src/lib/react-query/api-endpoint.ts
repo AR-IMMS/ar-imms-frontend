@@ -106,6 +106,7 @@ export const TICKET_ENDPOINTS = {
 } as const;
 
 export const INCIDENT_ENDPOINTS = {
+  INCIDENTS: "/incidents",
   INCIDENT_BY_ID: (incidentId: string) =>
     `/incidents/${encodeURIComponent(incidentId)}`,
 } as const;

@@ -3,6 +3,7 @@
 import {
   AlertTriangle,
   CheckCircle2,
+  Link2,
   Send,
   ShieldCheck,
   UserRound,
@@ -15,7 +16,9 @@ import {
 } from "react";
 import { toast } from "sonner";
 import ModalLayout from "@/components/layout/modal-layout";
+import { useIncidentsQuery } from "@/hooks/incidents/use-incident-queries";
 import { useCreateTicketMutation } from "@/hooks/tickets/use-ticket-mutations";
+import type { IncidentListItem } from "@/types/incident";
 import type { TechnicianOption, TicketAssetReference, TicketPriority } from "@/types/ticket";
 import { PRIORITY_OPTIONS, priorityTone } from "../lib/ticket-ui";
 import TicketAssetPicker from "./ticket-asset-picker";
@@ -36,11 +39,13 @@ export default function CreateTicketModal({
   onClose,
 }: CreateTicketModalProps) {
   const createTicketMutation = useCreateTicketMutation();
+  const incidentsQuery = useIncidentsQuery();
   const [ticketCode, setTicketCode] = useState(() => createTicketCode());
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TicketPriority>("HIGH");
   const [assigneeUserId, setAssigneeUserId] = useState("");
+  const [incidentId, setIncidentId] = useState("");
   const [assetRef, setAssetRef] = useState<TicketAssetReference | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -49,6 +54,19 @@ export default function CreateTicketModal({
       technicians.find((technician) => technician.id === assigneeUserId) ??
       null,
     [assigneeUserId, technicians],
+  );
+  const incidents = useMemo(
+    () =>
+      [...(incidentsQuery.data ?? [])].sort((left, right) => {
+        if (left.status === "OPEN" && right.status !== "OPEN") return -1;
+        if (left.status !== "OPEN" && right.status === "OPEN") return 1;
+        return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
+      }),
+    [incidentsQuery.data],
+  );
+  const selectedIncident = useMemo(
+    () => incidents.find((incident) => incident.id === incidentId) ?? null,
+    [incidentId, incidents],
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -76,6 +94,7 @@ export default function CreateTicketModal({
         title: title.trim(),
         description: description.trim() || undefined,
         priority,
+        incidentId: incidentId || undefined,
         assigneeUserId: assigneeUserId || undefined,
         assetRef: assetRef ?? undefined,
       });
@@ -159,6 +178,52 @@ export default function CreateTicketModal({
                 className="ticket-input min-h-28 resize-none py-3"
                 placeholder="Add operational context, symptoms, or next action..."
               />
+            </Field>
+
+            <Field label="Related Incident (optional)">
+              <div className="grid gap-2">
+                <div className="relative">
+                  <Link2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-cyan" />
+                  <select
+                    value={incidentId}
+                    onChange={(event) => setIncidentId(event.target.value)}
+                    disabled={incidentsQuery.isLoading || incidentsQuery.isError}
+                    className="ticket-input appearance-none pl-10 pr-10 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <option value="">
+                      {incidentsQuery.isLoading
+                        ? "Loading incidents..."
+                        : "No incident linked"}
+                    </option>
+                    {incidents.map((incident) => (
+                      <option key={incident.id} value={incident.id}>
+                        {incident.incidentCode} - {incident.title} [{incident.status}]
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {incidentsQuery.isError ? (
+                  <p className="text-xs text-critical">
+                    Could not load incidents. Ticket creation is still available without a link.
+                  </p>
+                ) : selectedIncident ? (
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-cyan/20 bg-cyan/5 px-3 py-2">
+                    <span className="label-mono text-[10px] text-cyan-ice">
+                      {selectedIncident.incidentCode}
+                    </span>
+                    <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">
+                      {selectedIncident.severity}
+                    </span>
+                    <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">
+                      {selectedIncident.status}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="font-mono text-[11px] text-muted-foreground">
+                    Link only when this work is related to a recorded incident.
+                  </p>
+                )}
+              </div>
             </Field>
 
             <div className="grid gap-2">
@@ -273,6 +338,7 @@ export default function CreateTicketModal({
           description={description}
           priority={priority}
           technician={selectedTechnician}
+          incident={selectedIncident}
           assetRef={assetRef}
         />
       </div>
@@ -286,6 +352,7 @@ function TicketPreview({
   description,
   priority,
   technician,
+  incident,
   assetRef,
 }: {
   ticketCode: string;
@@ -293,6 +360,7 @@ function TicketPreview({
   description: string;
   priority: TicketPriority;
   technician: TechnicianOption | null;
+  incident: IncidentListItem | null;
   assetRef: TicketAssetReference | null;
 }) {
   return (
@@ -336,6 +404,11 @@ function TicketPreview({
             {technician?.fullName ?? "Unassigned"}
           </span>
         </PreviewRow>
+        <PreviewRow label="Incident">
+          <span className="truncate font-mono text-xs text-foreground">
+            {incident?.incidentCode ?? "Not linked"}
+          </span>
+        </PreviewRow>
         <PreviewRow label="Asset">
           <span className="truncate font-mono text-xs text-foreground">{assetRef ? `${assetRef.type} · ${assetRef.code}` : "Not linked"}</span>
         </PreviewRow>
@@ -362,6 +435,11 @@ function TicketPreview({
           <ReadinessItem
             ready={Boolean(technician)}
             label="Technician preassigned"
+            optional
+          />
+          <ReadinessItem
+            ready={Boolean(incident)}
+            label="Incident linked"
             optional
           />
           <ReadinessItem ready={Boolean(assetRef)} label="Rack or node linked" optional />

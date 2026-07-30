@@ -4,6 +4,15 @@ import { incidentService } from "@/services/incidents/incident-service";
 
 const DEFAULT_INCIDENT_STALE_TIME = 15_000;
 
+export function useIncidentsQuery(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.incidents.all,
+    queryFn: () => incidentService.listIncidents(),
+    enabled,
+    staleTime: DEFAULT_INCIDENT_STALE_TIME,
+  });
+}
+
 export function useIncidentDetailQuery(
   incidentId?: string | null,
   enabled = true,

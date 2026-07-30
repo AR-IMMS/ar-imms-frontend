@@ -2,6 +2,17 @@ export type IncidentSeverity = "INFO" | "WARNING" | "CRITICAL";
 
 export type IncidentStatus = "OPEN" | "RESOLVED" | "CLOSED";
 
+export interface IncidentListItem {
+  id: string;
+  incidentCode: string;
+  title: string;
+  severity: IncidentSeverity | string;
+  status: IncidentStatus | string;
+  ticketCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IncidentScopeSummary {
   type: string;
   id: string;

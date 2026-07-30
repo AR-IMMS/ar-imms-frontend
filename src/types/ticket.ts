@@ -137,6 +137,7 @@ export interface CreateTicketInput {
   title: string;
   description?: string;
   priority: TicketPriority;
+  incidentId?: string;
   assigneeUserId?: string;
   assetRef?: TicketAssetReference;
 }
