@@ -1,8 +1,8 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { assetService } from "@/services/asset/asset-service";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { RackTopologyResult } from "@/types/assets";
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { assetService } from '@/services/asset/asset-service';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { RackTopologyResult } from '@/types/assets';
 
 const DEFAULT_STALE_TIME = 30_000; // 30 seconds
 
@@ -24,9 +24,9 @@ export function useRackTopologyQuery<TData = RackTopologyResult>(
   enabled = true,
   options?: {
     select?: (data: RackTopologyResult) => TData;
-  },
+  }
 ) {
-  const normalizedRackId = rackId?.trim() ?? "";
+  const normalizedRackId = rackId?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.asset.rackTopology(normalizedRackId),
@@ -38,7 +38,7 @@ export function useRackTopologyQuery<TData = RackTopologyResult>(
 }
 
 export function useAssetSummaryQuery(code: string, enabled = true) {
-  const normalizedCode = code?.trim() ?? "";
+  const normalizedCode = code?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.asset.assetByCode(normalizedCode),
@@ -49,7 +49,7 @@ export function useAssetSummaryQuery(code: string, enabled = true) {
 }
 
 export function useNodeContextQuery(nodeId: string, enabled = true) {
-  const normalizedNodeId = nodeId?.trim() ?? "";
+  const normalizedNodeId = nodeId?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.asset.nodeContext(normalizedNodeId),
@@ -61,7 +61,7 @@ export function useNodeContextQuery(nodeId: string, enabled = true) {
 
 export function useAssetSearchQuery(
   params?: { q?: string; type?: string },
-  enabled = true,
+  enabled = true
 ) {
   return useQuery({
     queryKey: queryKeys.asset.search(params),

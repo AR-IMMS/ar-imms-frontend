@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { RackHeaderTriage } from "./components/rack-header-triage";
-import { RackAggregateGrid } from "./components/rack-aggregate-grid";
-import { RackBlastAlertsTriage } from "./components/rack-blast-alerts-triage";
-import { RackProblemNodeGrid } from "./components/rack-problem-node-grid";
-import type { RackInvestigationOverviewResponse } from "@/types/monitoring";
-import { WorkspaceBreadcrumbs } from "@/components/common/workspace-breadcrumbs";
+import { RackHeaderTriage } from './components/rack-header-triage';
+import { RackAggregateGrid } from './components/rack-aggregate-grid';
+import { RackBlastAlertsTriage } from './components/rack-blast-alerts-triage';
+import { RackProblemNodeGrid } from './components/rack-problem-node-grid';
+import type { RackInvestigationOverviewResponse } from '@/types/monitoring';
+import { WorkspaceBreadcrumbs } from '@/components/common/workspace-breadcrumbs';
 
 interface RackTelemetryViewportProps {
   rackId: string;
@@ -22,7 +22,7 @@ export default function RackTelemetryViewport({
       <div className="flex justify-between items-center gap-2 shrink-0">
         <WorkspaceBreadcrumbs />
       </div>
-      
+
       {/* Section A: Health Status & Culprit Triage Banner */}
       <RackHeaderTriage rackId={rackId} overview={overview} />
 

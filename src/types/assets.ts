@@ -1,36 +1,28 @@
-export type AssetType = "rack" | "node" | "marker";
+export type AssetType = 'rack' | 'node' | 'marker';
 
 export type RackLifecycleState =
-  | "CREATED"
-  | "READY"
-  | "ACTIVE"
-  | "DRAINING"
-  | "RETIRED";
+  'CREATED' | 'READY' | 'ACTIVE' | 'DRAINING' | 'RETIRED';
 
-export type RackCapacityState = "AVAILABLE" | "EXPANDING" | "FULL";
+export type RackCapacityState = 'AVAILABLE' | 'EXPANDING' | 'FULL';
 
 export type NodeLifecycleState =
-  | "DISCOVERED"
-  | "READY"
-  | "ACTIVE"
-  | "DRAINING"
-  | "RETIRED";
+  'DISCOVERED' | 'READY' | 'ACTIVE' | 'DRAINING' | 'RETIRED';
 
-export type NodeAssignmentState = "UNASSIGNED" | "ASSIGNED" | "MOVED";
+export type NodeAssignmentState = 'UNASSIGNED' | 'ASSIGNED' | 'MOVED';
 
-export type PendingAssignmentNodeOrigin = "mongo" | "redis";
+export type PendingAssignmentNodeOrigin = 'mongo' | 'redis';
 
-export type MarkerTargetType = "rack" | "node";
+export type MarkerTargetType = 'rack' | 'node';
 
 export type MarkerLifecycleState =
-  | "DRAFT"
-  | "GENERATED"
-  | "PRINTED"
-  | "MOUNTED"
-  | "VALIDATED"
-  | "ACTIVE"
-  | "REMAPPED"
-  | "RETIRED";
+  | 'DRAFT'
+  | 'GENERATED'
+  | 'PRINTED'
+  | 'MOUNTED'
+  | 'VALIDATED'
+  | 'ACTIVE'
+  | 'REMAPPED'
+  | 'RETIRED';
 
 export interface RackEntity {
   id: string;
@@ -143,7 +135,7 @@ export interface NodeContextResult {
   rack?: RackEntity;
   markers: MarkerEntity[];
   topologyPath: { rackId?: string; rackCode?: string };
-  externalContext: { workloadSource: "monitoring-service-or-bff" };
+  externalContext: { workloadSource: 'monitoring-service-or-bff' };
 }
 
 export interface CreateRackRequestDto {
@@ -201,7 +193,7 @@ export interface MarkerResolutionResult {
   rack?: RackEntity;
   node?: NodeEntity;
   topologyPath: { rackId?: string; rackCode?: string };
-  externalContext: { workloadSource: "monitoring-service-or-bff" };
+  externalContext: { workloadSource: 'monitoring-service-or-bff' };
 }
 
 export interface CreateMarkerRequestDto {

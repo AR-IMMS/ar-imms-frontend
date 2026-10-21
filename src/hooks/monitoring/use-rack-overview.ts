@@ -1,20 +1,22 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { monitoringService } from "@/services/monitoring/monitoring-service";
+import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { monitoringService } from '@/services/monitoring/monitoring-service';
 import {
   useRackMonitoringStore,
   DEFAULT_RACK_OVERVIEW_STATE,
-} from "@/stores/rack-monitoring-store";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import type { ApiError } from "@/types/api";
+} from '@/stores/rack-monitoring-store';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import type { ApiError } from '@/types/api';
 
 export const useRackOverview = (rackId: string) => {
   const overviewState = useRackMonitoringStore(
-    (s) => s.racksOverview[rackId] || DEFAULT_RACK_OVERVIEW_STATE,
+    (s) => s.racksOverview[rackId] || DEFAULT_RACK_OVERVIEW_STATE
   );
   const setOverviewError = useRackMonitoringStore((s) => s.setOverviewError);
   const setOverviewData = useRackMonitoringStore((s) => s.setOverviewData);
-  const setOverviewLoading = useRackMonitoringStore((s) => s.setOverviewLoading);
+  const setOverviewLoading = useRackMonitoringStore(
+    (s) => s.setOverviewLoading
+  );
 
   const queryKey = queryKeys.monitoring.racks.overview(rackId);
 
@@ -42,8 +44,8 @@ export const useRackOverview = (rackId: string) => {
     if (error && rackId) {
       const apiErr = error as unknown as ApiError;
       setOverviewError(rackId, {
-        code: apiErr.code || "FETCH_ERROR",
-        message: apiErr.message || "Failed to fetch rack overview",
+        code: apiErr.code || 'FETCH_ERROR',
+        message: apiErr.message || 'Failed to fetch rack overview',
       });
     }
   }, [error, rackId, setOverviewError]);

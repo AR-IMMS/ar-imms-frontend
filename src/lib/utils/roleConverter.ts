@@ -1,17 +1,17 @@
-import { RoleCode } from "@/types/auth";
+import { RoleCode } from '@/types/auth';
 
 const ROLE_NAME_MAP: Record<RoleCode, string> = {
-  IT_ADMINISTRATOR: "Administrator",
-  MAINTENANCE_TECHNICIAN: "Technician",
-  SYSTEM_MONITORING_OPERATOR: "Operator",
+  IT_ADMINISTRATOR: 'Administrator',
+  MAINTENANCE_TECHNICIAN: 'Technician',
+  SYSTEM_MONITORING_OPERATOR: 'Operator',
 };
 
 /**
  * Chuyển đổi một mã vai trò (RoleCode) đơn lẻ thành tên hiển thị rút gọn
  */
 export function getRoleName(roleCode: RoleCode | undefined): string {
-  if (!roleCode) return "N/A";
-  return ROLE_NAME_MAP[roleCode] ?? roleCode.replace(/_/g, " ");
+  if (!roleCode) return 'N/A';
+  return ROLE_NAME_MAP[roleCode] ?? roleCode.replace(/_/g, ' ');
 }
 
 /**
@@ -28,7 +28,7 @@ export function formatRoleCodes(roleCodes: RoleCode[]): string[] {
  */
 export function formatRoleCodesToLabel(
   roleCodes: RoleCode[],
-  separator = ", ",
+  separator = ', '
 ): string {
   return formatRoleCodes(roleCodes).join(separator);
 }

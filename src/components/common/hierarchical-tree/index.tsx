@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useMemo, useState, useEffect } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { useUiConfigStore } from "@/stores/ui-config-store";
-import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
-import { HierarchicalTreeProps, SiteGroup } from "./types";
-import { SiteItem } from "./SiteItem";
+import { useMemo, useState, useEffect } from 'react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { useUiConfigStore } from '@/stores/ui-config-store';
+import { useTopologyTreeQuery } from '@/hooks/asset/use-asset-queries';
+import { HierarchicalTreeProps, SiteGroup } from './types';
+import { SiteItem } from './SiteItem';
 
 export default function HierarchicalTree({
-  maxLevel = "node",
-  searchPlaceholder = "Search...",
-  containerClassName = "relative h-full flex flex-col select-none",
-  panelClassName = "",
-  emptyStateText = "No assets match filters",
+  maxLevel = 'node',
+  searchPlaceholder = 'Search...',
+  containerClassName = 'relative h-full flex flex-col select-none',
+  panelClassName = '',
+  emptyStateText = 'No assets match filters',
 }: HierarchicalTreeProps) {
   const { data: topology = [], isLoading } = useTopologyTreeQuery();
   const {
@@ -52,8 +52,8 @@ export default function HierarchicalTree({
     const targetRackId = selectedRackId;
 
     if (targetSiteCode) {
-      const siteKey = targetSiteCode || "unassigned-site";
-      const roomKey = `${siteKey}/${targetRoomCode || "unknown-room"}`;
+      const siteKey = targetSiteCode || 'unassigned-site';
+      const roomKey = `${siteKey}/${targetRoomCode || 'unknown-room'}`;
       const rackKey = `${roomKey}/${targetRackId}`;
 
       activeTimer = setTimeout(() => {
@@ -114,15 +114,15 @@ export default function HierarchicalTree({
     const sites: Record<string, SiteGroup> = {};
 
     topology.forEach((item) => {
-      const sCode = item.rack.siteCode ? item.rack.siteCode.trim() : "";
-      const rCode = item.rack.roomCode ? item.rack.roomCode.trim() : "";
+      const sCode = item.rack.siteCode ? item.rack.siteCode.trim() : '';
+      const rCode = item.rack.roomCode ? item.rack.roomCode.trim() : '';
 
       if (!sCode && !rCode) return;
 
-      const siteKey = sCode || "unassigned-site";
-      const roomKey = rCode || "unknown-room";
-      const siteName = sCode || "Unassigned Site";
-      const roomName = rCode || "Unknown Room";
+      const siteKey = sCode || 'unassigned-site';
+      const roomKey = rCode || 'unknown-room';
+      const siteName = sCode || 'Unassigned Site';
+      const roomName = rCode || 'Unknown Room';
 
       if (!sites[siteKey]) {
         sites[siteKey] = {
@@ -179,8 +179,8 @@ export default function HierarchicalTree({
       <div
         className={`panel p-4 space-y-4 h-full flex flex-col overflow-hidden transition-all duration-300 ${panelClassName} ${
           isTopologyTreeCollapsed
-            ? "w-0 p-0 border-none opacity-0 pointer-events-none scale-95 -translate-x-4"
-            : "opacity-100 scale-100 translate-x-0"
+            ? 'w-0 p-0 border-none opacity-0 pointer-events-none scale-95 -translate-x-4'
+            : 'opacity-100 scale-100 translate-x-0'
         }`}
       >
         {/* Search */}
@@ -200,7 +200,7 @@ export default function HierarchicalTree({
             </div>
           ) : (
             treeData.map((site) => {
-              const siteKey = site.siteCode || "unassigned-site";
+              const siteKey = site.siteCode || 'unassigned-site';
               const siteOpen = !!openNodes[siteKey];
 
               return (
@@ -225,12 +225,12 @@ export default function HierarchicalTree({
       <button
         onClick={toggleTopologyTree}
         className={`absolute top-1/2 -translate-y-1/2 z-30 flex items-center justify-center size-6 rounded-full bg-accent border border-accent-foreground/30 text-accent-foreground hover:border-cyan-400 hover:bg-cyan/30 transition duration-200 cursor-pointer ${
-          isTopologyTreeCollapsed ? "" : "-right-3"
+          isTopologyTreeCollapsed ? '' : '-right-3'
         }`}
         title={
           isTopologyTreeCollapsed
-            ? "Expand Tree Sidebar"
-            : "Collapse Tree Sidebar"
+            ? 'Expand Tree Sidebar'
+            : 'Collapse Tree Sidebar'
         }
       >
         {isTopologyTreeCollapsed ? (

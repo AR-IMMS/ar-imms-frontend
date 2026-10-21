@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { useNodeContextQuery } from "@/hooks/asset/use-asset-queries";
-import { Cpu, Loader2 } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
-import { NodeLeaf } from "./types";
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { useNodeContextQuery } from '@/hooks/asset/use-asset-queries';
+import { Cpu, Loader2 } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { NodeLeaf } from './types';
 
 interface NodeItemProps {
   node: NodeLeaf;
@@ -30,16 +30,16 @@ export function NodeItem({ node, siteCode, roomCode, rackId }: NodeItemProps) {
   const handleNodeClick = () => {
     if (isActive) {
       setSelectedNodeCode(null);
-      if (pathname.startsWith("/monitoring")) {
+      if (pathname.startsWith('/monitoring')) {
         router.push(`/monitoring/${rackId}`);
       }
       return;
     }
-    setSelectedSiteCode(siteCode || "");
-    setSelectedRoomCode(roomCode || "");
-    setSelectedRackId(rackId || "");
-    if (pathname.startsWith("/monitoring")) {
-      setSelectedNodeCode(node.id || "");
+    setSelectedSiteCode(siteCode || '');
+    setSelectedRoomCode(roomCode || '');
+    setSelectedRackId(rackId || '');
+    if (pathname.startsWith('/monitoring')) {
+      setSelectedNodeCode(node.id || '');
       router.push(`/monitoring/${rackId}/${node.id}`);
     }
   };
@@ -49,8 +49,8 @@ export function NodeItem({ node, siteCode, roomCode, rackId }: NodeItemProps) {
       onClick={handleNodeClick}
       className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-all ${
         isActive
-          ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-          : "text-foreground/60 hover:bg-white/3 hover:text-foreground border border-transparent"
+          ? 'bg-cyan/10 text-cyan border border-cyan/30 font-semibold shadow-[0_0_8px_rgba(0,209,255,0.15)]'
+          : 'text-foreground/60 hover:bg-white/3 hover:text-foreground border border-transparent'
       }`}
     >
       {isActive && isNodeLoading ? (

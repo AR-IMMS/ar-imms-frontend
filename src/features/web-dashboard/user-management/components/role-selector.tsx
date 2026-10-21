@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import type { RoleCode } from "@/types/auth";
+import type { RoleCode } from '@/types/auth';
 
 // Role options with display details
 export const AVAILABLE_ROLES: Array<{
@@ -9,19 +9,22 @@ export const AVAILABLE_ROLES: Array<{
   description: string;
 }> = [
   {
-    code: "SYSTEM_MONITORING_OPERATOR",
-    name: "System Monitoring Operator",
-    description: "Monitors systems telemetry, view alerts queue, and reads dashboards.",
+    code: 'SYSTEM_MONITORING_OPERATOR',
+    name: 'System Monitoring Operator',
+    description:
+      'Monitors systems telemetry, view alerts queue, and reads dashboards.',
   },
   {
-    code: "MAINTENANCE_TECHNICIAN",
-    name: "Maintenance Technician",
-    description: "Conducts AR inspections, identifies assets, and resolves work tickets.",
+    code: 'MAINTENANCE_TECHNICIAN',
+    name: 'Maintenance Technician',
+    description:
+      'Conducts AR inspections, identifies assets, and resolves work tickets.',
   },
   {
-    code: "IT_ADMINISTRATOR",
-    name: "IT Administrator",
-    description: "Full control plane access, manages users, audit trails, and rules.",
+    code: 'IT_ADMINISTRATOR',
+    name: 'IT Administrator',
+    description:
+      'Full control plane access, manages users, audit trails, and rules.',
   },
 ];
 
@@ -69,7 +72,7 @@ export default function RoleSelector({
               className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-all duration-150 ${
                 isChecked
                   ? `border-cyan/60 bg-cyan/10 text-foreground`
-                  : "border-border bg-background hover:border-cyan/30 hover:bg-surface-3/40"
+                  : 'border-border bg-background hover:border-cyan/30 hover:bg-surface-3/40'
               }`}
             >
               <input

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import QueryProvider from "@/providers/query-provider";
-import { AuthBootstrap } from "@/components/auth/auth-bootstrap";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-import { Toaster } from "sonner";
+import QueryProvider from '@/providers/query-provider';
+import { AuthBootstrap } from '@/components/auth/auth-bootstrap';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { Toaster } from 'sonner';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

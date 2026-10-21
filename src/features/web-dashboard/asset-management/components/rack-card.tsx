@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { Server } from "lucide-react";
-import { RackTopologyResult } from "@/types/assets";
-import { useAssetStore } from "../hooks/useAssetStore";
+import { useMemo } from 'react';
+import { Server } from 'lucide-react';
+import { RackTopologyResult } from '@/types/assets';
+import { useAssetStore } from '../hooks/useAssetStore';
 import {
   LIFECYCLE_COLOR,
   LIFECYCLE_COLOR_DOT,
   LIFECYCLE_COLOR_BORDER,
-} from "../lib/constant";
+} from '../lib/constant';
 
 // Parses slot number from Uxx (e.g. U05 -> 5)
 function parseSlotNumber(posCode: string | undefined | null): number {
@@ -59,21 +59,21 @@ export function RackCard({ rackResult }: RackCardProps) {
   const handleAssetDragStart = (
     e: React.DragEvent,
     assetId: string,
-    assetType: "rack" | "node",
+    assetType: 'rack' | 'node'
   ) => {
-    if (assetType === "node") {
+    if (assetType === 'node') {
       e.stopPropagation();
     }
     setDraggedAsset({
       type: assetType,
       id: assetId,
-      origin: "canvas",
+      origin: 'canvas',
     });
     e.dataTransfer.setData(
-      "application/react-dnd",
-      JSON.stringify({ type: assetType, id: assetId }),
+      'application/react-dnd',
+      JSON.stringify({ type: assetType, id: assetId })
     );
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragEnd = () => {
@@ -84,9 +84,9 @@ export function RackCard({ rackResult }: RackCardProps) {
 
   // drag node inside the same rack - reposition slot
   const handleDragOver = (e: React.DragEvent) => {
-    if (draggedAsset?.type === "node") {
+    if (draggedAsset?.type === 'node') {
       e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
+      e.dataTransfer.dropEffect = 'move';
       if (dragOverRackId !== rack.id) {
         setDragOverRackId(rack.id);
       }
@@ -102,7 +102,7 @@ export function RackCard({ rackResult }: RackCardProps) {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!draggedAsset || draggedAsset.type !== "node") return;
+    if (!draggedAsset || draggedAsset.type !== 'node') return;
 
     // Trigger offset assignment modal
     setAssignNodeModalState({
@@ -122,7 +122,7 @@ export function RackCard({ rackResult }: RackCardProps) {
     <div
       id={`rack-card-${rack.id}`}
       draggable={true}
-      onDragStart={(e) => handleAssetDragStart(e, rack.id, "rack")}
+      onDragStart={(e) => handleAssetDragStart(e, rack.id, 'rack')}
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -136,17 +136,17 @@ export function RackCard({ rackResult }: RackCardProps) {
           setSelectedSiteCode(rack.siteCode ?? null);
           setSelectedRoomCode(rack.roomCode ?? null);
           setSelectedRackId(rack.id);
-          setActivePanelType("rack");
+          setActivePanelType('rack');
           setSelectedNodeCode(null);
           setIsUnmappedDrawerOpen(false);
         }
       }}
       className={`relative w-full rounded-2xl border p-3 flex flex-col justify-between cursor-pointer hover:border-cyan/50 hover:light:border-cyan/70 ${
         isDragOver
-          ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)]"
+          ? 'border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)]'
           : isSelectedRack
-            ? "border-cyan/50 bg-accent/60 light:bg-primary/40 light:border-cyan/70 shadow-[0_0_12px_rgba(0,209,255,0.6)] light:shadow-[0_0_12px_rgba(32,100,138,0.8)]"
-            : "border-cyan/20 bg-accent/30 light:bg-accent/80"
+            ? 'border-cyan/50 bg-accent/60 light:bg-primary/40 light:border-cyan/70 shadow-[0_0_12px_rgba(0,209,255,0.6)] light:shadow-[0_0_12px_rgba(32,100,138,0.8)]'
+            : 'border-cyan/20 bg-accent/30 light:bg-accent/80'
       }`}
     >
       <div>
@@ -157,7 +157,7 @@ export function RackCard({ rackResult }: RackCardProps) {
               {rack.displayName || rack.rackCode}
             </span>
             <span className="text-xs text-[8px] text-muted-foreground light:text-foreground">
-              Capacity:{" "}
+              Capacity:{' '}
               <span className="text-cyan-ice/70 light:text-cyan-ice font-bold">
                 {nodes.length}/{rack.capacityLimit || 42}U
               </span>
@@ -169,7 +169,7 @@ export function RackCard({ rackResult }: RackCardProps) {
         {/* Nodes slot list */}
         <div className="space-y-1 max-h-70 overflow-y-auto custom-scrollbar pr-0.5">
           {sortedNodes.map((node) => {
-            const state = node.lifecycleState || "UNKNOWN";
+            const state = node.lifecycleState || 'UNKNOWN';
             const color = LIFECYCLE_COLOR_DOT[state];
             const isSelected = selectedNodeCode === node.id;
 
@@ -177,24 +177,24 @@ export function RackCard({ rackResult }: RackCardProps) {
               <button
                 key={node.id}
                 draggable={true}
-                onDragStart={(e) => handleAssetDragStart(e, node.id, "node")}
+                onDragStart={(e) => handleAssetDragStart(e, node.id, 'node')}
                 onDragEnd={handleDragEnd}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (isSelected) {
                     setSelectedNodeCode(null);
-                    setActivePanelType("rack");
+                    setActivePanelType('rack');
                   } else {
                     setSelectedSiteCode(rack.siteCode ?? null);
                     setSelectedRoomCode(rack.roomCode ?? null);
                     setSelectedRackId(rack.id);
                     setSelectedNodeCode(node.id);
-                    setActivePanelType("node");
+                    setActivePanelType('node');
                     setIsUnmappedDrawerOpen(false);
                   }
                 }}
                 className={`relative flex w-full items-center gap-2 rounded bg-accent/70 light:bg-background border-l-3 ${LIFECYCLE_COLOR_BORDER[state]} hover:bg-cyan/10 px-2 py-1 text-left hover:border-cyan/40 cursor-pointer ${
-                  isSelected ? "bg-cyan/20 light:bg-primary" : ""
+                  isSelected ? 'bg-cyan/20 light:bg-primary' : ''
                 }`}
               >
                 {/* Health Dot */}
@@ -205,7 +205,7 @@ export function RackCard({ rackResult }: RackCardProps) {
                 {/* Node name */}
                 <span
                   className={`font-mono grow truncate text-[9px] text-foreground/80 ${
-                    isSelected ? "light:text-white font-bold" : ""
+                    isSelected ? 'light:text-white font-bold' : ''
                   }`}
                 >
                   {node.displayName || node.nodeCode}
@@ -214,10 +214,10 @@ export function RackCard({ rackResult }: RackCardProps) {
                 {/* Slot/Unit label */}
                 <span
                   className={`font-mono text-[7.5px] text-muted-foreground/70 shrink-0 ${
-                    isSelected ? "light:text-white" : ""
+                    isSelected ? 'light:text-white' : ''
                   }`}
                 >
-                  {node.positionCode || "U--"}
+                  {node.positionCode || 'U--'}
                 </span>
               </button>
             );

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { Monitor, CpuIcon, Activity, RefreshCcw } from "lucide-react";
-import { useMonitoringStore } from "@/stores/monitoring-store";
-import CopyableUserId from "@/components/common/copyable-user-id";
-import { SEVERITY_COLORS, STATUS_COLORS } from "../lib/constant";
+import { useMemo } from 'react';
+import { Monitor, CpuIcon, Activity, RefreshCcw } from 'lucide-react';
+import { useMonitoringStore } from '@/stores/monitoring-store';
+import CopyableUserId from '@/components/common/copyable-user-id';
+import { SEVERITY_COLORS, STATUS_COLORS } from '../lib/constant';
 
 interface MonitoringNodeDetailPanelProps {
   nodeCode: string;
@@ -14,7 +14,7 @@ export function MonitoringNodeDetailPanel({
   nodeCode,
 }: MonitoringNodeDetailPanelProps) {
   const overviewState = useMonitoringStore(
-    (s) => s.nodesOverview[nodeCode || ""],
+    (s) => s.nodesOverview[nodeCode || '']
   );
 
   const overview = overviewState.overview;
@@ -30,17 +30,17 @@ export function MonitoringNodeDetailPanel({
       lastSeenAt: node.lastSeenAt,
       freshnessSec: node.freshnessSec,
       fingerprintSeenAt: node.fingerprintSeenAt,
-      batteryModel: node.batteryModel || "N/A",
-      cpuArchitecture: node.cpuArchitecture || "N/A",
-      cpuModel: node.cpuModel || "N/A",
-      gpuModelPrimary: node.gpuModelPrimary || "N/A",
-      hardwareSerial: node.hardwareSerial || "N/A",
+      batteryModel: node.batteryModel || 'N/A',
+      cpuArchitecture: node.cpuArchitecture || 'N/A',
+      cpuModel: node.cpuModel || 'N/A',
+      gpuModelPrimary: node.gpuModelPrimary || 'N/A',
+      hardwareSerial: node.hardwareSerial || 'N/A',
       logicalCpuCount: node.logicalCpuCount || 0,
-      macAddress: node.macAddress || "N/A",
-      motherboardModel: node.motherboardModel || "N/A",
-      osProduct: node.osProduct || "N/A",
-      primaryIpv4: node.primaryIpv4 || "N/A",
-      ssdModelPrimary: node.ssdModelPrimary || "N/A",
+      macAddress: node.macAddress || 'N/A',
+      motherboardModel: node.motherboardModel || 'N/A',
+      osProduct: node.osProduct || 'N/A',
+      primaryIpv4: node.primaryIpv4 || 'N/A',
+      ssdModelPrimary: node.ssdModelPrimary || 'N/A',
       worstMetric: summaryMetrics?.worstMetric,
     };
   }, [overview]);
@@ -77,13 +77,13 @@ export function MonitoringNodeDetailPanel({
             <div className="flex items-center gap-1.5 mt-1.5">
               {/* Status Badge */}
               <span
-                className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${STATUS_COLORS[nodeInfo.status] || ""}`}
+                className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${STATUS_COLORS[nodeInfo.status] || ''}`}
               >
                 {nodeInfo.status}
               </span>
               {/* Severity Badge */}
               <span
-                className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${SEVERITY_COLORS[nodeInfo.severity] || ""}`}
+                className={`text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${SEVERITY_COLORS[nodeInfo.severity] || ''}`}
               >
                 {nodeInfo.severity}
               </span>
@@ -106,7 +106,7 @@ export function MonitoringNodeDetailPanel({
               <Activity className="size-3 text-cyan-ice" /> Freshness:
             </span>
             <span
-              className={`font-semibold ${nodeInfo.freshnessSec > 60 ? "text-amber" : "text-cyan"}`}
+              className={`font-semibold ${nodeInfo.freshnessSec > 60 ? 'text-amber' : 'text-cyan'}`}
             >
               {nodeInfo.freshnessSec}s ago
             </span>

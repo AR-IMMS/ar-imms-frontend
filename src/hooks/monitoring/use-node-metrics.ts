@@ -1,15 +1,15 @@
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { socketManager } from "@/lib/socket/socket-manager";
-import { monitoringService } from "@/services/monitoring/monitoring-service";
-import { useMonitoringStore } from "@/stores/node-monitoring-store";
-import type { ApiError } from "@/types/api";
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { socketManager } from '@/lib/socket/socket-manager';
+import { monitoringService } from '@/services/monitoring/monitoring-service';
+import { useMonitoringStore } from '@/stores/node-monitoring-store';
+import type { ApiError } from '@/types/api';
 import type {
   MetricMode,
   NodeMetricsQueryParams,
   NodeMetricsUpdatedPayload,
-} from "@/types/monitoring";
+} from '@/types/monitoring';
 
 interface UseNodeMetricsOptions {
   params?: NodeMetricsQueryParams;
@@ -18,10 +18,10 @@ interface UseNodeMetricsOptions {
 
 export const useNodeMetrics = (
   nodeCode: string,
-  options?: UseNodeMetricsOptions,
+  options?: UseNodeMetricsOptions
 ) => {
   const isLive = options?.isLive ?? false;
-  const mode: MetricMode = isLive ? "live" : "standard";
+  const mode: MetricMode = isLive ? 'live' : 'standard';
   const params = options?.params;
 
   // Key để query trong store
@@ -41,7 +41,7 @@ export const useNodeMetrics = (
   // Dùng Ref giữ hàm appendMetricPoint để KHÔNG TRUYỀN vào Dependency Array của Socket Effect
   // Tránh việc re-subscribe socket liên tục khi store re-render
   const appendMetricPointRef = useRef(appendMetricPoint);
-  const requestSignature = `${nodeCode}|${mode}|${params?.from ?? ""}|${params?.to ?? ""}|${params?.interval ?? ""}|${isLive ? "1" : "0"}`;
+  const requestSignature = `${nodeCode}|${mode}|${params?.from ?? ''}|${params?.to ?? ''}|${params?.interval ?? ''}|${isLive ? '1' : '0'}`;
   const activeRequestSignatureRef = useRef(requestSignature);
   useEffect(() => {
     appendMetricPointRef.current = appendMetricPoint;
@@ -89,8 +89,8 @@ export const useNodeMetrics = (
     if (error && nodeCode) {
       const apiErr = error as unknown as ApiError;
       setMetricsError(nodeCode, mode, {
-        code: apiErr.code || "FETCH_ERROR",
-        message: apiErr.message || "Failed to fetch node metrics",
+        code: apiErr.code || 'FETCH_ERROR',
+        message: apiErr.message || 'Failed to fetch node metrics',
       });
     }
   }, [error, nodeCode, mode, setMetricsError]);
@@ -106,10 +106,10 @@ export const useNodeMetrics = (
         (payload) => {
           console.log(
             `[useNodeMetrics] Real-time metrics update received for node ${nodeCode}`,
-            payload,
+            payload
           );
           appendMetricPointRef.current(nodeCode, mode, payload);
-        },
+        }
       );
 
     return () => {

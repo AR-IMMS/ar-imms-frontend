@@ -1,9 +1,9 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { authService } from "@/services/auth/auth-service";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { useAuthStore } from "@/stores/auth-store";
-import type { RoleCode } from "@/types/auth";
+import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { authService } from '@/services/auth/auth-service';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { useAuthStore } from '@/stores/auth-store';
+import type { RoleCode } from '@/types/auth';
 
 const DEFAULT_AUTH_STALE_TIME = 5 * 60_000; // 5 mins
 

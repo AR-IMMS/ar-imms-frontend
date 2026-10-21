@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Search, X } from "lucide-react";
-import type { RoleCode, UserStatus } from "@/types/auth";
+import { Search, X } from 'lucide-react';
+import type { RoleCode, UserStatus } from '@/types/auth';
 
-type MenuKey = "role" | "status" | null;
+type MenuKey = 'role' | 'status' | null;
 
 type RoleOption = {
   code: RoleCode;
@@ -14,20 +14,20 @@ type UserListFiltersProps = {
   search: string;
   onSearchChange: (value: string) => void;
   roleOptions: RoleOption[];
-  selectedRole: RoleCode | "ALL";
+  selectedRole: RoleCode | 'ALL';
   selectedRoleLabel: string;
-  selectedStatus: UserStatus | "ALL";
-  onSelectRole: (role: RoleCode | "ALL") => void;
-  onSelectStatus: (status: UserStatus | "ALL") => void;
+  selectedStatus: UserStatus | 'ALL';
+  onSelectRole: (role: RoleCode | 'ALL') => void;
+  onSelectStatus: (status: UserStatus | 'ALL') => void;
   openMenu: MenuKey;
   setOpenMenu: (menu: MenuKey) => void;
 };
 
-const STATUS_OPTIONS: Array<UserStatus | "ALL"> = [
-  "ALL",
-  "ACTIVE",
-  "INACTIVE",
-  "LOCKED",
+const STATUS_OPTIONS: Array<UserStatus | 'ALL'> = [
+  'ALL',
+  'ACTIVE',
+  'INACTIVE',
+  'LOCKED',
 ];
 
 export default function UserListFilters({
@@ -43,9 +43,9 @@ export default function UserListFilters({
   setOpenMenu,
 }: UserListFiltersProps) {
   const selectedRoleChipLabel =
-    selectedRole === "ALL" ? "All roles" : selectedRoleLabel;
+    selectedRole === 'ALL' ? 'All roles' : selectedRoleLabel;
   const selectedStatusChipLabel =
-    selectedStatus === "ALL" ? "All statuses" : selectedStatus;
+    selectedStatus === 'ALL' ? 'All statuses' : selectedStatus;
 
   return (
     <div className="panel light:bg-accent space-y-4 p-4">
@@ -63,34 +63,34 @@ export default function UserListFilters({
         <div className="relative">
           <button
             type="button"
-            aria-expanded={openMenu === "role"}
-            onClick={() => setOpenMenu(openMenu === "role" ? null : "role")}
+            aria-expanded={openMenu === 'role'}
+            onClick={() => setOpenMenu(openMenu === 'role' ? null : 'role')}
             className={`inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition ${
-              selectedRole !== "ALL"
-                ? "border-cyan/40 bg-cyan/10 light:bg-primary/75 hover:light:bg-primary/85"
-                : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:light:border-muted-foreground/50 hover:light:bg-surface-1/85"
+              selectedRole !== 'ALL'
+                ? 'border-cyan/40 bg-cyan/10 light:bg-primary/75 hover:light:bg-primary/85'
+                : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:light:border-muted-foreground/50 hover:light:bg-surface-1/85'
             }`}
           >
             <span
-              className={`label-mono text-[10px] ${selectedRole !== "ALL" ? " light:text-white" : ""}`}
+              className={`label-mono text-[10px] ${selectedRole !== 'ALL' ? ' light:text-white' : ''}`}
             >
               Role
             </span>
             <span className="label-mono light:text-white text-[10px]">
-              {selectedRole === "ALL" ? "All" : selectedRoleLabel}
+              {selectedRole === 'ALL' ? 'All' : selectedRoleLabel}
             </span>
             <span
-              className={`label-mono text-[10px] ${selectedRole !== "ALL" ? " light:text-white" : ""}`}
+              className={`label-mono text-[10px] ${selectedRole !== 'ALL' ? ' light:text-white' : ''}`}
             >
               ▾
             </span>
           </button>
 
-          {openMenu === "role" ? (
+          {openMenu === 'role' ? (
             <div className="absolute left-0 top-full z-20 mt-2 w-60 overflow-hidden rounded-lg border border-cyan/30 bg-surface-2 light:bg-muted shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
               <button
                 type="button"
-                onClick={() => onSelectRole("ALL")}
+                onClick={() => onSelectRole('ALL')}
                 className="flex w-full items-center justify-between border-b border-border/60 px-3 py-2 text-left text-muted-foreground transition hover:bg-white/5"
               >
                 <span className="label-mono">All Roles</span>
@@ -111,8 +111,8 @@ export default function UserListFilters({
                         onClick={() => onSelectRole(role.code)}
                         className={`flex w-full items-center justify-between px-3 py-2 text-left transition ${
                           isSelected
-                            ? "bg-cyan/10 text-cyan-ice"
-                            : "text-foreground hover:bg-white/5"
+                            ? 'bg-cyan/10 text-cyan-ice'
+                            : 'text-foreground hover:bg-white/5'
                         }`}
                       >
                         <span className="label-mono">{role.name}</span>
@@ -128,42 +128,42 @@ export default function UserListFilters({
         <div className="relative">
           <button
             type="button"
-            aria-expanded={openMenu === "status"}
-            onClick={() => setOpenMenu(openMenu === "status" ? null : "status")}
+            aria-expanded={openMenu === 'status'}
+            onClick={() => setOpenMenu(openMenu === 'status' ? null : 'status')}
             className={`inline-flex h-9 items-center gap-2 rounded-md border px-3 text-xs transition ${
-              selectedStatus !== "ALL"
-                ? "border-cyan/40 bg-cyan/10 light:bg-primary/75 hover:light:bg-primary/85"
-                : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:light:border-muted-foreground/50 hover:light:bg-surface-1/85"
+              selectedStatus !== 'ALL'
+                ? 'border-cyan/40 bg-cyan/10 light:bg-primary/75 hover:light:bg-primary/85'
+                : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:light:border-muted-foreground/50 hover:light:bg-surface-1/85'
             }`}
           >
             <span
-              className={`label-mono text-[10px] ${selectedStatus !== "ALL" ? " light:text-white" : ""}`}
+              className={`label-mono text-[10px] ${selectedStatus !== 'ALL' ? ' light:text-white' : ''}`}
             >
               Status
             </span>
             <span
-              className={`label-mono text-[10px] ${selectedStatus !== "ALL" ? " light:text-white" : ""}`}
+              className={`label-mono text-[10px] ${selectedStatus !== 'ALL' ? ' light:text-white' : ''}`}
             >
-              {selectedStatus === "ALL" ? "All" : selectedStatus}
+              {selectedStatus === 'ALL' ? 'All' : selectedStatus}
             </span>
             <span
-              className={`label-mono text-[10px] ${selectedStatus !== "ALL" ? " light:text-white" : ""}`}
+              className={`label-mono text-[10px] ${selectedStatus !== 'ALL' ? ' light:text-white' : ''}`}
             >
               ▾
             </span>
           </button>
 
-          {openMenu === "status" ? (
+          {openMenu === 'status' ? (
             <div className="absolute left-0 top-full z-20 mt-2 w-35 overflow-hidden rounded-lg border border-cyan/30 bg-surface-2 light:bg-muted shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
               <button
                 type="button"
-                onClick={() => onSelectStatus("ALL")}
+                onClick={() => onSelectStatus('ALL')}
                 className="flex w-full items-center justify-between border-b border-border/60 px-3 py-2 text-left text-[11px] text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
               >
                 <span className="label-mono">All Statuses</span>
               </button>
               <div className="py-1">
-                {STATUS_OPTIONS.filter((status) => status !== "ALL").map(
+                {STATUS_OPTIONS.filter((status) => status !== 'ALL').map(
                   (status) => {
                     const isSelected = selectedStatus === status;
 
@@ -174,14 +174,14 @@ export default function UserListFilters({
                         onClick={() => onSelectStatus(status)}
                         className={`flex w-full items-center justify-between px-3 py-2 text-left text-[11px] transition ${
                           isSelected
-                            ? "bg-cyan/10 text-cyan-ice"
-                            : "text-foreground hover:bg-white/5"
+                            ? 'bg-cyan/10 text-cyan-ice'
+                            : 'text-foreground hover:bg-white/5'
                         }`}
                       >
                         <span className="label-mono">{status}</span>
                       </button>
                     );
-                  },
+                  }
                 )}
               </div>
             </div>
@@ -201,10 +201,10 @@ export default function UserListFilters({
 
       {/* filter selection */}
       <div className="flex flex-wrap items-center gap-2">
-        {selectedRole !== "ALL" ? (
+        {selectedRole !== 'ALL' ? (
           <button
             type="button"
-            onClick={() => onSelectRole("ALL")}
+            onClick={() => onSelectRole('ALL')}
             className="inline-flex items-center gap-2 rounded-md border border-cyan/30 bg-cyan/10 px-3 py-1.5 text-[10px] text-cyan-ice transition hover:border-cyan/50 hover:light:border-muted-foreground light:bg-primary/75 hover:light:bg-primary/85"
           >
             <span className="label-mono light:text-background">
@@ -214,10 +214,10 @@ export default function UserListFilters({
           </button>
         ) : null}
 
-        {selectedStatus !== "ALL" ? (
+        {selectedStatus !== 'ALL' ? (
           <button
             type="button"
-            onClick={() => onSelectStatus("ALL")}
+            onClick={() => onSelectStatus('ALL')}
             className="inline-flex items-center gap-2 rounded-md border border-cyan/30 bg-cyan/10 px-3 py-1.5 text-[10px] text-cyan-ice transition hover:border-cyan/50 hover:light:border-muted-foreground light:bg-primary/75 hover:light:bg-primary/85"
           >
             <span className="label-mono light:text-background">

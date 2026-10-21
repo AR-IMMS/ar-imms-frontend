@@ -1,58 +1,55 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import {
-  Activity,
-  ArrowRight,
-  ShieldCheck,
-  TriangleAlert,
-} from "lucide-react";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { z } from "zod";
-import { useLoginMutation } from "@/hooks/auth/use-auth-mutation";
-import type { LoginRequestPayload } from "@/types/auth";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { motion } from 'framer-motion';
+import { Activity, ArrowRight, ShieldCheck, TriangleAlert } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { z } from 'zod';
+import { useLoginMutation } from '@/hooks/auth/use-auth-mutation';
+import type { LoginRequestPayload } from '@/types/auth';
 
 function getPostLoginRoute(roleCodes: readonly string[]) {
   if (
-    roleCodes.includes("MAINTENANCE_TECHNICIAN") &&
-    !roleCodes.includes("SYSTEM_MONITORING_OPERATOR") &&
-    !roleCodes.includes("IT_ADMINISTRATOR")
+    roleCodes.includes('MAINTENANCE_TECHNICIAN') &&
+    !roleCodes.includes('SYSTEM_MONITORING_OPERATOR') &&
+    !roleCodes.includes('IT_ADMINISTRATOR')
   ) {
-    return "/tickets/me";
+    return '/tickets/me';
   }
 
-  return "/tickets";
+  return '/tickets';
 }
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LOGIN_COPY = {
-  eyebrow: "Central Command Center",
-  title: "AR-based Infrastructure Monitoring & Maintenance System",
+  eyebrow: 'Central Command Center',
+  title: 'AR-based Infrastructure Monitoring & Maintenance System',
   subtitle:
-    "Empowering administrators with real-time cluster telemetry and field technicians with spatial AR-integrated maintenance workflows",
-  primaryCta: "Sign in",
+    'Empowering administrators with real-time cluster telemetry and field technicians with spatial AR-integrated maintenance workflows',
+  primaryCta: 'Sign in',
 } as const;
 
 const CAPABILITY_RAIL = [
   {
-    label: "Monitoring",
-    value: "Real-time telemetry streaming and historical metrics visualization",
+    label: 'Monitoring',
+    value: 'Real-time telemetry streaming and historical metrics visualization',
   },
   {
-    label: "Visualization",
-    value: "Visualizing hardware architecture from racks down to individual components",
+    label: 'Visualization',
+    value:
+      'Visualizing hardware architecture from racks down to individual components',
   },
   {
-    label: "AR Operations",
-    value: "Augmented reality-integrated maintenance operations workflow for on-site technicians",
+    label: 'AR Operations',
+    value:
+      'Augmented reality-integrated maintenance operations workflow for on-site technicians',
   },
 ] as const;
 
@@ -63,10 +60,10 @@ export function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-    mode: "onSubmit",
+    mode: 'onSubmit',
   });
 
   async function onSubmit(values: LoginFormValues) {
@@ -98,10 +95,10 @@ export function LoginPage() {
               </div>
 
               <h1 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl leading-[1.08]">
-                AR-based Infrastructure{" "}
+                AR-based Infrastructure{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan via-electric to-purple font-extrabold">
                   Monitoring & Maintenance
-                </span>{" "}
+                </span>{' '}
                 System
               </h1>
 
@@ -174,7 +171,7 @@ export function LoginPage() {
                     autoComplete="email"
                     className="h-11 w-full rounded-lg border border-border bg-background/60 px-3.5 text-xs text-foreground font-mono placeholder:text-muted-foreground/60 placeholder:font-mono outline-none transition-all duration-300 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 focus:bg-background"
                     placeholder="operator@company.com"
-                    {...form.register("email")}
+                    {...form.register('email')}
                   />
                   {form.formState.errors.email ? (
                     <p className="flex items-center gap-1.5 text-[11px] font-mono text-rose-400 mt-1">
@@ -198,7 +195,7 @@ export function LoginPage() {
                     autoComplete="current-password"
                     className="h-11 w-full rounded-lg border border-border bg-background/60 px-3.5 text-xs text-foreground font-mono placeholder:text-muted-foreground/60 outline-none transition-all duration-300 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 focus:bg-background"
                     placeholder="••••••••••••"
-                    {...form.register("password")}
+                    {...form.register('password')}
                   />
                   {form.formState.errors.password ? (
                     <p className="flex items-center gap-1.5 text-[11px] font-mono text-rose-400 mt-1">

@@ -1,58 +1,58 @@
-"use client";
+'use client';
 
-import { useCallback, useMemo, useState } from "react";
-import NodeHardwareGrid from "./components/node-level/node-hardware-grid";
-import WorkloadContainerGrid from "./components/node-level/workload-container-grid";
-import { useNodeOverview } from "@/hooks/monitoring/use-node-overview";
-import { useNodeMetrics } from "@/hooks/monitoring/use-node-metrics";
-import { ShieldAlert, AlertTriangle, RefreshCcw } from "lucide-react";
-import { transformToChartData } from "./lib/utils/data-store-helpers";
-import { WorkspaceBreadcrumbs } from "@/components/common/workspace-breadcrumbs";
-import { NodeEntity } from "@/types/assets";
-import type { NodeMetricsQueryParams } from "@/types/monitoring";
+import { useCallback, useMemo, useState } from 'react';
+import NodeHardwareGrid from './components/node-level/node-hardware-grid';
+import WorkloadContainerGrid from './components/node-level/workload-container-grid';
+import { useNodeOverview } from '@/hooks/monitoring/use-node-overview';
+import { useNodeMetrics } from '@/hooks/monitoring/use-node-metrics';
+import { ShieldAlert, AlertTriangle, RefreshCcw } from 'lucide-react';
+import { transformToChartData } from './lib/utils/data-store-helpers';
+import { WorkspaceBreadcrumbs } from '@/components/common/workspace-breadcrumbs';
+import { NodeEntity } from '@/types/assets';
+import type { NodeMetricsQueryParams } from '@/types/monitoring';
 
 interface MonitoringTelemetryViewportProps {
   nodeItem: NodeEntity;
 }
 
-type RangeDuration = "1m" | "5m" | "15m" | "30m" | "1h" | "6h" | "24h";
+type RangeDuration = '1m' | '5m' | '15m' | '30m' | '1h' | '6h' | '24h';
 
 const floorToBucket = (date: Date, bucketMs: number) =>
   new Date(Math.floor(date.getTime() / bucketMs) * bucketMs);
 
 const calculateQueryParams = (
-  duration: RangeDuration,
+  duration: RangeDuration
 ): NodeMetricsQueryParams => {
   const nowMs = Date.now();
   let diffSec = 300;
   let intervalSec = 60;
 
   switch (duration) {
-    case "1m":
+    case '1m':
       diffSec = 60;
       intervalSec = 5;
       break;
-    case "5m":
+    case '5m':
       diffSec = 300;
       intervalSec = 5;
       break;
-    case "15m":
+    case '15m':
       diffSec = 900;
       intervalSec = 60;
       break;
-    case "30m":
+    case '30m':
       diffSec = 1800;
       intervalSec = 60;
       break;
-    case "1h":
+    case '1h':
       diffSec = 3600;
       intervalSec = 60;
       break;
-    case "6h":
+    case '6h':
       diffSec = 21600;
       intervalSec = 60;
       break;
-    case "24h":
+    case '24h':
       diffSec = 86400;
       intervalSec = 60;
       break;
@@ -62,24 +62,24 @@ const calculateQueryParams = (
   const to = floorToBucket(new Date(nowMs), resolutionMs).toISOString();
   const from = floorToBucket(
     new Date(nowMs - diffSec * 1000),
-    resolutionMs,
+    resolutionMs
   ).toISOString();
 
   return {
     from,
     to,
-    interval: intervalSec === 5 ? "5" : "60",
+    interval: intervalSec === 5 ? '5' : '60',
   };
 };
 
 export default function MonitoringTelemetryViewport({
   nodeItem,
 }: MonitoringTelemetryViewportProps) {
-  const [rangeDuration, setRangeDuration] = useState<RangeDuration>("5m");
-  const isLiveMode = rangeDuration === "1m" || rangeDuration === "5m";
+  const [rangeDuration, setRangeDuration] = useState<RangeDuration>('5m');
+  const isLiveMode = rangeDuration === '1m' || rangeDuration === '5m';
 
   const [queryParams, setQueryParams] = useState<NodeMetricsQueryParams>(() =>
-    calculateQueryParams(rangeDuration),
+    calculateQueryParams(rangeDuration)
   );
 
   const handleRangeChange = useCallback((duration: RangeDuration) => {
@@ -88,7 +88,7 @@ export default function MonitoringTelemetryViewport({
   }, []);
 
   const { overview, loading: loadingOverview } = useNodeOverview(
-    nodeItem.nodeCode,
+    nodeItem.nodeCode
   );
   const worstMetric = overview?.summaryMetrics.primaryIssue;
 
@@ -97,7 +97,7 @@ export default function MonitoringTelemetryViewport({
     {
       params: queryParams,
       isLive: isLiveMode,
-    },
+    }
   );
 
   const chartData = useMemo(() => {
@@ -119,7 +119,7 @@ export default function MonitoringTelemetryViewport({
   return (
     <div
       className={`flex-1 flex flex-col p-4 space-y-4 overflow-hidden min-w-0 transition-opacity duration-200 ${
-        isViewportLoading ? "opacity-60" : "opacity-100"
+        isViewportLoading ? 'opacity-60' : 'opacity-100'
       }`}
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0">
@@ -128,20 +128,20 @@ export default function MonitoringTelemetryViewport({
         {/* Range Duration Selector */}
         <div className="flex items-center gap-3 self-end md:self-auto">
           <div className="flex bg-muted p-0.5 rounded border border-border/80 font-mono text-[10px]">
-            {(["1m", "5m", "15m", "30m", "1h", "6h", "24h"] as const).map(
+            {(['1m', '5m', '15m', '30m', '1h', '6h', '24h'] as const).map(
               (r) => (
                 <button
                   key={r}
                   onClick={() => handleRangeChange(r)}
                   className={`px-2 py-1 rounded-sm uppercase font-semibold cursor-pointer ${
                     rangeDuration === r
-                      ? "bg-cyan/15 text-cyan font-bold border border-cyan/20"
-                      : "text-foreground/55 hover:text-foreground/70 border border-transparent"
+                      ? 'bg-cyan/15 text-cyan font-bold border border-cyan/20'
+                      : 'text-foreground/55 hover:text-foreground/70 border border-transparent'
                   }`}
                 >
                   {r}
                 </button>
-              ),
+              )
             )}
           </div>
         </div>
@@ -150,12 +150,12 @@ export default function MonitoringTelemetryViewport({
       <div className="flex w-full items-center gap-2">
         <div className="panel rounded py-1.5 px-3 bg-slate-950 border border-border/80 flex items-center flex-1 gap-3 shrink-0 overflow-hidden font-mono text-[10px]">
           <div
-            className={`size-2 rounded-full bg-critical animate-ping shrink-0 ${worstMetric ? "block" : "hidden"}`}
+            className={`size-2 rounded-full bg-critical animate-ping shrink-0 ${worstMetric ? 'block' : 'hidden'}`}
           />
           <div className="flex-1 truncate">
             {worstMetric?.metricKey ? (
               <span className="text-critical uppercase tracking-wider font-semibold animate-pulse">
-                DIAGNOSTIC EXCURSION FAULT: {worstMetric.metricKey} ={"  "}
+                DIAGNOSTIC EXCURSION FAULT: {worstMetric.metricKey} ={'  '}
                 {worstMetric.value}
               </span>
             ) : (
@@ -187,7 +187,7 @@ export default function MonitoringTelemetryViewport({
         metrics={chartData}
         primaryNicStatus={
           overview?.summaryMetrics.primaryNicStatus
-            ? { value: overview.summaryMetrics.primaryNicStatus, unit: "state" }
+            ? { value: overview.summaryMetrics.primaryNicStatus, unit: 'state' }
             : null
         }
       />

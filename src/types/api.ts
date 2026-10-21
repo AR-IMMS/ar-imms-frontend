@@ -42,8 +42,8 @@ export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
 export interface PaginationParams {
   page?: number;
   limit?: number;
-  sortBy?: "username" | "email" | "status" | "createdAt" | "updatedAt";
-  sortDirection?: "asc" | "desc";
+  sortBy?: 'username' | 'email' | 'status' | 'createdAt' | 'updatedAt';
+  sortDirection?: 'asc' | 'desc';
 }
 
 export interface PaginatedResponse<T> {

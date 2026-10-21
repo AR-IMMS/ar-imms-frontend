@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { useUiConfigStore } from "@/stores/ui-config-store";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
+import { useMemo } from 'react';
+import { useUiConfigStore } from '@/stores/ui-config-store';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
 import {
   useNodeContextQuery,
   useRackTopologyQuery,
-} from "@/hooks/asset/use-asset-queries";
+} from '@/hooks/asset/use-asset-queries';
 import {
   ChevronRight,
   Database,
@@ -15,16 +15,20 @@ import {
   Server,
   Cpu,
   Loader2,
-} from "lucide-react";
-import { RackEntity, RackTopologyResult } from "@/types/assets";
+} from 'lucide-react';
+import { RackEntity, RackTopologyResult } from '@/types/assets';
 
 export interface WorkspaceBreadcrumbsProps {
   className?: string;
 }
 
-export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsProps) {
-  const isTopologyTreeCollapsed = useUiConfigStore((s) => s.isTopologyTreeCollapsed);
-  
+export function WorkspaceBreadcrumbs({
+  className = '',
+}: WorkspaceBreadcrumbsProps) {
+  const isTopologyTreeCollapsed = useUiConfigStore(
+    (s) => s.isTopologyTreeCollapsed
+  );
+
   const selectedSiteCode = useAssetStore((s) => s.selectedSiteCode);
   const selectedRoomCode = useAssetStore((s) => s.selectedRoomCode);
   const selectedRackId = useAssetStore((s) => s.selectedRackId);
@@ -39,17 +43,17 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
 
   // execute only when corresponding ID is present in the store
   const { data: rawRackItem, isLoading: isRackLoading } = useRackTopologyQuery(
-    selectedRackId ?? "",
+    selectedRackId ?? '',
     !!selectedRackId,
     {
       select: (data: RackTopologyResult) => data?.rack ?? null,
-    },
+    }
   );
   const rackItem = rawRackItem as RackEntity | null;
 
   const { data: nodeContext, isLoading: isNodeLoading } = useNodeContextQuery(
-    selectedNodeCode ?? "",
-    !!selectedNodeCode,
+    selectedNodeCode ?? '',
+    !!selectedNodeCode
   );
 
   // Dynamically compute breadcrumb items from Zustand store selected state
@@ -57,7 +61,7 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
     const list: Array<{
       id: string;
       name: string;
-      type: "site" | "room" | "rack" | "node";
+      type: 'site' | 'room' | 'rack' | 'node';
       isLoading?: boolean;
     }> = [];
 
@@ -65,7 +69,7 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
       list.push({
         id: selectedSiteCode,
         name: selectedSiteCode,
-        type: "site",
+        type: 'site',
       });
     }
 
@@ -73,30 +77,32 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
       list.push({
         id: selectedRoomCode,
         name: selectedRoomCode,
-        type: "room",
+        type: 'room',
       });
     }
 
     if (selectedRackId) {
       const name = isRackLoading
-        ? "Cabinet Loading..."
-        : (rackItem?.displayName || rackItem?.rackCode || selectedRackId);
+        ? 'Cabinet Loading...'
+        : rackItem?.displayName || rackItem?.rackCode || selectedRackId;
       list.push({
         id: selectedRackId,
         name,
-        type: "rack",
+        type: 'rack',
         isLoading: isRackLoading,
       });
     }
 
     if (selectedNodeCode && selectedRackId) {
       const name = isNodeLoading
-        ? "Node Loading..."
-        : (nodeContext?.node?.displayName || nodeContext?.node?.nodeCode || selectedNodeCode);
+        ? 'Node Loading...'
+        : nodeContext?.node?.displayName ||
+          nodeContext?.node?.nodeCode ||
+          selectedNodeCode;
       list.push({
         id: selectedNodeCode,
         name,
-        type: "node",
+        type: 'node',
         isLoading: isNodeLoading,
       });
     }
@@ -121,78 +127,78 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
 
     const clickedItem = breadcrumbs[index];
 
-    if (clickedItem.type === "site") {
+    if (clickedItem.type === 'site') {
       setSelectedSiteCode(clickedItem.id);
       setSelectedRoomCode(null);
       setSelectedNodeCode(null);
       setSelectedRackId(null);
-      setActivePanelType("site");
-    } else if (clickedItem.type === "room") {
+      setActivePanelType('site');
+    } else if (clickedItem.type === 'room') {
       setSelectedSiteCode(selectedSiteCode);
       setSelectedRoomCode(clickedItem.id);
       setSelectedNodeCode(null);
       setSelectedRackId(null);
       setActivePanelType(null);
-    } else if (clickedItem.type === "rack") {
+    } else if (clickedItem.type === 'rack') {
       setSelectedSiteCode(selectedSiteCode);
       setSelectedRoomCode(selectedRoomCode);
       setSelectedNodeCode(null);
       setSelectedRackId(clickedItem.id);
-      setActivePanelType("rack");
-    } else if (clickedItem.type === "node") {
+      setActivePanelType('rack');
+    } else if (clickedItem.type === 'node') {
       setSelectedSiteCode(selectedSiteCode);
       setSelectedRoomCode(selectedRoomCode);
       setSelectedRackId(selectedRackId);
       setSelectedNodeCode(clickedItem.id);
-      setActivePanelType("node");
+      setActivePanelType('node');
     }
   };
 
   const getIcon = (type: string, isActive: boolean, isLoading?: boolean) => {
-    const sizeClass = "size-3.5 shrink-0";
-    
+    const sizeClass = 'size-3.5 shrink-0';
+
     if (isLoading) {
       return <Loader2 className={`${sizeClass} text-cyan animate-spin`} />;
     }
 
     switch (type) {
-      case "site":
+      case 'site':
         return (
           <MapPin
             className={`${sizeClass} ${
               isActive
-                ? "text-purple-400 drop-shadow-[0_0_6px_rgba(192,132,252,0.6)]"
-                : "text-purple-400/70"
+                ? 'text-purple-400 drop-shadow-[0_0_6px_rgba(192,132,252,0.6)]'
+                : 'text-purple-400/70'
             }`}
           />
         );
-      case "room":
+      case 'room':
         return (
           <Layers
             className={`${sizeClass} ${
               isActive
-                ? "text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]"
-                : "text-cyan-400/70"
+                ? 'text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]'
+                : 'text-cyan-400/70'
             }`}
           />
         );
-      case "rack":
+      case 'rack':
         return (
           <Server
             className={`${sizeClass} ${
               isActive
-                ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]"
-                : "text-emerald-400/70"
+                ? 'text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.6)]'
+                : 'text-emerald-400/70'
             }`}
           />
         );
-      case "node":
+      case 'node':
         return (
           <Cpu
             className={`${sizeClass} ${
               isActive
-                ? "text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]"
-                : "text-slate-400"
+                ? 'text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]'
+                : 'text-slate-400'
             }`}
           />
         );
@@ -201,8 +207,8 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
           <Database
             className={`${sizeClass} ${
               isActive
-                ? "text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]"
-                : "text-slate-400"
+                ? 'text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.6)]'
+                : 'text-slate-400'
             }`}
           />
         );
@@ -220,12 +226,12 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
         onClick={() => handleSegmentClick(-1)}
         className={`flex items-center gap-1.5 transition duration-150 ${
           isRootActive
-            ? "text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
-            : "text-slate-500 hover:text-cyan-ice cursor-pointer"
+            ? 'text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default'
+            : 'text-slate-500 hover:text-cyan-ice cursor-pointer'
         }`}
         disabled={isRootActive}
       >
-        {getIcon("root", isRootActive)}
+        {getIcon('root', isRootActive)}
         <span>Workspace</span>
       </button>
 
@@ -243,9 +249,9 @@ export function WorkspaceBreadcrumbs({ className = "" }: WorkspaceBreadcrumbsPro
               disabled={isLast || item.isLoading}
               className={`flex items-center gap-1.5 transition duration-150 ${
                 isLast
-                  ? "text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default"
-                  : "text-slate-500 hover:text-cyan-ice cursor-pointer"
-              } ${item.isLoading ? "animate-pulse opacity-75 cursor-wait" : ""}`}
+                  ? 'text-cyan-ice font-bold drop-shadow-[0_0_8px_rgba(0,209,255,0.45)] cursor-default'
+                  : 'text-slate-500 hover:text-cyan-ice cursor-pointer'
+              } ${item.isLoading ? 'animate-pulse opacity-75 cursor-wait' : ''}`}
             >
               {getIcon(item.type, isLast, item.isLoading)}
               <span>{item.name}</span>

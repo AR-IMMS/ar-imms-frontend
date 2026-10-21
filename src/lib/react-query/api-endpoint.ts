@@ -1,15 +1,15 @@
 export const AUTH_ENDPOINTS = {
-  LOGIN: "/auth/login",
-  REFRESH: "/auth/refresh",
-  LOGOUT: "/auth/logout",
-  ME: "/auth/me",
-  CHANGE_PASSWORD: "/auth/change-password",
+  LOGIN: '/auth/login',
+  REFRESH: '/auth/refresh',
+  LOGOUT: '/auth/logout',
+  ME: '/auth/me',
+  CHANGE_PASSWORD: '/auth/change-password',
 } as const;
 
 export const IDENTITY_ENDPOINTS = {
-  GET_ROLES: "/roles",
-  CREATE_USERS: "/admin/users",
-  GET_USERS: "/admin/users",
+  GET_ROLES: '/roles',
+  CREATE_USERS: '/admin/users',
+  GET_USERS: '/admin/users',
   GET_USER_BY_ID: (userId: string) =>
     `/admin/users/${encodeURIComponent(userId)}`,
   GET_USER_BY_USERNAME: (username: string) =>
@@ -18,23 +18,23 @@ export const IDENTITY_ENDPOINTS = {
     `/admin/users/${encodeURIComponent(userId)}/status`,
   UPDATE_USER_ROLES: (userId: string) =>
     `/admin/users/${encodeURIComponent(userId)}/roles`,
-  GET_TECHNICIANS: "/technicians",
+  GET_TECHNICIANS: '/technicians',
 } as const;
 
 export const ASSET_ENDPOINTS = {
-  TOPOLOGY_TREE: "/topology/tree",
+  TOPOLOGY_TREE: '/topology/tree',
   RACK_TOPOLOGY: (rackId: string) =>
     `/racks/${encodeURIComponent(rackId)}/topology`,
   ASSET_BY_CODE: (code: string) =>
     `/assets/by-code/${encodeURIComponent(code)}`,
-  SEARCH_ASSETS: "/assets/search",
+  SEARCH_ASSETS: '/assets/search',
   NODE_CONTEXT: (nodeId: string) =>
     `/nodes/${encodeURIComponent(nodeId)}/context`,
   RESOLVE_MARKER: (markerCode: string) =>
     `/markers/resolve/${encodeURIComponent(markerCode)}`,
 
   // Admin Topology
-  ADMIN_RACKS: "/admin/topology/racks",
+  ADMIN_RACKS: '/admin/topology/racks',
   ADMIN_RACK_BY_ID: (rackId: string) =>
     `/admin/topology/racks/${encodeURIComponent(rackId)}`,
   ACTIVATE_RACK: (rackId: string) =>
@@ -49,7 +49,7 @@ export const ASSET_ENDPOINTS = {
   // NORMALIZE_NODE: "/admin/topology/nodes/normalize",
   // DISCOVERED_NODES: "/admin/topology/discovered-nodes",
   // UNASSIGNED_NODES: "/admin/topology/nodes/unassigned",
-  PENDING_ASSIGNMENT_NODES: "/admin/topology/nodes/pending-assignment",
+  PENDING_ASSIGNMENT_NODES: '/admin/topology/nodes/pending-assignment',
   ADMIN_NODE_BY_ID: (nodeId: string) =>
     `/admin/topology/nodes/${encodeURIComponent(nodeId)}`,
   ASSIGN_RACK: (nodeId: string) =>
@@ -62,7 +62,7 @@ export const ASSET_ENDPOINTS = {
   //   `/admin/topology/nodes/${encodeURIComponent(nodeId)}/drain`,
 
   // Admin Markers
-  ADMIN_MARKERS: "/admin/markers",
+  ADMIN_MARKERS: '/admin/markers',
   // ADMIN_MARKER_BY_ID: (markerId: string) =>
   //   `/admin/markers/${encodeURIComponent(markerId)}`,
   // GENERATE_MARKER: (markerId: string) =>
@@ -93,20 +93,26 @@ export const MONITORING_ENDPOINTS = {
 } as const;
 
 export const TICKET_ENDPOINTS = {
-  TICKETS: "/tickets",
-  MY_TICKETS: "/tickets/me",
-  EVENTS: "/tickets/events",
-  TICKET_BY_ID: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}`,
-  STATUS: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/status`,
-  ASSIGNMENT: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/assignment`,
+  TICKETS: '/tickets',
+  MY_TICKETS: '/tickets/me',
+  EVENTS: '/tickets/events',
+  TICKET_BY_ID: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}`,
+  STATUS: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}/status`,
+  ASSIGNMENT: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}/assignment`,
   CLOSE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/close`,
-  COMMENTS: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/comments`,
-  EVIDENCE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence`,
-  EVIDENCE_UPLOAD_URL: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
+  COMMENTS: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}/comments`,
+  EVIDENCE: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}/evidence`,
+  EVIDENCE_UPLOAD_URL: (ticketId: string) =>
+    `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
 } as const;
 
 export const INCIDENT_ENDPOINTS = {
-  INCIDENTS: "/incidents",
+  INCIDENTS: '/incidents',
   INCIDENT_BY_ID: (incidentId: string) =>
     `/incidents/${encodeURIComponent(incidentId)}`,
 } as const;

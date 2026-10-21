@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { ShieldCheck } from "lucide-react";
-import type { RoleCode } from "@/types/auth";
-import { ROLE_COLORS } from "../lib/constant";
-import { AVAILABLE_ROLES } from "./role-selector";
-import { Avatar } from "@/components/common/avatar";
+import { ShieldCheck } from 'lucide-react';
+import type { RoleCode } from '@/types/auth';
+import { ROLE_COLORS } from '../lib/constant';
+import { AVAILABLE_ROLES } from './role-selector';
+import { Avatar } from '@/components/common/avatar';
 
 interface UserPreviewProps {
   fullName: string;
@@ -30,7 +30,7 @@ export default function UserPreview({
   return (
     <div className="hidden flex-col bg-surface-2/55 p-6 md:col-span-5 md:flex">
       <div className="label-mono text-[10px] text-cyan-ice tracking-wider">
-        {"// VISUAL COMPLIANCE"}
+        {'// VISUAL COMPLIANCE'}
       </div>
       <h3 className="title-display mt-1 text-sm text-foreground">
         Operator Profile Preview
@@ -41,17 +41,17 @@ export default function UserPreview({
         {/* Profile Pic or Initials */}
         <Avatar
           avatarUrl={avatarUrl.trim() || null}
-          fullName={fullName.trim() || "Unspecified Operator"}
+          fullName={fullName.trim() || 'Unspecified Operator'}
           variant="circle"
         />
 
         {/* Name & Job Title */}
         <div className="mt-4 text-center">
           <h4 className="title-display text-sm text-foreground truncate max-w-[200px]">
-            {fullName.trim() || "Unspecified Operator"}
+            {fullName.trim() || 'Unspecified Operator'}
           </h4>
           <p className="font-mono text-[11px] text-muted-foreground mt-0.5">
-            {jobTitle.trim() || "Title Unassigned"}
+            {jobTitle.trim() || 'Title Unassigned'}
           </p>
         </div>
 
@@ -61,31 +61,44 @@ export default function UserPreview({
         {/* User attributes */}
         <div className="w-full space-y-3 font-mono text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-[10px] uppercase">Username:</span>
+            <span className="text-muted-foreground text-[10px] uppercase">
+              Username:
+            </span>
             <span className="text-foreground text-[11px] font-bold">
-              {username.trim() ? `@${username.trim()}` : "—"}
+              {username.trim() ? `@${username.trim()}` : '—'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-[10px] uppercase">Email:</span>
-            <span className="text-foreground text-[11px] truncate max-w-[150px] text-right" title={email}>
-              {email.trim() || "—"}
+            <span className="text-muted-foreground text-[10px] uppercase">
+              Email:
+            </span>
+            <span
+              className="text-foreground text-[11px] truncate max-w-[150px] text-right"
+              title={email}
+            >
+              {email.trim() || '—'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-[10px] uppercase">Dept:</span>
+            <span className="text-muted-foreground text-[10px] uppercase">
+              Dept:
+            </span>
             <span className="text-foreground text-[11px] truncate max-w-[150px] text-right">
-              {department.trim() || "—"}
+              {department.trim() || '—'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-[10px] uppercase">Phone:</span>
+            <span className="text-muted-foreground text-[10px] uppercase">
+              Phone:
+            </span>
             <span className="text-foreground text-[11px]">
-              {phoneNumber.trim() || "—"}
+              {phoneNumber.trim() || '—'}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-[10px] uppercase">Reset Pwd:</span>
+            <span className="text-muted-foreground text-[10px] uppercase">
+              Reset Pwd:
+            </span>
             <span className="text-amber text-[10px] font-bold tracking-wider">
               REQUIRED
             </span>
@@ -103,8 +116,10 @@ export default function UserPreview({
             {selectedRoles.map((roleCode) => {
               const colorClass =
                 ROLE_COLORS[roleCode] ??
-                "border-white/10 bg-white/5 text-muted-foreground";
-              const roleDetails = AVAILABLE_ROLES.find((r) => r.code === roleCode);
+                'border-white/10 bg-white/5 text-muted-foreground';
+              const roleDetails = AVAILABLE_ROLES.find(
+                (r) => r.code === roleCode
+              );
 
               return (
                 <span
@@ -112,7 +127,7 @@ export default function UserPreview({
                   className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 font-mono text-[9px] ${colorClass}`}
                 >
                   <ShieldCheck className="size-2.5 shrink-0" />
-                  {roleDetails?.name || roleCode.replace(/_/g, " ")}
+                  {roleDetails?.name || roleCode.replace(/_/g, ' ')}
                 </span>
               );
             })}

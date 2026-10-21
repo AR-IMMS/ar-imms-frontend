@@ -1,4 +1,4 @@
-import { useUiConfigStore } from "@/stores/ui-config-store";
+import { useUiConfigStore } from '@/stores/ui-config-store';
 
 export function useSidebar() {
   const isCollapsed = useUiConfigStore((state) => state.isCollapsed);

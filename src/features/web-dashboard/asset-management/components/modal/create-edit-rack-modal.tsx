@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { toast } from "sonner";
-import { useAssetStore } from "../../hooks/useAssetStore";
-import { useRackTopologyQuery } from "@/hooks/asset/use-asset-queries";
+import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
+import { useAssetStore } from '../../hooks/useAssetStore';
+import { useRackTopologyQuery } from '@/hooks/asset/use-asset-queries';
 import {
   useCreateRackMutation,
   useUpdateRackMutation,
-} from "@/hooks/asset/use-asset-mutations";
-import ModalLayout from "@/components/layout/modal-layout";
+} from '@/hooks/asset/use-asset-mutations';
+import ModalLayout from '@/components/layout/modal-layout';
 
 export default function CreateEditRackModal() {
   const { createEditRackModal, setCreateEditRackModal, topologyData } =
@@ -18,8 +18,8 @@ export default function CreateEditRackModal() {
 
   // Fallback query if not found in cache
   const { data: fetchedTopology } = useRackTopologyQuery(
-    rackId ?? "",
-    !!rackId,
+    rackId ?? '',
+    !!rackId
   );
 
   const existingRack = useMemo(() => {
@@ -31,19 +31,19 @@ export default function CreateEditRackModal() {
 
   // Form states initialized directly from existingRack
   const [displayName, setDisplayName] = useState(
-    () => existingRack?.displayName ?? "",
+    () => existingRack?.displayName ?? ''
   );
-  const [vendor, setVendor] = useState(() => existingRack?.vendor ?? "");
+  const [vendor, setVendor] = useState(() => existingRack?.vendor ?? '');
   const [capacityLimit, setCapacityLimit] = useState(
-    () => existingRack?.capacityLimit ?? 42,
+    () => existingRack?.capacityLimit ?? 42
   );
-  const [siteCode, setSiteCode] = useState(() => existingRack?.siteCode ?? "");
-  const [roomCode, setRoomCode] = useState(() => existingRack?.roomCode ?? "");
-  const [rowCode, setRowCode] = useState(() => existingRack?.rowCode ?? "");
+  const [siteCode, setSiteCode] = useState(() => existingRack?.siteCode ?? '');
+  const [roomCode, setRoomCode] = useState(() => existingRack?.roomCode ?? '');
+  const [rowCode, setRowCode] = useState(() => existingRack?.rowCode ?? '');
   const [positionCode, setPositionCode] = useState(
-    () => existingRack?.positionCode ?? "",
+    () => existingRack?.positionCode ?? ''
   );
-  const [notes, setNotes] = useState(() => existingRack?.notes ?? "");
+  const [notes, setNotes] = useState(() => existingRack?.notes ?? '');
 
   const createMutation = useCreateRackMutation();
   const updateMutation = useUpdateRackMutation();
@@ -60,12 +60,12 @@ export default function CreateEditRackModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!displayName.trim()) {
-      toast.error("Display Name is required.");
+      toast.error('Display Name is required.');
       return;
     }
 
     const payload = {
-      rackCode: `rack-${displayName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+      rackCode: `rack-${displayName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
       displayName,
       vendor: vendor || undefined,
       capacityLimit: Number(capacityLimit) || 42,
@@ -81,22 +81,22 @@ export default function CreateEditRackModal() {
         { rackId, payload },
         {
           onSuccess: () => {
-            toast.success("Rack updated successfully.");
+            toast.success('Rack updated successfully.');
             handleClose();
           },
           onError: (err: Error) => {
-            toast.error(err.message || "Failed to update rack.");
+            toast.error(err.message || 'Failed to update rack.');
           },
-        },
+        }
       );
     } else {
       createMutation.mutate(payload, {
         onSuccess: () => {
-          toast.success("Rack registered successfully.");
+          toast.success('Rack registered successfully.');
           handleClose();
         },
         onError: (err: Error) => {
-          toast.error(err.message || "Failed to register rack.");
+          toast.error(err.message || 'Failed to register rack.');
         },
       });
     }
@@ -105,11 +105,11 @@ export default function CreateEditRackModal() {
   return (
     <ModalLayout
       onClose={handleClose}
-      eyebrow={rackId ? "ADMIN // UPDATE RACK" : "ADMIN // REGISTER RACK"}
+      eyebrow={rackId ? 'ADMIN // UPDATE RACK' : 'ADMIN // REGISTER RACK'}
       title={
         rackId
           ? `Edit Rack Properties (${rackId})`
-          : "Configure New Infrastructure"
+          : 'Configure New Infrastructure'
       }
       isPending={isPending}
       maxWidth="max-w-xl"
@@ -142,7 +142,7 @@ export default function CreateEditRackModal() {
             <input
               type="text"
               disabled={true}
-              value={`rack-${displayName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+              value={`rack-${displayName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
               className="w-full bg-background border border-[#25304A] text-muted-foreground rounded-lg p-2.5 font-mono text-xs focus:outline-none focus:border-cyan cursor-not-allowed"
             />
           </div>
@@ -247,8 +247,8 @@ export default function CreateEditRackModal() {
           <label className="font-mono text-xs text-muted-foreground/80 light:text-muted-foreground light:font-bold">
             CABINET NOTES
             <span className="text-muted-foreground/60 light:text-muted-foreground/70 light:font-normal text-[10px]">
-                {} (optional)
-              </span>
+              {} (optional)
+            </span>
           </label>
           <textarea
             disabled={isPending}
@@ -274,10 +274,10 @@ export default function CreateEditRackModal() {
             className="px-4 py-2 text-xs font-mono rounded-lg bg-cyan text-primary-foreground font-semibold hover:shadow-[0_0_15px_rgba(0,209,255,0.4)] transition disabled:opacity-50"
           >
             {isPending
-              ? "SAVING..."
+              ? 'SAVING...'
               : rackId
-                ? "SAVE CHANGES"
-                : "REGISTER CABINET"}
+                ? 'SAVE CHANGES'
+                : 'REGISTER CABINET'}
           </button>
         </div>
       </form>

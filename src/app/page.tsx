@@ -1,4 +1,4 @@
-import { ProtectedRoute } from "@/components/auth/protected-route";
+import { ProtectedRoute } from '@/components/auth/protected-route';
 
 export default function HomePage() {
   return (

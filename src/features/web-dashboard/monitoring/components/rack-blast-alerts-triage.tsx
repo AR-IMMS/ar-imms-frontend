@@ -1,21 +1,33 @@
-"use client";
+'use client';
 
-import React, { useMemo, useState } from "react";
-import { BookOpen, ExternalLink, ChevronDown, ChevronUp, FileText, Activity } from "lucide-react";
-import type { RackInvestigationOverviewResponse } from "@/types/monitoring";
+import React, { useMemo, useState } from 'react';
+import {
+  BookOpen,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Activity,
+} from 'lucide-react';
+import type { RackInvestigationOverviewResponse } from '@/types/monitoring';
 
 interface RackBlastAlertsTriageProps {
   overview: RackInvestigationOverviewResponse;
 }
 
-export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) {
+export function RackBlastAlertsTriage({
+  overview,
+}: RackBlastAlertsTriageProps) {
   const { rack, alerts } = overview;
   const { blastRadius } = rack;
 
-  const [activeTab, setActiveTab] = useState<"rack" | "child">("rack");
+  const [activeTab, setActiveTab] = useState<'rack' | 'child'>('rack');
   const [openChildAlert, setOpenChildAlert] = useState<string | null>(null);
 
-  const badNodeRatioPct = Math.min(100, Math.max(0, blastRadius.badNodeRatio * 100));
+  const badNodeRatioPct = Math.min(
+    100,
+    Math.max(0, blastRadius.badNodeRatio * 100)
+  );
 
   const toggleChildAlert = (fingerprint: string) => {
     setOpenChildAlert((prev) => (prev === fingerprint ? null : fingerprint));
@@ -23,15 +35,15 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
 
   const getTriageBadgeColor = (status: string) => {
     switch (status) {
-      case "new":
-        return "border-critical/30 bg-critical/10 text-critical";
-      case "acknowledged":
-        return "border-amber/30 bg-amber/10 text-amber";
-      case "incident_created":
-        return "border-cyan/30 bg-cyan/10 text-cyan";
-      case "suppressed":
+      case 'new':
+        return 'border-critical/30 bg-critical/10 text-critical';
+      case 'acknowledged':
+        return 'border-amber/30 bg-amber/10 text-amber';
+      case 'incident_created':
+        return 'border-cyan/30 bg-cyan/10 text-cyan';
+      case 'suppressed':
       default:
-        return "border-slate-700 bg-slate-800 text-slate-400";
+        return 'border-slate-700 bg-slate-800 text-slate-400';
     }
   };
 
@@ -62,21 +74,21 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
         <div className="flex items-center justify-between border-b border-border/40 pb-2 mb-3 shrink-0">
           <div className="flex bg-slate-950/40 p-0.5 rounded border border-border/40 text-[9px] font-bold uppercase">
             <button
-              onClick={() => setActiveTab("rack")}
+              onClick={() => setActiveTab('rack')}
               className={`px-3 py-1 rounded transition-all cursor-pointer ${
-                activeTab === "rack"
-                  ? "bg-cyan/15 text-cyan border border-cyan/30 font-bold"
-                  : "text-slate-400 hover:text-slate-200 border border-transparent"
+                activeTab === 'rack'
+                  ? 'bg-cyan/15 text-cyan border border-cyan/30 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
               Rack Alerts ({alerts.rack.length})
             </button>
             <button
-              onClick={() => setActiveTab("child")}
+              onClick={() => setActiveTab('child')}
               className={`px-3 py-1 rounded transition-all cursor-pointer ml-1 ${
-                activeTab === "child"
-                  ? "bg-cyan/15 text-cyan border border-cyan/30 font-bold"
-                  : "text-slate-400 hover:text-slate-200 border border-transparent"
+                activeTab === 'child'
+                  ? 'bg-cyan/15 text-cyan border border-cyan/30 font-bold'
+                  : 'text-slate-400 hover:text-slate-200 border border-transparent'
               }`}
             >
               Node Alerts ({alerts.child.length})
@@ -85,24 +97,31 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
 
           <div className="flex gap-2 text-[9px] uppercase font-bold text-slate-500">
             <span>Summary: </span>
-            <span className="text-slate-300">Crit: <b className="text-critical">{alerts.summary.criticalCount}</b></span>
-            <span className="text-slate-300">Warn: <b className="text-amber">{alerts.summary.warningCount}</b></span>
+            <span className="text-slate-300">
+              Crit:{' '}
+              <b className="text-critical">{alerts.summary.criticalCount}</b>
+            </span>
+            <span className="text-slate-300">
+              Warn: <b className="text-amber">{alerts.summary.warningCount}</b>
+            </span>
           </div>
         </div>
 
         {/* Tab content scroll feed */}
         <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-2.5">
-          {activeTab === "rack" ? (
+          {activeTab === 'rack' ? (
             alerts.rack.length === 0 ? (
               <div className="text-[10px] text-center text-slate-500 italic p-3 border border-dashed border-border/40 rounded bg-slate-950/5">
-                No active rack-scoped alerts firing 
+                No active rack-scoped alerts firing
               </div>
             ) : (
               alerts.rack.map((alert) => (
                 <div
                   key={alert.fingerprint}
                   className={`panel p-3 border rounded space-y-2 bg-slate-950/20 ${
-                    alert.severity === "critical" ? "border-critical/30" : "border-amber/30"
+                    alert.severity === 'critical'
+                      ? 'border-critical/30'
+                      : 'border-amber/30'
                   }`}
                 >
                   <div className="flex justify-between items-start gap-2 text-[9.5px]">
@@ -112,11 +131,17 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
                       </span>
                       {alert.metricKey && (
                         <span className="text-[8px] text-slate-500 font-semibold mt-0.5">
-                          Threshold: <b className="text-slate-400">{alert.currentValue || "--"}</b> vs <b className="text-slate-400">{alert.threshold}</b>
+                          Threshold:{' '}
+                          <b className="text-slate-400">
+                            {alert.currentValue || '--'}
+                          </b>{' '}
+                          vs <b className="text-slate-400">{alert.threshold}</b>
                         </span>
                       )}
                     </div>
-                    <span className={`text-[7.5px] font-extrabold uppercase px-1.5 py-0.5 rounded border shrink-0 ${getTriageBadgeColor(alert.triageStatus)}`}>
+                    <span
+                      className={`text-[7.5px] font-extrabold uppercase px-1.5 py-0.5 rounded border shrink-0 ${getTriageBadgeColor(alert.triageStatus)}`}
+                    >
                       {alert.triageStatus}
                     </span>
                   </div>
@@ -129,9 +154,17 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
                     <div className="p-2 border border-cyan/20 bg-cyan/5 rounded text-[8px] space-y-1">
                       <div className="flex justify-between text-slate-300 font-extrabold">
                         <span className="flex items-center gap-1">
-                          <FileText className="size-3 text-cyan" /> {alert.incident.incidentCode} ({alert.incident.status})
+                          <FileText className="size-3 text-cyan" />{' '}
+                          {alert.incident.incidentCode} ({alert.incident.status}
+                          )
                         </span>
-                        <span className={alert.incident.severity === "CRITICAL" ? "text-critical" : "text-cyan"}>
+                        <span
+                          className={
+                            alert.incident.severity === 'CRITICAL'
+                              ? 'text-critical'
+                              : 'text-cyan'
+                          }
+                        >
                           {alert.incident.severity}
                         </span>
                       </div>
@@ -167,115 +200,136 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
                 </div>
               ))
             )
+          ) : alerts.child.length === 0 ? (
+            <div className="text-[10px] text-center text-slate-500 italic p-3 border border-dashed border-border/40 rounded bg-slate-950/5">
+              No active child-scoped alerts firing
+            </div>
           ) : (
-            alerts.child.length === 0 ? (
-              <div className="text-[10px] text-center text-slate-500 italic p-3 border border-dashed border-border/40 rounded bg-slate-950/5">
-                No active child-scoped alerts firing
-              </div>
-            ) : (
-              alerts.child.map((alert) => {
-                const isOpen = openChildAlert === alert.fingerprint;
-                return (
-                  <div
-                    key={alert.fingerprint}
-                    className="border border-border/60 rounded bg-slate-950/15 overflow-hidden transition-all duration-150"
+            alerts.child.map((alert) => {
+              const isOpen = openChildAlert === alert.fingerprint;
+              return (
+                <div
+                  key={alert.fingerprint}
+                  className="border border-border/60 rounded bg-slate-950/15 overflow-hidden transition-all duration-150"
+                >
+                  <button
+                    onClick={() => toggleChildAlert(alert.fingerprint)}
+                    className="w-full flex justify-between items-center p-2.5 hover:bg-slate-900/40 text-left text-[9.5px]"
                   >
-                    <button
-                      onClick={() => toggleChildAlert(alert.fingerprint)}
-                      className="w-full flex justify-between items-center p-2.5 hover:bg-slate-900/40 text-left text-[9.5px]"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className={`size-1.5 rounded-full shrink-0 ${
-                          alert.severity === "critical"
-                            ? "bg-critical shadow-[0_0_6px_rgba(255,77,109,0.6)] animate-pulse"
-                            : "bg-amber"
-                        }`} />
-                        <span className="font-bold text-xs text-slate-200 truncate uppercase">
-                          {alert.alertName}
-                        </span>
-                        <span className="text-[9px] text-slate-500 truncate">
-                          ({alert.nodeId})
-                        </span>
-                      </div>
-                      {isOpen ? (
-                        <ChevronUp className="size-3 text-slate-500" />
-                      ) : (
-                        <ChevronDown className="size-3 text-slate-500" />
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={`size-1.5 rounded-full shrink-0 ${
+                          alert.severity === 'critical'
+                            ? 'bg-critical shadow-[0_0_6px_rgba(255,77,109,0.6)] animate-pulse'
+                            : 'bg-amber'
+                        }`}
+                      />
+                      <span className="font-bold text-xs text-slate-200 truncate uppercase">
+                        {alert.alertName}
+                      </span>
+                      <span className="text-[9px] text-slate-500 truncate">
+                        ({alert.nodeId})
+                      </span>
+                    </div>
+                    {isOpen ? (
+                      <ChevronUp className="size-3 text-slate-500" />
+                    ) : (
+                      <ChevronDown className="size-3 text-slate-500" />
+                    )}
+                  </button>
 
-                    {isOpen && (
-                      <div className="p-2.5 border-t border-border/40 bg-slate-950/20 text-[9px] space-y-2">
-                        <p className="text-slate-400 leading-relaxed">
-                          Alert summary: {alert.summary}
-                        </p>
-                        <div className="grid grid-cols-4 gap-2 border-t border-border/10 pt-2 font-mono">
-                          <div>
-                            <span className="text-slate-500 uppercase block text-[8px]">Category</span>
-                            <span className="text-slate-300 font-semibold text-[9px] uppercase">{alert.category}</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 uppercase block text-[8px]">Triage Status</span>
-                            <span className={`font-semibold px-1 rounded uppercase border ${getTriageBadgeColor(alert.triageStatus).split(" ")[0]}`}>
-                              {alert.triageStatus}
+                  {isOpen && (
+                    <div className="p-2.5 border-t border-border/40 bg-slate-950/20 text-[9px] space-y-2">
+                      <p className="text-slate-400 leading-relaxed">
+                        Alert summary: {alert.summary}
+                      </p>
+                      <div className="grid grid-cols-4 gap-2 border-t border-border/10 pt-2 font-mono">
+                        <div>
+                          <span className="text-slate-500 uppercase block text-[8px]">
+                            Category
+                          </span>
+                          <span className="text-slate-300 font-semibold text-[9px] uppercase">
+                            {alert.category}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 uppercase block text-[8px]">
+                            Triage Status
+                          </span>
+                          <span
+                            className={`font-semibold px-1 rounded uppercase border ${getTriageBadgeColor(alert.triageStatus).split(' ')[0]}`}
+                          >
+                            {alert.triageStatus}
+                          </span>
+                        </div>
+                        {alert.metricKey && (
+                          <div className="col-span-2">
+                            <span className="text-slate-500 uppercase block text-[8px]">
+                              Metric Key
+                            </span>
+                            <span
+                              className="text-slate-300 truncate block font-semibold"
+                              title={alert.metricKey}
+                            >
+                              {alert.metricKey} = {alert.currentValue || '--'}{' '}
+                              (Thresh: {alert.threshold})
                             </span>
                           </div>
-                          {alert.metricKey && (
-                            <div className="col-span-2">
-                              <span className="text-slate-500 uppercase block text-[8px]">Metric Key</span>
-                              <span className="text-slate-300 truncate block font-semibold" title={alert.metricKey}>
-                                {alert.metricKey} = {alert.currentValue || "--"} (Thresh: {alert.threshold})
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Linked Incident */}
-                        {alert.incident && (
-                          <div className="p-2 border border-cyan/20 bg-cyan/5 rounded text-[8px] space-y-1 mt-2">
-                            <div className="flex justify-between text-slate-300 font-extrabold">
-                              <span className="flex items-center gap-1">
-                                <FileText className="size-3 text-cyan" /> {alert.incident.incidentCode}
-                              </span>
-                              <span className={alert.incident.severity === "CRITICAL" ? "text-critical" : "text-cyan"}>
-                                {alert.incident.severity}
-                              </span>
-                            </div>
-                            <p className="text-slate-400 truncate font-semibold">
-                              {alert.incident.title}
-                            </p>
-                          </div>
                         )}
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-3 pt-3 border-t border-border/10 text-[8px] font-bold">
-                          {alert.runbookUrl && (
-                            <a
-                              href={alert.runbookUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-0.5 text-cyan hover:underline uppercase"
-                            >
-                              <BookOpen className="size-2.5" /> Runbook
-                            </a>
-                          )}
-                          {alert.dashboardUrl && (
-                            <a
-                              href={alert.dashboardUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-0.5 text-cyan hover:underline uppercase"
-                            >
-                              <ExternalLink className="size-2.5" /> Dashboard
-                            </a>
-                          )}
-                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })
-            )
+
+                      {/* Linked Incident */}
+                      {alert.incident && (
+                        <div className="p-2 border border-cyan/20 bg-cyan/5 rounded text-[8px] space-y-1 mt-2">
+                          <div className="flex justify-between text-slate-300 font-extrabold">
+                            <span className="flex items-center gap-1">
+                              <FileText className="size-3 text-cyan" />{' '}
+                              {alert.incident.incidentCode}
+                            </span>
+                            <span
+                              className={
+                                alert.incident.severity === 'CRITICAL'
+                                  ? 'text-critical'
+                                  : 'text-cyan'
+                              }
+                            >
+                              {alert.incident.severity}
+                            </span>
+                          </div>
+                          <p className="text-slate-400 truncate font-semibold">
+                            {alert.incident.title}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-3 pt-3 border-t border-border/10 text-[8px] font-bold">
+                        {alert.runbookUrl && (
+                          <a
+                            href={alert.runbookUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-0.5 text-cyan hover:underline uppercase"
+                          >
+                            <BookOpen className="size-2.5" /> Runbook
+                          </a>
+                        )}
+                        {alert.dashboardUrl && (
+                          <a
+                            href={alert.dashboardUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-0.5 text-cyan hover:underline uppercase"
+                          >
+                            <ExternalLink className="size-2.5" /> Dashboard
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       </div>
@@ -291,11 +345,14 @@ export function RackBlastAlertsTriage({ overview }: RackBlastAlertsTriageProps) 
 
         {/* Prominent percentage readout */}
         <div className="my-2 text-center p-3.5 mx-auto w-full max-w-[220px] bg-slate-950/40 rounded border border-border/40">
-          <span className={`text-2xl font-extrabold ${badNodeRatioPct > 0 ? "text-critical text-glow" : "text-emerald-400"}`}>
+          <span
+            className={`text-2xl font-extrabold ${badNodeRatioPct > 0 ? 'text-critical text-glow' : 'text-emerald-400'}`}
+          >
             {badNodeRatioPct.toFixed(1)}%
           </span>
           <span className="text-[9px] text-slate-400 block mt-1 uppercase">
-            {blastRadius.badNodes} of {blastRadius.totalNodes} total nodes impacted
+            {blastRadius.badNodes} of {blastRadius.totalNodes} total nodes
+            impacted
           </span>
         </div>
 

@@ -1,35 +1,36 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import Header from "@/components/layout/web-dashboard/header";
-import CreateTicketModal from "./components/create-ticket-modal";
-import TicketListView from "./ticket-list-view";
-import { useTechniciansQuery } from "@/hooks/identity/use-identity-queries";
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import Header from '@/components/layout/web-dashboard/header';
+import CreateTicketModal from './components/create-ticket-modal';
+import TicketListView from './ticket-list-view';
+import { useTechniciansQuery } from '@/hooks/identity/use-identity-queries';
 
 type TicketManagementPageProps = {
-  mode?: "all" | "assigned-to-me";
+  mode?: 'all' | 'assigned-to-me';
 };
 
 const PAGE_COPY = {
   all: {
-    eyebrow: "OPERATOR // TICKET CONTROL",
-    title: "Ticket Management",
-    subtitle: "Dispatch, assignment, comments, evidence, and final closure.",
+    eyebrow: 'OPERATOR // TICKET CONTROL',
+    title: 'Ticket Management',
+    subtitle: 'Dispatch, assignment, comments, evidence, and final closure.',
   },
-  "assigned-to-me": {
-    eyebrow: "TECHNICIAN // ASSIGNED WORK",
-    title: "My Tickets",
-    subtitle: "Review assigned work, acknowledge dispatch, and update progress.",
+  'assigned-to-me': {
+    eyebrow: 'TECHNICIAN // ASSIGNED WORK',
+    title: 'My Tickets',
+    subtitle:
+      'Review assigned work, acknowledge dispatch, and update progress.',
   },
 } as const;
 
 export default function TicketManagementPage({
-  mode = "all",
+  mode = 'all',
 }: TicketManagementPageProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const copy = PAGE_COPY[mode];
-  const canCreateTickets = mode === "all";
+  const canCreateTickets = mode === 'all';
   const techniciansQuery = useTechniciansQuery(canCreateTickets);
   const technicians = canCreateTickets ? (techniciansQuery.data ?? []) : [];
 

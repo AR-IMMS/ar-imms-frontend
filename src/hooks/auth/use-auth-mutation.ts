@@ -1,15 +1,15 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from '@tanstack/react-query';
 import {
   AuthTokens,
   LoginRequestPayload,
   LoginResponse,
   RefreshTokenRequestPayload,
   UserProfileResponse,
-} from "@/types/auth";
-import { authService } from "@/services/auth/auth-service";
-import { queryClient } from "@/lib/react-query/query-client";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { useAuthStore } from "@/stores/auth-store";
+} from '@/types/auth';
+import { authService } from '@/services/auth/auth-service';
+import { queryClient } from '@/lib/react-query/query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function useLoginMutation() {
   return useMutation({
@@ -18,7 +18,7 @@ export function useLoginMutation() {
       useAuthStore.getState().login(data);
       queryClient.setQueryData<UserProfileResponse | null>(
         queryKeys.auth.currentUser(),
-        data.user,
+        data.user
       );
     },
   });
@@ -48,9 +48,9 @@ export function clearState() {
   queryClient.removeQueries({ queryKey: queryKeys.auth.all });
   queryClient.removeQueries({ queryKey: queryKeys.identity.all });
 
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("auth-store");
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('auth-store');
     window.location.href =
-      "/login?callbackUrl=" + encodeURIComponent(window.location.pathname);
+      '/login?callbackUrl=' + encodeURIComponent(window.location.pathname);
   }
 }

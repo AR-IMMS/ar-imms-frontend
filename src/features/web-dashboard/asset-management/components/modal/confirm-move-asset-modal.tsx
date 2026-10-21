@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "../../hooks/useAssetStore";
-import { ArrowRight } from "lucide-react";
-import ModalLayout from "@/components/layout/modal-layout";
+import { useAssetStore } from '../../hooks/useAssetStore';
+import { ArrowRight } from 'lucide-react';
+import ModalLayout from '@/components/layout/modal-layout';
 import {
   useNodeContextQuery,
   useRackTopologyQuery,
-} from "@/hooks/asset/use-asset-queries";
+} from '@/hooks/asset/use-asset-queries';
 
 export default function ConfirmMoveAsset() {
   const { confirmMoveModalState, setConfirmMoveModalState } = useAssetStore();
@@ -17,26 +17,26 @@ export default function ConfirmMoveAsset() {
   const onConfirm = confirmMoveModalState?.onConfirm ?? (() => {});
 
   const { data: rackTopology, isLoading: isRackLoading } = useRackTopologyQuery(
-    assetId ?? "",
-    isOpen && assetType === "rack" && assetId !== null,
+    assetId ?? '',
+    isOpen && assetType === 'rack' && assetId !== null
   );
   const { data: nodeContext, isLoading: isNodeLoading } = useNodeContextQuery(
-    assetId ?? "",
-    isOpen && assetType === "node" && assetId !== null,
+    assetId ?? '',
+    isOpen && assetType === 'node' && assetId !== null
   );
 
   // Side-by-side validation coordinate lookup
   const getCoordinates = () => {
-    if (assetType === "rack" && rackTopology) {
-      console.log("Rack Topology Data:", rackTopology);
+    if (assetType === 'rack' && rackTopology) {
+      console.log('Rack Topology Data:', rackTopology);
       console.log(rackTopology.rack.rowCode);
       return {
         assetName: rackTopology.rack.displayName || rackTopology.rack.rackCode,
         currentCoords: {
-          siteCode: rackTopology.rack.siteCode || "UNDEFINED",
-          roomCode: rackTopology.rack.roomCode || "UNDEFINED",
-          rowCode: rackTopology.rack.rowCode || "UNDEFINED",
-          positionCode: rackTopology.rack.positionCode || "UNDEFINED",
+          siteCode: rackTopology.rack.siteCode || 'UNDEFINED',
+          roomCode: rackTopology.rack.roomCode || 'UNDEFINED',
+          rowCode: rackTopology.rack.rowCode || 'UNDEFINED',
+          positionCode: rackTopology.rack.positionCode || 'UNDEFINED',
         },
       };
     } else {
@@ -45,26 +45,26 @@ export default function ConfirmMoveAsset() {
         return {
           assetName: nodeContext.node.displayName || nodeContext.node.nodeCode,
           currentCoords: {
-            siteCode: nodeContext.rack?.siteCode || "UNDEFINED",
-            roomCode: nodeContext.rack?.roomCode || "UNDEFINED",
-            rowCode: nodeContext.rack?.rowCode || "UNDEFINED",
-            positionCode: nodeContext.node.positionCode || "UNDEFINED",
+            siteCode: nodeContext.rack?.siteCode || 'UNDEFINED',
+            roomCode: nodeContext.rack?.roomCode || 'UNDEFINED',
+            rowCode: nodeContext.rack?.rowCode || 'UNDEFINED',
+            positionCode: nodeContext.node.positionCode || 'UNDEFINED',
             rackName:
               nodeContext.rack?.displayName ||
               nodeContext.rack?.rackCode ||
-              "UNDEFINED",
+              'UNDEFINED',
           },
         };
       }
     }
     return {
-      assetName: "UNASSIGNED",
+      assetName: 'UNASSIGNED',
       currentCoords: {
-        siteCode: "UNASSIGNED",
-        roomCode: "UNASSIGNED",
-        rowCode: "UNASSIGNED",
-        positionCode: "UNASSIGNED",
-        rackName: "UNASSIGNED",
+        siteCode: 'UNASSIGNED',
+        roomCode: 'UNASSIGNED',
+        rowCode: 'UNASSIGNED',
+        positionCode: 'UNASSIGNED',
+        rackName: 'UNASSIGNED',
       },
     };
   };
@@ -87,7 +87,7 @@ export default function ConfirmMoveAsset() {
       onClose={handleClose}
       isPending={isRackLoading || isNodeLoading}
       eyebrow="RE-LOCATION ASSET // VERIFICATION"
-      title={`Confirm Movement for ${assetType === "rack" ? "RACK" : "NODE"} ${assetName}`}
+      title={`Confirm Movement for ${assetType === 'rack' ? 'RACK' : 'NODE'} ${assetName}`}
       maxWidth="max-w-xl"
     >
       <div className="p-6">
@@ -105,35 +105,45 @@ export default function ConfirmMoveAsset() {
               </div>
               <div className="space-y-1.5 font-mono text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">SITE:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    SITE:
+                  </span>
                   <span className="text-foreground font-bold">
-                    {currentCoords.siteCode ?? "UNASSIGNED"}
+                    {currentCoords.siteCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">ROOM:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    ROOM:
+                  </span>
                   <span className="text-foreground font-bold truncate max-w-[120px]">
-                    {currentCoords.roomCode ?? "UNASSIGNED"}
+                    {currentCoords.roomCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">ROW:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    ROW:
+                  </span>
                   <span className="text-foreground font-bold">
-                    {currentCoords.rowCode ?? "UNASSIGNED"}
+                    {currentCoords.rowCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
-                {assetType === "node" && (
+                {assetType === 'node' && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground/70 light:font-bold">RACK:</span>
+                    <span className="text-muted-foreground/70 light:font-bold">
+                      RACK:
+                    </span>
                     <span className="text-foreground font-bold truncate max-w-[120px]">
-                      {currentCoords.rackName ?? "UNASSIGNED"}
+                      {currentCoords.rackName ?? 'UNASSIGNED'}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">POSITION:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    POSITION:
+                  </span>
                   <span className="text-foreground font-bold">
-                    {currentCoords.positionCode ?? "UNASSIGNED"}
+                    {currentCoords.positionCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
               </div>
@@ -151,37 +161,47 @@ export default function ConfirmMoveAsset() {
               </div>
               <div className="space-y-1.5 font-mono text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">SITE:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    SITE:
+                  </span>
                   <span className="text-cyan font-bold">
-                    {targetCoords.siteCode ?? "UNASSIGNED"}
+                    {targetCoords.siteCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">ROOM:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    ROOM:
+                  </span>
                   <span className="text-cyan font-bold truncate max-w-[120px]">
-                    {targetCoords.roomCode ?? "UNASSIGNED"}
+                    {targetCoords.roomCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">ROW:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    ROW:
+                  </span>
                   <span className="text-cyan font-bold">
-                    {targetCoords.rowCode ?? "UNASSIGNED"}
+                    {targetCoords.rowCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
-                {assetType === "node" && (
+                {assetType === 'node' && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground/70 light:font-bold">RACK:</span>
+                    <span className="text-muted-foreground/70 light:font-bold">
+                      RACK:
+                    </span>
                     <span className="text-cyan font-bold truncate max-w-[120px]">
                       {targetCoords.rackName ??
                         targetCoords.rackId ??
-                        "UNASSIGNED"}
+                        'UNASSIGNED'}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground/70 light:font-bold">POSITION:</span>
+                  <span className="text-muted-foreground/70 light:font-bold">
+                    POSITION:
+                  </span>
                   <span className="text-cyan font-bold">
-                    {targetCoords.positionCode ?? "UNASSIGNED"}
+                    {targetCoords.positionCode ?? 'UNASSIGNED'}
                   </span>
                 </div>
               </div>

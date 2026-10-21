@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import type { ReactNode } from "react";
-import { AlertTriangle, CheckCircle2, Trash2, X } from "lucide-react";
+import type { ReactNode } from 'react';
+import { AlertTriangle, CheckCircle2, Trash2, X } from 'lucide-react';
 
-type ConfirmTone = "cyan" | "green" | "red" | "amber";
+type ConfirmTone = 'cyan' | 'green' | 'red' | 'amber';
 
 type TicketConfirmDialogProps = {
   open: boolean;
@@ -25,7 +25,7 @@ export default function TicketConfirmDialog({
   title,
   message,
   confirmLabel,
-  tone = "cyan",
+  tone = 'cyan',
   icon,
   detail,
   isPending = false,
@@ -88,7 +88,7 @@ export default function TicketConfirmDialog({
             disabled={isPending}
             className={`label-mono h-9 rounded-md px-4 text-[10px] font-semibold transition disabled:opacity-50 ${toneClass.button}`}
           >
-            {isPending ? "Processing..." : confirmLabel}
+            {isPending ? 'Processing...' : confirmLabel}
           </button>
         </div>
       </div>
@@ -97,11 +97,11 @@ export default function TicketConfirmDialog({
 }
 
 function defaultIcon(tone: ConfirmTone) {
-  if (tone === "red") {
+  if (tone === 'red') {
     return <Trash2 className="size-4 text-critical" />;
   }
 
-  if (tone === "amber") {
+  if (tone === 'amber') {
     return <AlertTriangle className="size-4 text-amber" />;
   }
 
@@ -116,23 +116,23 @@ const toneClasses: Record<
   }
 > = {
   cyan: {
-    icon: "border-cyan/35 bg-cyan/10",
+    icon: 'border-cyan/35 bg-cyan/10',
     button:
-      "bg-cyan text-primary-foreground hover:shadow-[0_0_20px_rgba(0,209,255,0.35)]",
+      'bg-cyan text-primary-foreground hover:shadow-[0_0_20px_rgba(0,209,255,0.35)]',
   },
   green: {
-    icon: "border-neon-green/35 bg-neon-green/10",
+    icon: 'border-neon-green/35 bg-neon-green/10',
     button:
-      "bg-neon-green text-background hover:shadow-[0_0_20px_rgba(0,255,156,0.25)]",
+      'bg-neon-green text-background hover:shadow-[0_0_20px_rgba(0,255,156,0.25)]',
   },
   red: {
-    icon: "border-critical/35 bg-critical/10",
+    icon: 'border-critical/35 bg-critical/10',
     button:
-      "bg-critical text-white hover:shadow-[0_0_20px_rgba(255,77,109,0.28)]",
+      'bg-critical text-white hover:shadow-[0_0_20px_rgba(255,77,109,0.28)]',
   },
   amber: {
-    icon: "border-amber/35 bg-amber/10",
+    icon: 'border-amber/35 bg-amber/10',
     button:
-      "bg-amber text-background hover:shadow-[0_0_20px_rgba(255,200,87,0.24)]",
+      'bg-amber text-background hover:shadow-[0_0_20px_rgba(255,200,87,0.24)]',
   },
 };

@@ -24,7 +24,7 @@ export interface SiteGroup {
 }
 
 export interface HierarchicalTreeProps {
-  maxLevel?: "rack" | "node";
+  maxLevel?: 'rack' | 'node';
   searchPlaceholder?: string;
   autoExpandToNodeCode?: string | null;
   containerClassName?: string;

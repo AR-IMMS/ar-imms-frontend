@@ -14,7 +14,7 @@ export default function Stat({
   themeConfig?: string;
 }) {
   return (
-    <div className={`panel ${themeConfig || "light:bg-muted"} p-3`}>
+    <div className={`panel ${themeConfig || 'light:bg-muted'} p-3`}>
       <div className="flex justify-between items-center h-4">
         <div className="label-mono text-[9px] text-muted-foreground light:font-bold">
           {label}
@@ -26,7 +26,7 @@ export default function Stat({
         )}
       </div>
       <div
-        className={`mt-1 text-sm ${mono ? "font-mono" : ""} ${tone ?? "text-foreground"}`}
+        className={`mt-1 text-sm ${mono ? 'font-mono' : ''} ${tone ?? 'text-foreground'}`}
       >
         {value}
       </div>

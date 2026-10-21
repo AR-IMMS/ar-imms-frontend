@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   AlertTriangle,
@@ -7,21 +7,20 @@ import {
   Send,
   ShieldCheck,
   UserRound,
-} from "lucide-react";
-import {
-  useMemo,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from "react";
-import { toast } from "sonner";
-import ModalLayout from "@/components/layout/modal-layout";
-import { useIncidentsQuery } from "@/hooks/incidents/use-incident-queries";
-import { useCreateTicketMutation } from "@/hooks/tickets/use-ticket-mutations";
-import type { IncidentListItem } from "@/types/incident";
-import type { TechnicianOption, TicketAssetReference, TicketPriority } from "@/types/ticket";
-import { PRIORITY_OPTIONS, priorityTone } from "../lib/ticket-ui";
-import TicketAssetPicker from "./ticket-asset-picker";
+} from 'lucide-react';
+import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { toast } from 'sonner';
+import ModalLayout from '@/components/layout/modal-layout';
+import { useIncidentsQuery } from '@/hooks/incidents/use-incident-queries';
+import { useCreateTicketMutation } from '@/hooks/tickets/use-ticket-mutations';
+import type { IncidentListItem } from '@/types/incident';
+import type {
+  TechnicianOption,
+  TicketAssetReference,
+  TicketPriority,
+} from '@/types/ticket';
+import { PRIORITY_OPTIONS, priorityTone } from '../lib/ticket-ui';
+import TicketAssetPicker from './ticket-asset-picker';
 
 type CreateTicketModalProps = {
   technicians: TechnicianOption[];
@@ -41,11 +40,11 @@ export default function CreateTicketModal({
   const createTicketMutation = useCreateTicketMutation();
   const incidentsQuery = useIncidentsQuery();
   const [ticketCode, setTicketCode] = useState(() => createTicketCode());
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<TicketPriority>("HIGH");
-  const [assigneeUserId, setAssigneeUserId] = useState("");
-  const [incidentId, setIncidentId] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState<TicketPriority>('HIGH');
+  const [assigneeUserId, setAssigneeUserId] = useState('');
+  const [incidentId, setIncidentId] = useState('');
   const [assetRef, setAssetRef] = useState<TicketAssetReference | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -53,20 +52,20 @@ export default function CreateTicketModal({
     () =>
       technicians.find((technician) => technician.id === assigneeUserId) ??
       null,
-    [assigneeUserId, technicians],
+    [assigneeUserId, technicians]
   );
   const incidents = useMemo(
     () =>
       [...(incidentsQuery.data ?? [])].sort((left, right) => {
-        if (left.status === "OPEN" && right.status !== "OPEN") return -1;
-        if (left.status !== "OPEN" && right.status === "OPEN") return 1;
+        if (left.status === 'OPEN' && right.status !== 'OPEN') return -1;
+        if (left.status !== 'OPEN' && right.status === 'OPEN') return 1;
         return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
       }),
-    [incidentsQuery.data],
+    [incidentsQuery.data]
   );
   const selectedIncident = useMemo(
     () => incidents.find((incident) => incident.id === incidentId) ?? null,
-    [incidentId, incidents],
+    [incidentId, incidents]
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -75,16 +74,16 @@ export default function CreateTicketModal({
     const nextErrors: FormErrors = {};
 
     if (!ticketCode.trim()) {
-      nextErrors.ticketCode = "Ticket code is required.";
+      nextErrors.ticketCode = 'Ticket code is required.';
     }
 
     if (!title.trim()) {
-      nextErrors.title = "Ticket title is required.";
+      nextErrors.title = 'Ticket title is required.';
     }
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
-      toast.error("Please correct the highlighted fields.");
+      toast.error('Please correct the highlighted fields.');
       return;
     }
 
@@ -104,11 +103,11 @@ export default function CreateTicketModal({
         error instanceof Error
           ? error.message
           : error &&
-              typeof error === "object" &&
-              "message" in error &&
-              typeof error.message === "string"
+              typeof error === 'object' &&
+              'message' in error &&
+              typeof error.message === 'string'
             ? error.message
-          : "Could not create the ticket.";
+            : 'Could not create the ticket.';
       setErrors({ apiError: message });
       toast.error(message);
     }
@@ -142,7 +141,7 @@ export default function CreateTicketModal({
               </Field>
               <Field label="Priority" required>
                 <div className="grid grid-cols-2 gap-2">
-                  {PRIORITY_OPTIONS.filter((item) => item !== "ALL").map(
+                  {PRIORITY_OPTIONS.filter((item) => item !== 'ALL').map(
                     (nextPriority) => (
                       <button
                         key={nextPriority}
@@ -151,12 +150,12 @@ export default function CreateTicketModal({
                         className={`label-mono h-11 rounded-lg border px-3 text-left text-[10px] transition ${
                           priority === nextPriority
                             ? priorityTone(nextPriority)
-                            : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30"
+                            : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30'
                         }`}
                       >
                         {nextPriority}
                       </button>
-                    ),
+                    )
                   )}
                 </div>
               </Field>
@@ -187,24 +186,28 @@ export default function CreateTicketModal({
                   <select
                     value={incidentId}
                     onChange={(event) => setIncidentId(event.target.value)}
-                    disabled={incidentsQuery.isLoading || incidentsQuery.isError}
+                    disabled={
+                      incidentsQuery.isLoading || incidentsQuery.isError
+                    }
                     className="ticket-input appearance-none pl-10 pr-10 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">
                       {incidentsQuery.isLoading
-                        ? "Loading incidents..."
-                        : "No incident linked"}
+                        ? 'Loading incidents...'
+                        : 'No incident linked'}
                     </option>
                     {incidents.map((incident) => (
                       <option key={incident.id} value={incident.id}>
-                        {incident.incidentCode} - {incident.title} [{incident.status}]
+                        {incident.incidentCode} - {incident.title} [
+                        {incident.status}]
                       </option>
                     ))}
                   </select>
                 </div>
                 {incidentsQuery.isError ? (
                   <p className="text-xs text-critical">
-                    Could not load incidents. Ticket creation is still available without a link.
+                    Could not load incidents. Ticket creation is still available
+                    without a link.
                   </p>
                 ) : selectedIncident ? (
                   <div className="flex flex-wrap items-center gap-2 rounded-lg border border-cyan/20 bg-cyan/5 px-3 py-2">
@@ -227,7 +230,9 @@ export default function CreateTicketModal({
             </Field>
 
             <div className="grid gap-2">
-              <div className="label-mono text-[10px] text-muted-foreground">Related Asset <span className="normal-case">(optional)</span></div>
+              <div className="label-mono text-[10px] text-muted-foreground">
+                Related Asset <span className="normal-case">(optional)</span>
+              </div>
               <TicketAssetPicker value={assetRef} onChange={setAssetRef} />
             </div>
           </section>
@@ -243,22 +248,22 @@ export default function CreateTicketModal({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-foreground">
-                    {selectedTechnician?.fullName ?? "Unassigned"}
+                    {selectedTechnician?.fullName ?? 'Unassigned'}
                   </div>
                   <div className="truncate font-mono text-[11px] text-muted-foreground">
                     {selectedTechnician?.email ??
-                      "Assign later from ticket detail if needed."}
+                      'Assign later from ticket detail if needed.'}
                   </div>
                 </div>
               </div>
               <div className="mt-4 grid gap-2">
                 <button
                   type="button"
-                  onClick={() => setAssigneeUserId("")}
+                  onClick={() => setAssigneeUserId('')}
                   className={`rounded-lg border px-3 py-3 text-left transition ${
                     !assigneeUserId
-                      ? "border-cyan/40 bg-cyan/10"
-                      : "border-border bg-background/30 hover:border-cyan/25"
+                      ? 'border-cyan/40 bg-cyan/10'
+                      : 'border-border bg-background/30 hover:border-cyan/25'
                   }`}
                 >
                   <div className="label-mono text-[10px] text-foreground">
@@ -284,15 +289,15 @@ export default function CreateTicketModal({
                           onClick={() => setAssigneeUserId(technician.id)}
                           className={`w-full border-b border-border/50 px-3 py-3 text-left last:border-b-0 transition ${
                             selected
-                              ? "bg-cyan/10 text-cyan-ice"
-                              : "text-foreground hover:bg-white/5"
+                              ? 'bg-cyan/10 text-cyan-ice'
+                              : 'text-foreground hover:bg-white/5'
                           }`}
                         >
                           <div className="label-mono text-[10px]">
                             {technician.fullName}
                           </div>
                           <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
-                            {technician.jobTitle ?? technician.username} -{" "}
+                            {technician.jobTitle ?? technician.username} -{' '}
                             {technician.email}
                           </div>
                         </button>
@@ -325,9 +330,7 @@ export default function CreateTicketModal({
               className="label-mono inline-flex h-9 items-center gap-2 rounded-md bg-electric px-5 text-[10px] font-semibold text-white transition hover:bg-cyan hover:shadow-[0_0_20px_rgba(0,157,255,0.35)] disabled:opacity-50"
             >
               <Send className="size-3.5" />
-              {createTicketMutation.isPending
-                ? "Creating..."
-                : "Create Ticket"}
+              {createTicketMutation.isPending ? 'Creating...' : 'Create Ticket'}
             </button>
           </div>
         </form>
@@ -367,7 +370,7 @@ function TicketPreview({
     <aside className="flex flex-col gap-6 p-6 md:col-span-5">
       <div>
         <div className="label-mono text-[10px] text-cyan-ice">
-          {"// Workflow Compliance"}
+          {'// Workflow Compliance'}
         </div>
         <div className="title-display mt-2 text-base text-foreground">
           Ticket Preview
@@ -380,10 +383,10 @@ function TicketPreview({
         </div>
         <div className="mt-5 text-center">
           <div className="title-display text-base text-foreground">
-            {title.trim() || "Unspecified Ticket"}
+            {title.trim() || 'Unspecified Ticket'}
           </div>
           <div className="mt-1 font-mono text-xs text-muted-foreground">
-            {ticketCode.trim() || "Code Pending"}
+            {ticketCode.trim() || 'Code Pending'}
           </div>
         </div>
 
@@ -401,16 +404,18 @@ function TicketPreview({
         </PreviewRow>
         <PreviewRow label="Assignee">
           <span className="truncate font-mono text-xs text-foreground">
-            {technician?.fullName ?? "Unassigned"}
+            {technician?.fullName ?? 'Unassigned'}
           </span>
         </PreviewRow>
         <PreviewRow label="Incident">
           <span className="truncate font-mono text-xs text-foreground">
-            {incident?.incidentCode ?? "Not linked"}
+            {incident?.incidentCode ?? 'Not linked'}
           </span>
         </PreviewRow>
         <PreviewRow label="Asset">
-          <span className="truncate font-mono text-xs text-foreground">{assetRef ? `${assetRef.type} · ${assetRef.code}` : "Not linked"}</span>
+          <span className="truncate font-mono text-xs text-foreground">
+            {assetRef ? `${assetRef.type} · ${assetRef.code}` : 'Not linked'}
+          </span>
         </PreviewRow>
         <PreviewRow label="Evidence">
           <span className="font-mono text-xs text-muted-foreground">
@@ -442,7 +447,11 @@ function TicketPreview({
             label="Incident linked"
             optional
           />
-          <ReadinessItem ready={Boolean(assetRef)} label="Rack or node linked" optional />
+          <ReadinessItem
+            ready={Boolean(assetRef)}
+            label="Rack or node linked"
+            optional
+          />
         </div>
       </div>
     </aside>

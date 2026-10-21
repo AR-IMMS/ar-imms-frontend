@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import TopBar from "@/components/layout/web-dashboard/topbar";
-import Sidebar from "@/components/layout/web-dashboard/sidebar";
+import type { ReactNode } from 'react';
+import TopBar from '@/components/layout/web-dashboard/topbar';
+import Sidebar from '@/components/layout/web-dashboard/sidebar';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (

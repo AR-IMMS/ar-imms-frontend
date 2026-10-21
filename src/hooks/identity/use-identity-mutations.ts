@@ -1,17 +1,17 @@
-import { useMutation } from "@tanstack/react-query";
-import { identityService } from "@/services/identity/identity-service";
-import { queryClient } from "@/lib/react-query/query-client";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { useAuthStore } from "@/stores/auth-store";
-import type { PaginatedResponse } from "@/types/api";
+import { useMutation } from '@tanstack/react-query';
+import { identityService } from '@/services/identity/identity-service';
+import { queryClient } from '@/lib/react-query/query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { useAuthStore } from '@/stores/auth-store';
+import type { PaginatedResponse } from '@/types/api';
 import type {
   CreateUserRequestPayload,
   UserProfileResponse,
-} from "@/types/auth";
+} from '@/types/auth';
 import {
   UpdateUserRolesRequestPayload,
   UpdateUserStatusRequestPayload,
-} from "@/types/users";
+} from '@/types/users';
 
 type UsersListQueryParams = typeof queryKeys.identity.users.list extends (
   ...args: infer Args
@@ -27,12 +27,12 @@ type CreateUserMutationContext = {
 };
 
 function isPaginatedUserResponse(
-  value: unknown,
+  value: unknown
 ): value is PaginatedResponse<UserProfileResponse> {
   return (
-    typeof value === "object" &&
+    typeof value === 'object' &&
     value !== null &&
-    "items" in value &&
+    'items' in value &&
     Array.isArray((value as PaginatedResponse<UserProfileResponse>).items)
   );
 }
@@ -49,15 +49,15 @@ function syncUpdatedUserCaches(updatedUser: UserProfileResponse) {
         return {
           ...cachedData,
           items: cachedData.items.map((user) =>
-            user.id === updatedUser.id ? { ...user, ...updatedUser } : user,
+            user.id === updatedUser.id ? { ...user, ...updatedUser } : user
           ),
         };
       }
 
       if (
-        typeof cachedData === "object" &&
+        typeof cachedData === 'object' &&
         cachedData !== null &&
-        "id" in cachedData &&
+        'id' in cachedData &&
         (cachedData as { id?: string }).id === updatedUser.id
       ) {
         return {
@@ -67,11 +67,11 @@ function syncUpdatedUserCaches(updatedUser: UserProfileResponse) {
       }
 
       return cachedData;
-    },
+    }
   );
 
   const currentUser = queryClient.getQueryData<UserProfileResponse | null>(
-    queryKeys.auth.currentUser(),
+    queryKeys.auth.currentUser()
   );
 
   if (currentUser?.id === updatedUser.id) {
@@ -81,7 +81,7 @@ function syncUpdatedUserCaches(updatedUser: UserProfileResponse) {
 }
 
 function createOptimisticUser(
-  payload: CreateUserRequestPayload,
+  payload: CreateUserRequestPayload
 ): UserProfileResponse {
   const now = new Date().toISOString();
 
@@ -95,7 +95,7 @@ function createOptimisticUser(
     department: payload.department,
     avatarUrl: payload.avatarUrl,
     roleCodes: payload.roleCodes,
-    status: "ACTIVE",
+    status: 'ACTIVE',
     mustChangePassword: false,
     lastLoginAt: now,
     createdAt: now,
@@ -105,22 +105,22 @@ function createOptimisticUser(
 
 function isUsersListQueryKey(queryKey: readonly unknown[]): boolean {
   return (
-    queryKey[0] === "identity" &&
-    queryKey[1] === "users" &&
-    queryKey[2] === "list" &&
-    typeof queryKey[3] === "object" &&
+    queryKey[0] === 'identity' &&
+    queryKey[1] === 'users' &&
+    queryKey[2] === 'list' &&
+    typeof queryKey[3] === 'object' &&
     queryKey[3] !== null
   );
 }
 
 function matchesUsersListFilters(
   user: UserProfileResponse,
-  params: UsersListQueryParams,
+  params: UsersListQueryParams
 ): boolean {
   if (params.username) {
     const normalizedUsername = params.username.trim().toLowerCase();
     const searchPool = [user.username, user.fullName, user.email, user.id]
-      .filter((value): value is string => typeof value === "string")
+      .filter((value): value is string => typeof value === 'string')
       .some((value) => value.toLowerCase().includes(normalizedUsername));
 
     if (!searchPool) {
@@ -151,7 +151,7 @@ function matchesUsersListFilters(
 function insertOptimisticUserIntoList(
   data: PaginatedResponse<UserProfileResponse>,
   optimisticUser: UserProfileResponse,
-  params: UsersListQueryParams,
+  params: UsersListQueryParams
 ): PaginatedResponse<UserProfileResponse> {
   const nextItems = [
     optimisticUser,
@@ -177,10 +177,10 @@ function replaceOptimisticUserInList(
   data: PaginatedResponse<UserProfileResponse>,
   optimisticUserId: string,
   createdUser: UserProfileResponse,
-  params: UsersListQueryParams,
+  params: UsersListQueryParams
 ): PaginatedResponse<UserProfileResponse> {
   const nextItems = data.items.map((item) =>
-    item.id === optimisticUserId ? createdUser : item,
+    item.id === optimisticUserId ? createdUser : item
   );
 
   if (params.page !== 1) {
@@ -195,7 +195,7 @@ function replaceOptimisticUserInList(
 
 function syncCreatedUserCaches(
   createdUser: UserProfileResponse,
-  optimisticUserId: string,
+  optimisticUserId: string
 ) {
   const listQueries = queryClient.getQueriesData<
     PaginatedResponse<UserProfileResponse>
@@ -218,14 +218,14 @@ function syncCreatedUserCaches(
         cachedData,
         optimisticUserId,
         createdUser,
-        params,
-      ),
+        params
+      )
     );
   }
 
   queryClient.setQueryData(
     queryKeys.identity.users.detailById(createdUser.id),
-    createdUser,
+    createdUser
   );
 }
 
@@ -256,7 +256,7 @@ export function useCreateUserMutation() {
 
         queryClient.setQueryData(
           queryKey,
-          insertOptimisticUserIntoList(cachedData, optimisticUser, params),
+          insertOptimisticUserIntoList(cachedData, optimisticUser, params)
         );
       }
 
@@ -275,7 +275,7 @@ export function useCreateUserMutation() {
       }
     },
     onSuccess: (createdUser, _payload, context) => {
-      syncCreatedUserCaches(createdUser, context?.optimisticUserId ?? "");
+      syncCreatedUserCaches(createdUser, context?.optimisticUserId ?? '');
     },
   });
 }

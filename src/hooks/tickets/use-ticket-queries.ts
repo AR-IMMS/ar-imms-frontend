@@ -1,14 +1,14 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { ticketService } from "@/services/tickets/ticket-service";
-import type { ListTicketsParams } from "@/types/ticket";
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { ticketService } from '@/services/tickets/ticket-service';
+import type { ListTicketsParams } from '@/types/ticket';
 
 const DEFAULT_TICKETS_STALE_TIME = 15_000;
 
 export function useTicketsQuery(
   params?: ListTicketsParams,
   enabled = true,
-  refetchInterval?: number,
+  refetchInterval?: number
 ) {
   return useQuery({
     queryKey: queryKeys.tickets.list(params),
@@ -23,7 +23,7 @@ export function useTicketsQuery(
 export function useMyTicketsQuery(
   params?: ListTicketsParams,
   enabled = true,
-  refetchInterval?: number,
+  refetchInterval?: number
 ) {
   return useQuery({
     queryKey: queryKeys.tickets.myList(params),
@@ -36,7 +36,7 @@ export function useMyTicketsQuery(
 }
 
 export function useTicketDetailQuery(ticketId?: string | null, enabled = true) {
-  const normalizedTicketId = ticketId?.trim() ?? "";
+  const normalizedTicketId = ticketId?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.tickets.detail(normalizedTicketId),
@@ -48,9 +48,9 @@ export function useTicketDetailQuery(ticketId?: string | null, enabled = true) {
 
 export function useTicketEvidenceQuery(
   ticketId?: string | null,
-  enabled = true,
+  enabled = true
 ) {
-  const normalizedTicketId = ticketId?.trim() ?? "";
+  const normalizedTicketId = ticketId?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.tickets.evidence(normalizedTicketId),

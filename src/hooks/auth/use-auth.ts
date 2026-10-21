@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/stores/auth-store";
+import { useAuthStore } from '@/stores/auth-store';
 
 export function useAuth() {
   const user = useAuthStore((state) => state.user);
@@ -7,7 +7,7 @@ export function useAuth() {
   const sessionId = useAuthStore((state) => state.sessionId);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const isAuthenticated = useAuthStore(
-    (state) => !!state.accessToken && !!state.refreshToken,
+    (state) => !!state.accessToken && !!state.refreshToken
   );
 
   return {

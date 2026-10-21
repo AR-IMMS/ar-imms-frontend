@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect } from 'react';
 import {
   TransformWrapper,
   TransformComponent,
   ReactZoomPanPinchRef,
-} from "react-zoom-pan-pinch";
-import { ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
-import { toast } from "sonner";
-import { RackTopologyResult } from "@/types/assets";
-import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
-import { useUpdateRackMutation } from "@/hooks/asset/use-asset-mutations";
-import { useAssetStore } from "./hooks/useAssetStore";
-import { RackCard } from "./components/rack-card";
-import { CanvasBtn } from "@/components/common/canvas-btn";
-import { parseCoordinate } from "./lib/utils/parse-coordinate";
-import { SiteDetailPanel } from "./components/panel/site-detail-panel";
-import { RackDetailPanel } from "./components/panel/rack-detail-panel";
-import { NodeDetailPanel } from "./components/panel/node-detail-panel";
+} from 'react-zoom-pan-pinch';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
+import { RackTopologyResult } from '@/types/assets';
+import { useTopologyTreeQuery } from '@/hooks/asset/use-asset-queries';
+import { useUpdateRackMutation } from '@/hooks/asset/use-asset-mutations';
+import { useAssetStore } from './hooks/useAssetStore';
+import { RackCard } from './components/rack-card';
+import { CanvasBtn } from '@/components/common/canvas-btn';
+import { parseCoordinate } from './lib/utils/parse-coordinate';
+import { SiteDetailPanel } from './components/panel/site-detail-panel';
+import { RackDetailPanel } from './components/panel/rack-detail-panel';
+import { NodeDetailPanel } from './components/panel/node-detail-panel';
 
 export function TopologyPage() {
   const { data: topology = [] } = useTopologyTreeQuery();
@@ -56,16 +56,16 @@ export function TopologyPage() {
           `rack-card-${selectedRackId}`,
           1.75,
           500,
-          "easeOut",
+          'easeOut',
           0,
-          -125,
+          -125
         );
       }, 100);
     }
   }, [selectedRackId, topology]);
 
   const activePanel = useMemo(() => {
-    if (activePanelType === "node" && selectedNodeCode) {
+    if (activePanelType === 'node' && selectedNodeCode) {
       return (
         <NodeDetailPanel
           onClose={() => {
@@ -75,7 +75,7 @@ export function TopologyPage() {
         />
       );
     }
-    if (activePanelType === "rack" && selectedRackId) {
+    if (activePanelType === 'rack' && selectedRackId) {
       return (
         <RackDetailPanel
           onClose={() => {
@@ -86,7 +86,7 @@ export function TopologyPage() {
         />
       );
     }
-    if (activePanelType === "site" && selectedSiteCode) {
+    if (activePanelType === 'site' && selectedSiteCode) {
       return (
         <SiteDetailPanel
           onClose={() => {
@@ -113,11 +113,13 @@ export function TopologyPage() {
   // Filter topology based on tree selections
   const filteredTopology = useMemo(() => {
     // Determine active room code based on selection or default to first rack's room code
-    const activeRoomCode = selectedRoomCode ? selectedRoomCode : topology[0]?.rack.roomCode || null;
+    const activeRoomCode = selectedRoomCode
+      ? selectedRoomCode
+      : topology[0]?.rack.roomCode || null;
 
     return topology.filter((item) => {
-      const site = item.rack.siteCode || "";
-      const room = item.rack.roomCode || "";
+      const site = item.rack.siteCode || '';
+      const room = item.rack.roomCode || '';
 
       if (selectedSiteCode !== null && site !== selectedSiteCode) return false;
       if (activeRoomCode !== null && room !== activeRoomCode) return false;
@@ -165,15 +167,15 @@ export function TopologyPage() {
   const handleRackDrop = (
     e: React.DragEvent,
     rowNum: number,
-    colNum: number,
+    colNum: number
   ) => {
     e.preventDefault();
-    if (!draggedAsset || draggedAsset.type !== "rack") return;
+    if (!draggedAsset || draggedAsset.type !== 'rack') return;
 
     const finalSiteCode =
-      selectedSiteCode || filteredTopology[0]?.rack.siteCode || "UNDEFINED";
+      selectedSiteCode || filteredTopology[0]?.rack.siteCode || 'UNDEFINED';
     const finalRoomCode =
-      selectedRoomCode || filteredTopology[0]?.rack.roomCode || "UNDEFINED";
+      selectedRoomCode || filteredTopology[0]?.rack.roomCode || 'UNDEFINED';
 
     const targetCoords = {
       siteCode: finalSiteCode,
@@ -183,7 +185,7 @@ export function TopologyPage() {
     };
 
     setConfirmMoveModalState({
-      assetType: "rack",
+      assetType: 'rack',
       assetId: null,
       targetCoords,
       onConfirm: () => {
@@ -191,20 +193,20 @@ export function TopologyPage() {
           {
             rackId: draggedAsset.id,
             payload: {
-              siteCode: finalSiteCode || "",
-              roomCode: finalRoomCode || "",
+              siteCode: finalSiteCode || '',
+              roomCode: finalRoomCode || '',
               rowCode: `ROW-${rowNum}`,
               positionCode: `P-${colNum}`,
             },
           },
           {
             onSuccess: () => {
-              toast.success("Rack relocated successfully");
+              toast.success('Rack relocated successfully');
             },
             onError: (err: Error) => {
-              toast.error(err.message || "Failed to relocate Rack");
+              toast.error(err.message || 'Failed to relocate Rack');
             },
-          },
+          }
         );
       },
     });
@@ -218,7 +220,7 @@ export function TopologyPage() {
       {/* Left/Main Spatial Canvas */}
       <div
         className={`flex-1 relative min-w-0 transition-all flex flex-col ${
-          activePanelType ? "pr-112" : ""
+          activePanelType ? 'pr-112' : ''
         }`}
       >
         <div className="flex-1 min-h-0 relative">
@@ -235,20 +237,20 @@ export function TopologyPage() {
               <main className="flex-1 relative overflow-hidden select-none outline-none cursor-grab active:cursor-grabbing w-full h-full">
                 <TransformComponent
                   wrapperStyle={{
-                    width: "100%",
-                    height: "100%",
-                    overflow: "hidden",
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden',
                   }}
-                  contentStyle={{ width: "auto", height: "auto" }}
+                  contentStyle={{ width: 'auto', height: 'auto' }}
                 >
                   {/* Viewport content */}
                   <div
                     className="p-24 origin-center"
                     style={{
-                      display: "grid",
+                      display: 'grid',
                       gridTemplateRows: `auto repeat(${maxRow}, minmax(380px, auto))`,
                       gridTemplateColumns: `auto repeat(${maxCol}, minmax(180px, auto))`,
-                      gap: "1.5rem",
+                      gap: '1.5rem',
                     }}
                   >
                     {/* Intersection Cell (0,0) */}
@@ -270,7 +272,7 @@ export function TopologyPage() {
                       return (
                         <div
                           key={`row-wrap-${rIdx}`}
-                          style={{ display: "contents" }}
+                          style={{ display: 'contents' }}
                         >
                           {/* Row Coordinator Label (Col 0) */}
                           <div className="flex items-center justify-center font-mono text-[9px] text-cyan-ice/70 light:text-cyan-ice/80 bg-background/50 light:bg-secondary/20 border border-border/20 rounded px-2 select-none tracking-widest">
@@ -281,7 +283,7 @@ export function TopologyPage() {
                           {Array.from({ length: maxCol }).map((_, cIdx) => {
                             const colNum = cIdx + 1;
                             const item = placedRacks.find(
-                              (pr) => pr.row === rowNum && pr.col === colNum,
+                              (pr) => pr.row === rowNum && pr.col === colNum
                             );
 
                             if (item) {
@@ -302,9 +304,9 @@ export function TopologyPage() {
                               <div
                                 key={`empty-${rowNum}-${colNum}`}
                                 onDragOver={(e) => {
-                                  if (draggedAsset?.type === "rack") {
+                                  if (draggedAsset?.type === 'rack') {
                                     e.preventDefault();
-                                    e.dataTransfer.dropEffect = "move";
+                                    e.dataTransfer.dropEffect = 'move';
                                     if (
                                       dragOverGridCell?.row !== rowNum ||
                                       dragOverGridCell?.col !== colNum
@@ -329,8 +331,8 @@ export function TopologyPage() {
                                 }
                                 className={`border rounded-2xl flex flex-col items-center justify-center p-8 transition-colors select-none ${
                                   isCellDragOver
-                                    ? "border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)] border-solid"
-                                    : "border-dashed border-border/10 bg-background/20 light:bg-secondary/15 hover:bg-foreground/3 hover:light:bg-secondary/30"
+                                    ? 'border-cyan bg-cyan/5 shadow-[0_0_12px_rgba(0,209,255,0.6)] border-solid'
+                                    : 'border-dashed border-border/10 bg-background/20 light:bg-secondary/15 hover:bg-foreground/3 hover:light:bg-secondary/30'
                                 }`}
                               >
                                 <div className="font-mono text-[9px] text-muted-foreground/60 uppercase tracking-widest">

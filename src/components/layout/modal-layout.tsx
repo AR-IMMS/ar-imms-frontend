@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { ReactNode } from "react";
-import { X } from "lucide-react";
+import { ReactNode } from 'react';
+import { X } from 'lucide-react';
 
 interface ModalLayoutProps {
   onClose: () => void;
@@ -18,7 +18,7 @@ export default function ModalLayout({
   title,
   children,
   isPending = false,
-  maxWidth = "max-w-4xl",
+  maxWidth = 'max-w-4xl',
 }: ModalLayoutProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { use, useEffect } from "react";
-import { Loader2 } from "lucide-react";
-import { useRackOverview } from "@/hooks/monitoring/use-rack-overview";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import RackTelemetryViewport from "@/features/web-dashboard/monitoring/rack-telemetry-viewport";
-import { RackAssetPanel } from "@/features/web-dashboard/monitoring/components/rack-asset-panel";
+import { use, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useRackOverview } from '@/hooks/monitoring/use-rack-overview';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import RackTelemetryViewport from '@/features/web-dashboard/monitoring/rack-telemetry-viewport';
+import { RackAssetPanel } from '@/features/web-dashboard/monitoring/components/rack-asset-panel';
 
 interface Props {
   params: Promise<{
@@ -22,8 +22,8 @@ export default function RackMonitoringPage({ params }: Props) {
     if (overview?.rack?.rackInfo) {
       const { siteCode, roomCode } = overview.rack.rackInfo;
       useAssetStore.setState({
-        selectedSiteCode: siteCode || "",
-        selectedRoomCode: roomCode || "",
+        selectedSiteCode: siteCode || '',
+        selectedRoomCode: roomCode || '',
         selectedRackId: rackId,
         selectedNodeCode: null,
       });

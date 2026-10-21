@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { useTopologyTreeQuery } from '@/hooks/asset/use-asset-queries';
 
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 
-import ConfirmRetireModal from "@/features/web-dashboard/asset-management/components/modal/confirm-activate-retire-modal";
-import ConfirmMoveAsset from "@/features/web-dashboard/asset-management/components/modal/confirm-move-asset-modal";
-import CreateEditRackModal from "@/features/web-dashboard/asset-management/components/modal/create-edit-rack-modal";
-import AssignUnmapNodeModal from "@/features/web-dashboard/asset-management/components/modal/select-node-slot-modal";
-import { TopologyPage } from "@/features/web-dashboard/asset-management/data-center-view";
+import ConfirmRetireModal from '@/features/web-dashboard/asset-management/components/modal/confirm-activate-retire-modal';
+import ConfirmMoveAsset from '@/features/web-dashboard/asset-management/components/modal/confirm-move-asset-modal';
+import CreateEditRackModal from '@/features/web-dashboard/asset-management/components/modal/create-edit-rack-modal';
+import AssignUnmapNodeModal from '@/features/web-dashboard/asset-management/components/modal/select-node-slot-modal';
+import { TopologyPage } from '@/features/web-dashboard/asset-management/data-center-view';
 
 // Data center/Row layer
 export default function AssetOverviewtPage() {
@@ -57,8 +57,8 @@ export default function AssetOverviewtPage() {
       <CreateEditRackModal
         key={
           createEditRackModal?.isOpen
-            ? createEditRackModal?.rackId || "new"
-            : "closed"
+            ? createEditRackModal?.rackId || 'new'
+            : 'closed'
         }
       />
     </div>

@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import type { ErrorResponse } from "@/types/api";
-import type { RackInvestigationOverviewResponse } from "@/types/monitoring";
+import { create } from 'zustand';
+import type { ErrorResponse } from '@/types/api';
+import type { RackInvestigationOverviewResponse } from '@/types/monitoring';
 
 interface RackOverviewState {
   overview: RackInvestigationOverviewResponse | null;
@@ -14,7 +14,7 @@ interface RackMonitoringState {
   setOverviewLoading: (rackId: string, loading: boolean) => void;
   setOverviewData: (
     rackId: string,
-    data: RackInvestigationOverviewResponse,
+    data: RackInvestigationOverviewResponse
   ) => void;
   setOverviewError: (rackId: string, error: ErrorResponse | null) => void;
 }

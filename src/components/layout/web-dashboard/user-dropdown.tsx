@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useSyncExternalStore } from "react";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useTheme } from "next-themes";
-import { useUiConfigStore } from "@/stores/ui-config-store";
-import { useAuth } from "@/hooks/auth/use-auth";
-import { useLogoutMutation } from "@/hooks/auth/use-auth-mutation";
-import { getRoleName } from "@/lib/utils/roleConverter";
-import { Avatar } from "@/components/common/avatar";
-import { ChevronDown, LogOut, Moon, Sun } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { useSyncExternalStore } from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useTheme } from 'next-themes';
+import { useUiConfigStore } from '@/stores/ui-config-store';
+import { useAuth } from '@/hooks/auth/use-auth';
+import { useLogoutMutation } from '@/hooks/auth/use-auth-mutation';
+import { getRoleName } from '@/lib/utils/roleConverter';
+import { Avatar } from '@/components/common/avatar';
+import { ChevronDown, LogOut, Moon, Sun } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 const emptySubscribe = () => () => {};
 
@@ -28,7 +28,7 @@ export function UserDropdown() {
   );
 
   const handleThemeToggle = (checked: boolean) => {
-    const nextTheme = checked ? "dark" : "light";
+    const nextTheme = checked ? 'dark' : 'light';
     setTheme(nextTheme);
     setUiTheme(nextTheme);
   };
@@ -44,16 +44,16 @@ export function UserDropdown() {
       <div className="flex items-center gap-2 border-l border-cyan/15 pl-3 select-none opacity-50">
         <Avatar
           avatarUrl={user?.avatarUrl || null}
-          fullName={user?.fullName || user?.username || "N/A"}
+          fullName={user?.fullName || user?.username || 'N/A'}
           size="sm"
           variant="square"
         />
         <div className="hidden md:block leading-tight text-left">
           <div className="text-xs font-medium text-foreground">
-            {user?.username || "N/A"}
+            {user?.username || 'N/A'}
           </div>
           <div className="label-mono text-[9px] text-muted-foreground">
-            {getRoleName(user?.roleCodes?.[0]) || "N/A"}
+            {getRoleName(user?.roleCodes?.[0]) || 'N/A'}
           </div>
         </div>
         <ChevronDown className="size-3.5 text-muted-foreground" />
@@ -62,7 +62,7 @@ export function UserDropdown() {
   }
 
   const activeTheme = theme || uiTheme;
-  const isDark = activeTheme === "dark" || activeTheme === "system";
+  const isDark = activeTheme === 'dark' || activeTheme === 'system';
 
   return (
     <DropdownMenu.Root>
@@ -70,16 +70,16 @@ export function UserDropdown() {
         <button className="flex items-center gap-2 border-l border-cyan/15 pl-3 select-none focus:outline-none group cursor-pointer text-left">
           <Avatar
             avatarUrl={user?.avatarUrl || null}
-            fullName={user?.fullName || user?.username || "N/A"}
+            fullName={user?.fullName || user?.username || 'N/A'}
             size="sm"
             variant="square"
           />
           <div className="hidden md:block leading-tight">
             <div className="text-xs font-medium text-foreground group-hover:text-cyan group-hover:text-glow-cyan transition-colors">
-              {user?.username || "N/A"}
+              {user?.username || 'N/A'}
             </div>
             <div className="label-mono text-[9px] text-muted-foreground">
-              {getRoleName(user?.roleCodes?.[0]) || "N/A"}
+              {getRoleName(user?.roleCodes?.[0]) || 'N/A'}
             </div>
           </div>
           <ChevronDown className="size-3.5 text-muted-foreground group-hover:text-cyan transition-colors" />
@@ -96,10 +96,10 @@ export function UserDropdown() {
           <div className="flex items-center gap-2.5 px-3 py-2.5 border-b border-foreground/15">
             <div className="leading-tight min-w-0">
               <div className="text-sm font-semibold text-foreground truncate">
-                {user?.fullName || user?.username || "N/A"}
+                {user?.fullName || user?.username || 'N/A'}
               </div>
               <div className="text-[11px] text-muted-foreground font-semibold truncate">
-                {user?.email || "N/A"}
+                {user?.email || 'N/A'}
               </div>
             </div>
           </div>

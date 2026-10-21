@@ -1,42 +1,42 @@
-"use client";
+'use client';
 
-import { ChevronRight } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
-import type { RoleCode, UserProfileResponse, UserStatus } from "@/types/auth";
-import CopyableUserId from "@/components/common/copyable-user-id";
-import UserDetailPanel from "./user-detail-panel";
-import { ROLE_COLORS } from "./lib/constant";
-import { ListUsersRequest } from "@/types/users";
+import { ChevronRight } from 'lucide-react';
+import { useDeferredValue, useMemo, useState } from 'react';
+import type { RoleCode, UserProfileResponse, UserStatus } from '@/types/auth';
+import CopyableUserId from '@/components/common/copyable-user-id';
+import UserDetailPanel from './user-detail-panel';
+import { ROLE_COLORS } from './lib/constant';
+import { ListUsersRequest } from '@/types/users';
 import {
   useRolesQuery,
   useUsersQuery,
-} from "@/hooks/identity/use-identity-queries";
-import UserListFilters from "./components/user-list-filters";
-import Pagination from "@/components/common/pagination";
-import { Avatar } from "@/components/common/avatar";
+} from '@/hooks/identity/use-identity-queries';
+import UserListFilters from './components/user-list-filters';
+import Pagination from '@/components/common/pagination';
+import { Avatar } from '@/components/common/avatar';
 
-type RoleFilter = RoleCode | "ALL";
-type StatusFilter = UserStatus | "ALL";
-type MenuKey = "role" | "status" | null;
+type RoleFilter = RoleCode | 'ALL';
+type StatusFilter = UserStatus | 'ALL';
+type MenuKey = 'role' | 'status' | null;
 
 function getRoleLabel(
   roleCode: RoleCode,
-  roleNameMap: Map<RoleCode, string>,
+  roleNameMap: Map<RoleCode, string>
 ): string {
-  return roleNameMap.get(roleCode) ?? roleCode.replace(/_/g, " ");
+  return roleNameMap.get(roleCode) ?? roleCode.replace(/_/g, ' ');
 }
 
 function getRoleTone(roleCode: RoleCode): string {
   return (
-    ROLE_COLORS[roleCode] ?? "border-white/10 bg-white/5 text-muted-foreground"
+    ROLE_COLORS[roleCode] ?? 'border-white/10 bg-white/5 text-muted-foreground'
   );
 }
 
 export default function UserListView() {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<RoleFilter>("ALL");
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>("ALL");
+  const [selectedRole, setSelectedRole] = useState<RoleFilter>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
   const [openMenu, setOpenMenu] = useState<MenuKey>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -46,21 +46,21 @@ export default function UserListView() {
     const listParams: ListUsersRequest = {
       page: currentPage,
       limit: 20,
-      sortBy: "createdAt",
-      sortDirection: "desc",
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
     };
 
-    if (selectedStatus !== "ALL") {
+    if (selectedStatus !== 'ALL') {
       listParams.status = selectedStatus;
     }
 
-    if (selectedRole !== "ALL") {
+    if (selectedRole !== 'ALL') {
       listParams.roleCodes = [selectedRole];
     }
 
     const trimmedSearch = deferredSearch.trim();
     if (trimmedSearch) {
-      if (trimmedSearch.includes("@")) {
+      if (trimmedSearch.includes('@')) {
         listParams.email = trimmedSearch;
       } else {
         listParams.username = trimmedSearch;
@@ -76,13 +76,13 @@ export default function UserListView() {
 
   const roleNameMap = useMemo(() => {
     return new Map(
-      (rolesQuery.data ?? []).map((role) => [role.code, role.name] as const),
+      (rolesQuery.data ?? []).map((role) => [role.code, role.name] as const)
     );
   }, [rolesQuery.data]);
 
   const users = useMemo(
     () => usersQuery.data?.items ?? [],
-    [usersQuery.data?.items],
+    [usersQuery.data?.items]
   );
 
   const handleSearchChange = (value: string) => {
@@ -103,9 +103,9 @@ export default function UserListView() {
   }
 
   const selectedRoleLabel =
-    selectedRole === "ALL"
-      ? "All"
-      : (roleNameMap.get(selectedRole) ?? selectedRole.replace(/_/g, " "));
+    selectedRole === 'ALL'
+      ? 'All'
+      : (roleNameMap.get(selectedRole) ?? selectedRole.replace(/_/g, ' '));
 
   const selectedUser = useMemo(() => {
     if (!selectedUsername) {
@@ -114,7 +114,7 @@ export default function UserListView() {
 
     return (
       users.find(
-        (user: UserProfileResponse) => user.username === selectedUsername,
+        (user: UserProfileResponse) => user.username === selectedUsername
       ) ?? null
     );
   }, [selectedUsername, users]);
@@ -173,7 +173,7 @@ export default function UserListView() {
               const roleCode = user.roleCodes?.[0];
               const roleLabel = roleCode
                 ? getRoleLabel(roleCode, roleNameMap)
-                : "N/A";
+                : 'N/A';
 
               return (
                 <div
@@ -182,7 +182,7 @@ export default function UserListView() {
                   role="button"
                   tabIndex={0}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
+                    if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
                       setSelectedUsername(user.username);
                     }
@@ -192,31 +192,31 @@ export default function UserListView() {
                   <div className="col-span-3 flex min-w-0 items-center gap-3">
                     <Avatar
                       avatarUrl={user.avatarUrl}
-                      fullName={user.fullName || user.username || "User"}
+                      fullName={user.fullName || user.username || 'User'}
                       variant="square"
                       size="sm"
                     />
                     <div className="min-w-0">
                       <div className="truncate text-sm text-foreground">
-                        {user.fullName || "N/A"}
+                        {user.fullName || 'N/A'}
                       </div>
                       <div className="truncate font-mono text-[11px] text-muted-foreground">
-                        {user.email || "N/A"}
+                        {user.email || 'N/A'}
                       </div>
                     </div>
                   </div>
 
                   <div className="col-span-2 truncate text-sm text-foreground">
-                    {user.username || "N/A"}
+                    {user.username || 'N/A'}
                   </div>
 
                   <div className="col-span-1 min-w-0">
-                    <CopyableUserId value={user.id || ""} />
+                    <CopyableUserId value={user.id || ''} />
                   </div>
 
                   <div className="col-span-3 flex justify-center">
                     <span
-                      className={`label-mono rounded border px-2 py-1 text-[10px] ${roleCode ? getRoleTone(roleCode) : "border-white/10 bg-white/5 text-muted-foreground"}`}
+                      className={`label-mono rounded border px-2 py-1 text-[10px] ${roleCode ? getRoleTone(roleCode) : 'border-white/10 bg-white/5 text-muted-foreground'}`}
                     >
                       {user.roleCodes && user.roleCodes.length > 1
                         ? `${roleLabel} +${user.roleCodes.length - 1}`
@@ -225,7 +225,7 @@ export default function UserListView() {
                   </div>
 
                   <div
-                    className={`col-span-2 font-mono text-xs text-center light:font-bold ${user.status === "ACTIVE" ? "text-neon-green" : user.status === "LOCKED" ? "text-critical" : "text-amber"}`}
+                    className={`col-span-2 font-mono text-xs text-center light:font-bold ${user.status === 'ACTIVE' ? 'text-neon-green' : user.status === 'LOCKED' ? 'text-critical' : 'text-amber'}`}
                   >
                     {user.status}
                   </div>
@@ -243,7 +243,7 @@ export default function UserListView() {
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-[11px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
         <span>
-          Loaded {users.length} of{" "}
+          Loaded {users.length} of{' '}
           {usersQuery.data?.pageInfo.totalItems ?? users.length}
         </span>
         <Pagination

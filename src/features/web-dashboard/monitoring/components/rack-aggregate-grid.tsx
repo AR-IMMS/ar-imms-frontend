@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useMemo, useState, useEffect, useRef } from "react";
-import ReactECharts from "echarts-for-react";
+import { useMemo, useState, useEffect, useRef } from 'react';
+import ReactECharts from 'echarts-for-react';
 import {
   Cpu,
   Thermometer,
@@ -10,8 +10,8 @@ import {
   TrendingUp,
   TrendingDown,
   RefreshCcw,
-} from "lucide-react";
-import type { RackInvestigationOverviewResponse } from "@/types/monitoring";
+} from 'lucide-react';
+import type { RackInvestigationOverviewResponse } from '@/types/monitoring';
 
 interface RackAggregateGridProps {
   overview: RackInvestigationOverviewResponse;
@@ -34,10 +34,10 @@ function SegmentedProgressBar({
     <div className="flex flex-col gap-1 w-full font-mono">
       <div className="flex justify-between items-baseline text-[9px] text-slate-400">
         <span className="font-semibold">
-          {label}:{" "}
+          {label}:{' '}
           {value !== null && value !== undefined
             ? `${value.toFixed(1)}%`
-            : "--"}
+            : '--'}
         </span>
         <span>LOAD</span>
       </div>
@@ -49,8 +49,8 @@ function SegmentedProgressBar({
               key={i}
               className="flex-1 h-full rounded-[1px] transition-all duration-300"
               style={{
-                backgroundColor: isActive ? color : "rgba(255, 255, 255, 0.03)",
-                boxShadow: isActive ? `0 0 6px ${color}80` : "none",
+                backgroundColor: isActive ? color : 'rgba(255, 255, 255, 0.03)',
+                boxShadow: isActive ? `0 0 6px ${color}80` : 'none',
               }}
             />
           );
@@ -62,7 +62,7 @@ function SegmentedProgressBar({
 
 // Auto-scaling throughput formatter
 function formatThroughput(bytesPerSec: number | null): string {
-  if (bytesPerSec === null || bytesPerSec === undefined) return "--";
+  if (bytesPerSec === null || bytesPerSec === undefined) return '--';
   if (bytesPerSec < 1024) return `${bytesPerSec.toFixed(1)} B/s`;
   const kb = bytesPerSec / 1024;
   if (kb < 1024) return `${kb.toFixed(1)} KB/s`;
@@ -83,9 +83,9 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
 
   useEffect(() => {
     const time = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
     setNetHistory((prev) => {
       if (prev.length > 0) {
@@ -127,27 +127,27 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
     return {
       series: [
         {
-          type: "gauge",
+          type: 'gauge',
           min: 0,
           max,
           startAngle: 200,
           endAngle: -20,
           splitNumber: 5,
-          radius: "105%",
-          center: ["50%", "60%"],
+          radius: '105%',
+          center: ['50%', '60%'],
           pointer: {
             show: true,
             width: 2.5,
-            length: "55%",
-            itemStyle: { color: "#cbd5e1" },
+            length: '55%',
+            itemStyle: { color: '#cbd5e1' },
           },
           axisLine: {
             lineStyle: {
               width: 4,
               color: [
-                [0.5, "rgba(52, 211, 153, 0.1)"],
-                [0.8, "rgba(255, 200, 87, 0.1)"],
-                [1, "rgba(255, 77, 109, 0.1)"],
+                [0.5, 'rgba(52, 211, 153, 0.1)'],
+                [0.8, 'rgba(255, 200, 87, 0.1)'],
+                [1, 'rgba(255, 77, 109, 0.1)'],
               ],
             },
           },
@@ -155,17 +155,17 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
           splitLine: { show: false },
           axisTick: { show: false },
           axisLabel: { show: false },
-          anchor: { show: true, size: 5, itemStyle: { color: "#cbd5e1" } },
+          anchor: { show: true, size: 5, itemStyle: { color: '#cbd5e1' } },
           detail: {
             formatter: () =>
               value !== null && value !== undefined
                 ? `${value.toFixed(0)}`
-                : "--",
-            color: "#f1f5f9",
+                : '--',
+            color: '#f1f5f9',
             fontSize: 11,
-            fontFamily: "monospace",
-            fontWeight: "bold",
-            offsetCenter: [0, "30%"],
+            fontFamily: 'monospace',
+            fontWeight: 'bold',
+            offsetCenter: [0, '30%'],
           },
           data: [{ value: val }],
         },
@@ -174,13 +174,13 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
   };
 
   const tempOption = useMemo(
-    () => getGaugeOption(aggregateMetrics.maxCpuTemperatureC, "#ffc857", 120),
-    [aggregateMetrics.maxCpuTemperatureC],
+    () => getGaugeOption(aggregateMetrics.maxCpuTemperatureC, '#ffc857', 120),
+    [aggregateMetrics.maxCpuTemperatureC]
   );
 
   const diskOption = useMemo(
-    () => getGaugeOption(aggregateMetrics.maxDiskUsedPct, "#00d1ff"),
-    [aggregateMetrics.maxDiskUsedPct],
+    () => getGaugeOption(aggregateMetrics.maxDiskUsedPct, '#00d1ff'),
+    [aggregateMetrics.maxDiskUsedPct]
   );
 
   const isTempCritical = (aggregateMetrics.maxCpuTemperatureC || 0) >= 80;
@@ -192,7 +192,7 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
     const txData = netHistory.map((h) => h.tx);
 
     const formatter = (val: number) => {
-      if (val === 0) return "0 B";
+      if (val === 0) return '0 B';
       if (val < 1024) return `${val.toFixed(0)} B`;
       const kb = val / 1024;
       if (kb < 1024) return `${kb.toFixed(0)} K`;
@@ -201,12 +201,12 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
     };
 
     return {
-      backgroundColor: "transparent",
+      backgroundColor: 'transparent',
       tooltip: {
-        trigger: "axis",
-        backgroundColor: "rgba(20, 27, 45, 0.95)",
-        borderColor: "rgba(0, 209, 255, 0.2)",
-        textStyle: { color: "#f8fafc", fontSize: 9, fontFamily: "monospace" },
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 27, 45, 0.95)',
+        borderColor: 'rgba(0, 209, 255, 0.2)',
+        textStyle: { color: '#f8fafc', fontSize: 9, fontFamily: 'monospace' },
         formatter: (params: any) => {
           let html = `<span style="font-size:8px;color:#64748b">${params[0].name}</span><br/>`;
           params.forEach((p: any) => {
@@ -217,61 +217,61 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
       },
       grid: { top: 12, bottom: 20, left: 52, right: 10 },
       xAxis: {
-        type: "category",
+        type: 'category',
         data: times,
-        axisLine: { lineStyle: { color: "rgba(255, 255, 255, 0.08)" } },
-        axisLabel: { color: "#64748b", fontSize: 8, fontFamily: "monospace" },
+        axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.08)' } },
+        axisLabel: { color: '#64748b', fontSize: 8, fontFamily: 'monospace' },
         axisTick: { show: false },
       },
       yAxis: {
-        type: "value",
-        splitLine: { lineStyle: { color: "rgba(255, 255, 255, 0.03)" } },
+        type: 'value',
+        splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.03)' } },
         axisLabel: {
-          color: "#64748b",
+          color: '#64748b',
           fontSize: 8,
-          fontFamily: "monospace",
+          fontFamily: 'monospace',
           formatter,
         },
       },
       series: [
         {
-          name: "Rx Input",
+          name: 'Rx Input',
           data: rxData,
-          type: "line",
+          type: 'line',
           smooth: true,
           showSymbol: false,
-          lineStyle: { width: 1.2, color: "#38bdf8" },
+          lineStyle: { width: 1.2, color: '#38bdf8' },
           areaStyle: {
             color: {
-              type: "linear",
+              type: 'linear',
               x: 0,
               y: 0,
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "rgba(56, 189, 248, 0.12)" },
-                { offset: 1, color: "transparent" },
+                { offset: 0, color: 'rgba(56, 189, 248, 0.12)' },
+                { offset: 1, color: 'transparent' },
               ],
             },
           },
         },
         {
-          name: "Tx Output",
+          name: 'Tx Output',
           data: txData,
-          type: "line",
+          type: 'line',
           smooth: true,
           showSymbol: false,
-          lineStyle: { width: 1.2, color: "#8b5cf6" },
+          lineStyle: { width: 1.2, color: '#8b5cf6' },
           areaStyle: {
             color: {
-              type: "linear",
+              type: 'linear',
               x: 0,
               y: 0,
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "rgba(139, 92, 246, 0.12)" },
-                { offset: 1, color: "transparent" },
+                { offset: 0, color: 'rgba(139, 92, 246, 0.12)' },
+                { offset: 1, color: 'transparent' },
               ],
             },
           },
@@ -292,7 +292,7 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
           <div className="flex items-center gap-1.5 border-r border-border/40 pr-3.5">
             <span className="text-slate-500 uppercase">Delta 1m:</span>
             <span
-              className={`font-bold flex items-center gap-0.5 ${trend.delta1m > 0 ? "text-critical animate-pulse" : trend.delta1m < 0 ? "text-emerald-400" : "text-slate-400"}`}
+              className={`font-bold flex items-center gap-0.5 ${trend.delta1m > 0 ? 'text-critical animate-pulse' : trend.delta1m < 0 ? 'text-emerald-400' : 'text-slate-400'}`}
             >
               {trend.delta1m > 0 ? (
                 <>
@@ -303,7 +303,7 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
                   <TrendingDown className="size-3" /> {trend.delta1m} alerts
                 </>
               ) : (
-                "0 alerts"
+                '0 alerts'
               )}
             </span>
           </div>
@@ -311,7 +311,7 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
           <div className="flex items-center gap-1.5">
             <span className="text-slate-500 uppercase">Delta 5m:</span>
             <span
-              className={`font-bold flex items-center gap-0.5 ${trend.delta5m > 0 ? "text-critical animate-pulse" : trend.delta5m < 0 ? "text-emerald-400" : "text-slate-400"}`}
+              className={`font-bold flex items-center gap-0.5 ${trend.delta5m > 0 ? 'text-critical animate-pulse' : trend.delta5m < 0 ? 'text-emerald-400' : 'text-slate-400'}`}
             >
               {trend.delta5m > 0 ? (
                 <>
@@ -322,7 +322,7 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
                   <TrendingDown className="size-3" /> {trend.delta5m} alerts
                 </>
               ) : (
-                "0 alerts"
+                '0 alerts'
               )}
             </span>
           </div>
@@ -359,8 +359,8 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
         <div
           className={`panel col-span-1 p-3.5 bg-surface-2/40 border flex flex-col justify-between h-[178px] transition-all duration-300 ${
             isTempCritical
-              ? "border-critical/60 shadow-[0_0_12px_rgba(255,77,109,0.2)] animate-pulse"
-              : "border-border/80"
+              ? 'border-critical/60 shadow-[0_0_12px_rgba(255,77,109,0.2)] animate-pulse'
+              : 'border-border/80'
           }`}
         >
           <div className="flex justify-between items-center text-[10px] text-slate-300 font-bold uppercase tracking-wider">
@@ -368,19 +368,19 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
               <Thermometer className="size-3.5 text-amber" /> Peak Thermal Gauge
             </span>
             <span
-              className={`text-[9px] font-bold ${isTempCritical ? "text-critical" : "text-slate-400"}`}
+              className={`text-[9px] font-bold ${isTempCritical ? 'text-critical' : 'text-slate-400'}`}
             >
               {aggregateMetrics.maxCpuTemperatureC !== null &&
               aggregateMetrics.maxCpuTemperatureC !== undefined
                 ? `${aggregateMetrics.maxCpuTemperatureC.toFixed(0)}°C`
-                : "--"}
+                : '--'}
             </span>
           </div>
           <div className="flex-1 min-h-0">
             <ReactECharts
               ref={tempChartRef}
               option={tempOption}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ devicePixelRatio: 2 }}
             />
           </div>
@@ -396,14 +396,14 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
               {aggregateMetrics.maxDiskUsedPct !== null &&
               aggregateMetrics.maxDiskUsedPct !== undefined
                 ? `${aggregateMetrics.maxDiskUsedPct.toFixed(0)}%`
-                : "--"}
+                : '--'}
             </span>
           </div>
           <div className="flex-1 min-h-0">
             <ReactECharts
               ref={diskChartRef}
               option={diskOption}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ devicePixelRatio: 2 }}
             />
           </div>
@@ -422,12 +422,12 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
               Rx: {formatThroughput(rx)} / Tx: {formatThroughput(tx)}
             </span>
           </div>
-          
+
           <div className="flex-1 min-h-0 mt-1">
             <ReactECharts
               ref={netChartRef}
               option={networkOption}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ devicePixelRatio: 2 }}
             />
           </div>

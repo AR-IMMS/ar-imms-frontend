@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { useRackTopologyQuery } from "@/hooks/asset/use-asset-queries";
-import { ChevronDown, ChevronRight, Server, Loader2 } from "lucide-react";
-import { RackGroup } from "./types";
-import { NodeItem } from "./NodeItem";
-import { useRouter, usePathname } from "next/navigation";
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { useRackTopologyQuery } from '@/hooks/asset/use-asset-queries';
+import { ChevronDown, ChevronRight, Server, Loader2 } from 'lucide-react';
+import { RackGroup } from './types';
+import { NodeItem } from './NodeItem';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface RackItemProps {
   rack: RackGroup;
   siteCode: string;
   roomCode: string;
-  maxLevel: "rack" | "node";
+  maxLevel: 'rack' | 'node';
   rackKey: string;
   rackOpen: boolean;
   toggleRack: (rackKey: string) => void;
@@ -37,7 +37,7 @@ export function RackItem({
   const setSelectedRackId = useAssetStore((s) => s.setSelectedRackId);
   const setSelectedNodeCode = useAssetStore((s) => s.setSelectedNodeCode);
   const setIsUnmappedDrawerOpen = useAssetStore(
-    (s) => s.setIsUnmappedDrawerOpen,
+    (s) => s.setIsUnmappedDrawerOpen
   );
   const setActivePanelType = useAssetStore((s) => s.setActivePanelType);
 
@@ -48,7 +48,7 @@ export function RackItem({
     isActive && selectedNodeCode === null,
     {
       select: (data) => data?.rack ?? null,
-    },
+    }
   );
 
   const handleRackClick = () => {
@@ -56,32 +56,32 @@ export function RackItem({
       setSelectedRackId(null);
       setSelectedNodeCode(null);
       setActivePanelType(null);
-      if (pathname.startsWith("/monitoring")) {
+      if (pathname.startsWith('/monitoring')) {
         router.push(`/monitoring`);
       }
       return;
     }
-    setSelectedSiteCode(siteCode || "");
-    setSelectedRoomCode(roomCode || "");
+    setSelectedSiteCode(siteCode || '');
+    setSelectedRoomCode(roomCode || '');
     setSelectedRackId(rack.id);
-    if (pathname.startsWith("/assets")) {
+    if (pathname.startsWith('/assets')) {
       setIsUnmappedDrawerOpen(false);
-      setActivePanelType("rack");
-    } else if (pathname.startsWith("/monitoring")) {
+      setActivePanelType('rack');
+    } else if (pathname.startsWith('/monitoring')) {
       setSelectedNodeCode(null);
       router.push(`/monitoring/${rack.id}`);
     }
   };
 
-  if (maxLevel === "rack") {
+  if (maxLevel === 'rack') {
     // Leaf Node style (Asset Management)
     return (
       <button
         onClick={handleRackClick}
         className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-left min-w-0 transition-colors ${
           isActive
-            ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-            : "text-foreground/70 hover:bg-white/3 hover:light:bg-primary/15 hover:text-foreground border border-transparent"
+            ? 'bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]'
+            : 'text-foreground/70 hover:bg-white/3 hover:light:bg-primary/15 hover:text-foreground border border-transparent'
         }`}
       >
         {isActive && isRackLoading ? (
@@ -113,8 +113,8 @@ export function RackItem({
           onClick={handleRackClick}
           className={`flex-1 text-left px-2 py-1 flex items-center gap-1.5 min-w-0 rounded transition-colors ${
             isActive
-              ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-              : "text-slate-400 hover:bg-white/3 hover:light:bg-primary/15 hover:text-foreground border border-transparent"
+              ? 'bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]'
+              : 'text-slate-400 hover:bg-white/3 hover:light:bg-primary/15 hover:text-foreground border border-transparent'
           }`}
         >
           {isActive && isRackLoading ? (

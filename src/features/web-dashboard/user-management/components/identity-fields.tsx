@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface FormErrors {
   fullName?: string;
@@ -66,12 +66,14 @@ export default function IdentityFields({
             placeholder="E.g., Lena Okafor"
             className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.fullName
-                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
-                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
+                ? 'border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]'
+                : 'border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20'
             }`}
           />
           {errors.fullName && (
-            <span className="text-[10px] text-[#ff4d6d]">{errors.fullName}</span>
+            <span className="text-[10px] text-[#ff4d6d]">
+              {errors.fullName}
+            </span>
           )}
         </div>
 
@@ -88,12 +90,14 @@ export default function IdentityFields({
             placeholder="alpha_numeric-only"
             className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.username
-                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
-                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
+                ? 'border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]'
+                : 'border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20'
             }`}
           />
           {errors.username && (
-            <span className="text-[10px] text-[#ff4d6d]">{errors.username}</span>
+            <span className="text-[10px] text-[#ff4d6d]">
+              {errors.username}
+            </span>
           )}
         </div>
       </div>
@@ -112,8 +116,8 @@ export default function IdentityFields({
             placeholder="name@gmail.com"
             className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.email
-                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
-                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
+                ? 'border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]'
+                : 'border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20'
             }`}
           />
           {errors.email && (
@@ -151,12 +155,14 @@ export default function IdentityFields({
             placeholder="E.g., Infrastructure, IT Support"
             className={`h-9 w-full rounded-md border bg-background px-3 font-mono text-xs text-foreground outline-none transition-all duration-200 ${
               errors.department
-                ? "border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]"
-                : "border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20"
+                ? 'border-critical shadow-[0_0_8px_rgba(247,84,84,0.2)]'
+                : 'border-border focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20'
             }`}
           />
           {errors.department && (
-            <span className="text-[10px] text-[#ff4d6d]">{errors.department}</span>
+            <span className="text-[10px] text-[#ff4d6d]">
+              {errors.department}
+            </span>
           )}
         </div>
 

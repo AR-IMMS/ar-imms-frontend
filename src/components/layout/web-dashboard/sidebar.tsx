@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Activity,
   AlertTriangle,
@@ -13,14 +13,14 @@ import {
   Server,
   Settings,
   Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import isActivePath from "@/lib/utils/isActivePath";
-import { useSidebar } from "@/hooks/common/use-ui-config";
-import { Tooltip } from "@/components/common/tooltip";
-import { useAuth } from "@/hooks/auth/use-auth";
-import { hasAnyRole, hasRole } from "@/lib/auth/auth-permissions";
-import type { UserProfileResponse } from "@/types/auth";
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import isActivePath from '@/lib/utils/isActivePath';
+import { useSidebar } from '@/hooks/common/use-ui-config';
+import { Tooltip } from '@/components/common/tooltip';
+import { useAuth } from '@/hooks/auth/use-auth';
+import { hasAnyRole, hasRole } from '@/lib/auth/auth-permissions';
+import type { UserProfileResponse } from '@/types/auth';
 
 type NavItem = {
   icon: LucideIcon;
@@ -36,42 +36,42 @@ type NavSection = {
 
 const sections: NavSection[] = [
   {
-    title: "Operations",
+    title: 'Operations',
     items: [
-      { icon: LayoutGrid, label: "Overview", to: "/overview" },
-      { icon: Gauge, label: "Operations", to: "/operations" },
-      { icon: Activity, label: "Monitoring", to: "/monitoring" },
+      { icon: LayoutGrid, label: 'Overview', to: '/overview' },
+      { icon: Gauge, label: 'Operations', to: '/operations' },
+      { icon: Activity, label: 'Monitoring', to: '/monitoring' },
       {
         icon: AlertTriangle,
-        label: "Alerts & Tickets",
-        to: "/tickets",
+        label: 'Alerts & Tickets',
+        to: '/tickets',
       },
-      { icon: FileText, label: "Audit Logs", to: "/audit" },
+      { icon: FileText, label: 'Audit Logs', to: '/audit' },
     ],
   },
   {
-    title: "Management",
+    title: 'Management',
     items: [
-      { icon: Users, label: "Users", to: "/users" },
-      { icon: Server, label: "Assets", to: "/assets" },
+      { icon: Users, label: 'Users', to: '/users' },
+      { icon: Server, label: 'Assets', to: '/assets' },
     ],
   },
 ];
 
 const footerItems: NavItem[] = [
-  { icon: Settings, label: "Settings", to: "/settings" },
-  { icon: LifeBuoy, label: "Support", to: "/support" },
+  { icon: Settings, label: 'Settings', to: '/settings' },
+  { icon: LifeBuoy, label: 'Support', to: '/support' },
 ];
 
 function getTicketNavTarget(user: UserProfileResponse | null) {
   if (
-    hasRole(user, "MAINTENANCE_TECHNICIAN") &&
-    !hasAnyRole(user, ["IT_ADMINISTRATOR", "SYSTEM_MONITORING_OPERATOR"])
+    hasRole(user, 'MAINTENANCE_TECHNICIAN') &&
+    !hasAnyRole(user, ['IT_ADMINISTRATOR', 'SYSTEM_MONITORING_OPERATOR'])
   ) {
-    return "/tickets/me";
+    return '/tickets/me';
   }
 
-  return "/tickets";
+  return '/tickets';
 }
 
 function buildSections(user: UserProfileResponse | null): NavSection[] {
@@ -80,7 +80,7 @@ function buildSections(user: UserProfileResponse | null): NavSection[] {
   return sections.map((section) => ({
     ...section,
     items: section.items.map((item) =>
-      item.to === "/tickets" ? { ...item, to: ticketTarget } : item,
+      item.to === '/tickets' ? { ...item, to: ticketTarget } : item
     ),
   }));
 }
@@ -97,20 +97,20 @@ function NavLink({
   const content = (
     <Link
       href={to}
-      aria-current={active ? "page" : undefined}
+      aria-current={active ? 'page' : undefined}
       className={`group/link relative flex h-10 items-center rounded-xl border text-sm transition-all duration-200 ${
         isCollapsed
-          ? "w-10 h-10 justify-center px-0 mx-auto"
-          : "w-full px-3 gap-3"
+          ? 'w-10 h-10 justify-center px-0 mx-auto'
+          : 'w-full px-3 gap-3'
       } ${
         active
-          ? "border-cyan/30 bg-cyan/10 text-cyan light:bg-destructive-foreground hover:light:bg-destructive-foreground/70"
-          : "border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-muted-foreground/10 hover:text-cyan-ice"
+          ? 'border-cyan/30 bg-cyan/10 text-cyan light:bg-destructive-foreground hover:light:bg-destructive-foreground/70'
+          : 'border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-muted-foreground/10 hover:text-cyan-ice'
       }`}
     >
       <Icon
         className={`size-4 shrink-0 transition-colors duration-200 ${
-          active ? "text-cyan" : "group-hover/link:text-cyan-ice"
+          active ? 'text-cyan' : 'group-hover/link:text-cyan-ice'
         }`}
         strokeWidth={1.8}
       />
@@ -184,7 +184,7 @@ export default function Sidebar() {
   return (
     <div
       className={`glass hidden h-[calc(100vh-60px)] z-20 shrink-0 flex-col gap-6 border-r border-sidebar-border py-5 lg:sticky lg:top-18 lg:flex transition-all duration-300 ease-in-out ${
-        isCollapsed ? "w-16 px-2" : "w-60 px-4"
+        isCollapsed ? 'w-16 px-2' : 'w-60 px-4'
       }`}
     >
       <nav className="space-y-5">
@@ -223,18 +223,18 @@ export default function Sidebar() {
         <Tooltip content="Expand Sidebar" enabled={isCollapsed}>
           <button
             onClick={toggleSidebar}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             className={`group/toggle relative flex h-10 items-center rounded-xl border text-sm transition-all duration-200 cursor-pointer ${
               isCollapsed
-                ? "w-10 h-10 justify-center px-0 mx-auto"
-                : "w-full px-3 gap-3"
+                ? 'w-10 h-10 justify-center px-0 mx-auto'
+                : 'w-full px-3 gap-3'
             } border-transparent text-muted-foreground hover:border-cyan/15 hover:bg-muted-foreground/10 hover:text-cyan-ice`}
           >
             <ChevronLeft
               className={`size-4 shrink-0 transition-transform duration-300 ${
                 isCollapsed
-                  ? "rotate-180 text-cyan-ice"
-                  : "group-hover/toggle:text-cyan-ice"
+                  ? 'rotate-180 text-cyan-ice'
+                  : 'group-hover/toggle:text-cyan-ice'
               }`}
               strokeWidth={1.8}
             />

@@ -1,7 +1,7 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { identityService } from "@/services/identity/identity-service";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { ListUsersRequest } from "@/types/users";
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { identityService } from '@/services/identity/identity-service';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { ListUsersRequest } from '@/types/users';
 
 const DEFAULT_ROLES_STALE_TIME = 30 * 60_000;
 const DEFAULT_USERS_STALE_TIME = 30_000;
@@ -35,7 +35,7 @@ export function useTechniciansQuery(enabled = true) {
 }
 
 export function useUserByIdQuery(userId: string, enabled = true) {
-  const normalizedUserId = userId?.trim() ?? "";
+  const normalizedUserId = userId?.trim() ?? '';
 
   return useQuery({
     queryKey: queryKeys.identity.users.detailById(normalizedUserId),
@@ -48,12 +48,15 @@ export function useUserByIdQuery(userId: string, enabled = true) {
 export function useUsersByUsernameQuery(
   username: string,
   params?: ListUsersRequest,
-  enabled = true,
+  enabled = true
 ) {
-  const normalizedUsername = username?.trim() ?? "";
+  const normalizedUsername = username?.trim() ?? '';
 
   return useQuery({
-    queryKey: queryKeys.identity.users.detailByUsername(normalizedUsername, params),
+    queryKey: queryKeys.identity.users.detailByUsername(
+      normalizedUsername,
+      params
+    ),
     queryFn: () =>
       identityService.getUserByUsername({
         username: normalizedUsername,

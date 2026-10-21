@@ -1,13 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { assetService } from "@/services/asset/asset-service";
-import { queryClient } from "@/lib/react-query/query-client";
-import { queryKeys } from "@/lib/react-query/query-keys";
+import { useMutation } from '@tanstack/react-query';
+import { assetService } from '@/services/asset/asset-service';
+import { queryClient } from '@/lib/react-query/query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
 import type {
   CreateRackRequestDto,
   UpdateRackRequestDto,
   AssignNodeToRackRequestDto,
   CreateMarkerRequestDto,
-} from "@/types/assets";
+} from '@/types/assets';
 
 // --- Admin Topology - Racks Mutations ---
 
@@ -79,10 +79,10 @@ export function useRetireAndReplaceRackMutation() {
     mutationFn: async ({ rackId }: { rackId: string }) => {
       await assetService.retireRack(rackId);
       const updatedRack = await assetService.updateRack(rackId, {
-        siteCode: "",
-        roomCode: "",
-        rowCode: "",
-        positionCode: "",
+        siteCode: '',
+        roomCode: '',
+        rowCode: '',
+        positionCode: '',
       });
       return updatedRack;
     },
@@ -232,8 +232,8 @@ export function useRetireAndReplaceNodeMutation() {
       const retiredNode = await assetService.retireNode(nodeId);
       const oldRackId = retiredNode.rackId;
       const updatedNode = await assetService.updateNode(nodeId, {
-        positionCode: "",
-        rackId: "",
+        positionCode: '',
+        rackId: '',
       });
       return { updatedNode, oldRackId };
     },
@@ -307,12 +307,12 @@ export function useCreateMarkerMutation() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.asset.resolveMarker(marker.markerCode),
       });
-      if (marker.targetType === "node" && marker.targetId) {
+      if (marker.targetType === 'node' && marker.targetId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.asset.nodeContext(marker.targetId),
         });
       }
-      if (marker.targetType === "rack" && marker.targetId) {
+      if (marker.targetType === 'rack' && marker.targetId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.asset.topologyTree(),
         });

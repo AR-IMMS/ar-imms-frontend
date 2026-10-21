@@ -2,16 +2,16 @@ export default function StatusChip({
   tone,
   label,
 }: {
-  tone: "healthy" | "warning" | "critical";
+  tone: 'healthy' | 'warning' | 'critical';
   label: string;
 }) {
   const toneClasses = {
     healthy:
-      "border-emerald-500/20 bg-emerald-500/5 text-emerald-400 ring-1 ring-emerald-500/10",
+      'border-emerald-500/20 bg-emerald-500/5 text-emerald-400 ring-1 ring-emerald-500/10',
     warning:
-      "border-amber-500/20 bg-amber-500/5 text-amber-400 ring-1 ring-amber-500/10",
+      'border-amber-500/20 bg-amber-500/5 text-amber-400 ring-1 ring-amber-500/10',
     critical:
-      "border-rose-500/20 bg-rose-500/5 text-rose-400 ring-1 ring-rose-500/10",
+      'border-rose-500/20 bg-rose-500/5 text-rose-400 ring-1 ring-rose-500/10',
   } as const;
 
   return (

@@ -1,23 +1,23 @@
-import { io, Socket } from "socket.io-client";
-import { useAuthStore } from "@/stores/auth-store";
+import { io, Socket } from 'socket.io-client';
+import { useAuthStore } from '@/stores/auth-store';
 
 type SocketCallback<T = unknown> = (data: T) => void;
 
 const getSocketUrlAndPath = () => {
-  const apiUrl = process.env.NEXT_PUBLIC_MONITORING_API_URL || "";
+  const apiUrl = process.env.NEXT_PUBLIC_MONITORING_API_URL || '';
   try {
     const url = new URL(apiUrl);
     // If the path contains "/monitoring", the gateway likely routes websocket traffic through "/monitoring/socket.io"
-    const hasServicePrefix = url.pathname.includes("/monitoring");
+    const hasServicePrefix = url.pathname.includes('/monitoring');
     return {
       url: `${url.origin}/monitoring`,
-      path: hasServicePrefix ? "/monitoring/socket.io" : "/socket.io",
+      path: hasServicePrefix ? '/monitoring/socket.io' : '/socket.io',
     };
   } catch {
     // Fallback if URL parsing fails
     return {
-      url: "/monitoring",
-      path: "/socket.io",
+      url: '/monitoring',
+      path: '/socket.io',
     };
   }
 };
@@ -27,7 +27,7 @@ class SocketManager {
   private listeners = new Map<string, Set<SocketCallback<unknown>>>();
 
   constructor() {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return;
     }
 
@@ -37,10 +37,10 @@ class SocketManager {
     this.socket = io(url, {
       path,
       autoConnect: !!initialToken,
-      auth: { token: initialToken ? `Bearer ${initialToken}` : "" },
+      auth: { token: initialToken ? `Bearer ${initialToken}` : '' },
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      transports: ["websocket"],
+      transports: ['websocket'],
     });
 
     // Automatically synchronize connection & tokens with auth store updates
@@ -58,16 +58,16 @@ class SocketManager {
       }
     });
 
-    this.socket.on("connect", () => {
-      console.log("[SocketManager] Connected to /monitoring namespace");
+    this.socket.on('connect', () => {
+      console.log('[SocketManager] Connected to /monitoring namespace');
     });
 
-    this.socket.on("disconnect", (reason) => {
+    this.socket.on('disconnect', (reason) => {
       console.log(`[SocketManager] Disconnected from /monitoring: ${reason}`);
     });
 
-    this.socket.on("connect_error", (error) => {
-      console.error("[SocketManager] Connection error on /monitoring:", error);
+    this.socket.on('connect_error', (error) => {
+      console.error('[SocketManager] Connection error on /monitoring:', error);
     });
   }
 
@@ -76,7 +76,7 @@ class SocketManager {
    * Leverages event multiplexing to register exactly one physical socket listener per event.
    */
   public subscribe<T>(event: string, callback: SocketCallback<T>): () => void {
-    if (typeof window === "undefined" || !this.socket) {
+    if (typeof window === 'undefined' || !this.socket) {
       return () => {};
     }
 
@@ -95,7 +95,7 @@ class SocketManager {
             } catch (err) {
               console.error(
                 `[SocketManager] Callback error on event "${event}":`,
-                err,
+                err
               );
             }
           });

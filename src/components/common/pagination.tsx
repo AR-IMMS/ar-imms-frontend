@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type PaginationProps = {
   currentPage: number;
@@ -22,7 +22,7 @@ export default function Pagination({
   const hasPrev = currentPage > 1;
   const hasNext = currentPage < totalPages;
 
-  const pageNumbers: (number | "...")[] = [];
+  const pageNumbers: (number | '...')[] = [];
 
   if (totalPages <= 7) {
     for (let i = 1; i <= totalPages; i++) {
@@ -32,7 +32,7 @@ export default function Pagination({
     pageNumbers.push(1);
 
     if (currentPage > 3) {
-      pageNumbers.push("...");
+      pageNumbers.push('...');
     }
 
     const start = Math.max(2, currentPage - 1);
@@ -43,7 +43,7 @@ export default function Pagination({
     }
 
     if (currentPage < totalPages - 2) {
-      pageNumbers.push("...");
+      pageNumbers.push('...');
     }
 
     pageNumbers.push(totalPages);
@@ -62,7 +62,7 @@ export default function Pagination({
       </button>
 
       {pageNumbers.map((pageNum, index) => {
-        if (pageNum === "...") {
+        if (pageNum === '...') {
           return (
             <span
               key={`ellipsis-${index}`}
@@ -83,8 +83,8 @@ export default function Pagination({
             disabled={isLoading}
             className={`inline-flex size-7 items-center justify-center rounded border text-[10px] transition label-mono ${
               isActive
-                ? "border-cyan/40 bg-cyan/10 text-cyan-ice"
-                : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice disabled:cursor-not-allowed disabled:opacity-50"
+                ? 'border-cyan/40 bg-cyan/10 text-cyan-ice'
+                : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice disabled:cursor-not-allowed disabled:opacity-50'
             }`}
           >
             {pageNum}

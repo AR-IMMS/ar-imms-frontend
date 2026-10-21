@@ -1,6 +1,6 @@
 // Dynamic coordinate parser (extract numbers or map alphabet letter keys)
 export function parseCoordinate(
-  code: string | undefined | null,
+  code: string | undefined | null
 ): number | null {
   if (!code) return null;
   const match = code.match(/\d+/);
