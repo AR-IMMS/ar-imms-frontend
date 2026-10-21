@@ -1,15 +1,15 @@
 export default function buildQueryString(
-  params?: Record<string, unknown> | object,
+  params?: Record<string, unknown> | object
 ): string {
   if (!params) {
-    return "";
+    return '';
   }
 
   const searchParams = new URLSearchParams();
 
   Object.entries(params as Record<string, unknown>).forEach(([key, value]) => {
     // Loại bỏ các giá trị không hợp lệ hoặc chuỗi rỗng
-    if (value === undefined || value === null || value === "") {
+    if (value === undefined || value === null || value === '') {
       return;
     }
 
@@ -20,7 +20,7 @@ export default function buildQueryString(
 
       value.forEach((item) => {
         // Chỉ append nếu phần tử bên trong mảng không phải chuỗi rỗng/null/undefined
-        if (item !== "" && item !== null && item !== undefined) {
+        if (item !== '' && item !== null && item !== undefined) {
           searchParams.append(key, String(item));
         }
       });
@@ -32,5 +32,5 @@ export default function buildQueryString(
   });
 
   const query = searchParams.toString();
-  return query ? `?${query}` : "";
+  return query ? `?${query}` : '';
 }

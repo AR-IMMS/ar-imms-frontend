@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   Server,
   Compass,
@@ -10,11 +10,11 @@ import {
   CheckCircle2,
   Activity,
   RefreshCcw,
-} from "lucide-react";
-import type { RackInvestigationOverviewResponse } from "@/types/monitoring";
-import CopyableUserId from "@/components/common/copyable-user-id";
-import Stat from "@/components/common/stat";
-import { formatToExactDateTime } from "@/lib/utils/formatTime";
+} from 'lucide-react';
+import type { RackInvestigationOverviewResponse } from '@/types/monitoring';
+import CopyableUserId from '@/components/common/copyable-user-id';
+import Stat from '@/components/common/stat';
+import { formatToExactDateTime } from '@/lib/utils/formatTime';
 
 interface RackAssetPanelProps {
   overview: RackInvestigationOverviewResponse;
@@ -34,10 +34,10 @@ const SpatialLocationChain = React.memo(
     positionCode: string | null;
   }) => {
     const locations = [
-      { label: "Site", value: siteCode },
-      { label: "Room", value: roomCode },
-      { label: "Row", value: rowCode },
-      { label: "Position", value: positionCode },
+      { label: 'Site', value: siteCode },
+      { label: 'Room', value: roomCode },
+      { label: 'Row', value: rowCode },
+      { label: 'Position', value: positionCode },
     ].filter((loc) => loc.value);
 
     return (
@@ -72,9 +72,9 @@ const SpatialLocationChain = React.memo(
         </div>
       </div>
     );
-  },
+  }
 );
-SpatialLocationChain.displayName = "SpatialLocationChain";
+SpatialLocationChain.displayName = 'SpatialLocationChain';
 
 // Memoized Physical Specifications component
 const RackPhysicalSpecs = React.memo(
@@ -97,9 +97,9 @@ const RackPhysicalSpecs = React.memo(
             </span>
             <span
               className="text-foreground text-[10px] truncate max-w-[60%]"
-              title={vendor || "N/A"}
+              title={vendor || 'N/A'}
             >
-              {vendor || "--"}
+              {vendor || '--'}
             </span>
           </div>
           <div className="flex justify-between items-center text-[10.5px]">
@@ -107,15 +107,15 @@ const RackPhysicalSpecs = React.memo(
               Capacity Limit
             </span>
             <span className="text-foreground text-[10px] font-bold">
-              {capacityLimit ? `${capacityLimit} U` : "--"}
+              {capacityLimit ? `${capacityLimit} U` : '--'}
             </span>
           </div>
         </div>
       </div>
     );
-  },
+  }
 );
-RackPhysicalSpecs.displayName = "RackPhysicalSpecs";
+RackPhysicalSpecs.displayName = 'RackPhysicalSpecs';
 
 // Memoized Custom Metadata component
 const CustomMetadataSection = React.memo(
@@ -145,7 +145,7 @@ const CustomMetadataSection = React.memo(
                   {key}
                 </span>
                 <span className="text-foreground text-[10px] break-all text-right max-w-[55%] font-semibold">
-                  {typeof val === "object" ? JSON.stringify(val) : String(val)}
+                  {typeof val === 'object' ? JSON.stringify(val) : String(val)}
                 </span>
               </div>
             ))
@@ -153,9 +153,9 @@ const CustomMetadataSection = React.memo(
         </div>
       </div>
     );
-  },
+  }
 );
-CustomMetadataSection.displayName = "CustomMetadataSection";
+CustomMetadataSection.displayName = 'CustomMetadataSection';
 
 export function RackAssetPanel({ overview }: RackAssetPanelProps) {
   const { rack, generatedAt } = overview;
@@ -171,7 +171,7 @@ export function RackAssetPanel({ overview }: RackAssetPanelProps) {
 
   const freshnessAgeText = useMemo(() => {
     const age = trend.lastChangeAgeSec;
-    if (age === null || age === undefined) return "Never changed";
+    if (age === null || age === undefined) return 'Never changed';
     if (age < 60) return `Last changed ${age}s ago`;
     const mins = Math.floor(age / 60);
     if (mins < 60) return `Last changed ${mins}m ago`;
@@ -238,14 +238,14 @@ export function RackAssetPanel({ overview }: RackAssetPanelProps) {
         <div className="grid grid-cols-2 gap-2">
           <Stat
             label="LIFECYCLE STATE"
-            value={rackInfo.lifecycleState || "--"}
+            value={rackInfo.lifecycleState || '--'}
             mono
             tone="text-cyan font-bold uppercase"
             themeConfig="bg-surface-1/40 rounded border border-border/20"
           />
           <Stat
             label="CAPACITY STATE"
-            value={rackInfo.capacityState || "--"}
+            value={rackInfo.capacityState || '--'}
             mono
             tone="text-emerald-400 font-bold uppercase"
             themeConfig="bg-surface-1/40 rounded border border-border/20"
@@ -272,14 +272,13 @@ export function RackAssetPanel({ overview }: RackAssetPanelProps) {
             <FileText className="size-3.5 text-cyan-ice" /> OPERATIONAL NOTES
           </div>
           <div className="panel p-2.5 bg-surface-1/40 rounded text-[9.5px] leading-relaxed text-slate-300 italic border border-border/20 min-h-16">
-            {rackInfo.notes || "No operational notes"}
+            {rackInfo.notes || 'No operational notes'}
           </div>
         </div>
 
         {/* Custom Metadata parameters */}
         <CustomMetadataSection metadata={rackInfo.metadata} />
       </div>
-
     </div>
   );
 }

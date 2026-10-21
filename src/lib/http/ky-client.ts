@@ -1,11 +1,11 @@
-import ky from "ky";
-import { AUTH_HEADERS } from "@/types/auth";
-import { handleAuthError } from "../auth/auth-handlers";
-import { useAuthStore } from "@/stores/auth-store";
-import type { ApiError, ApiFailure, ApiResponse } from "@/types/api";
-import { clearState } from "@/hooks/auth/use-auth-mutation";
+import ky from 'ky';
+import { AUTH_HEADERS } from '@/types/auth';
+import { handleAuthError } from '../auth/auth-handlers';
+import { useAuthStore } from '@/stores/auth-store';
+import type { ApiError, ApiFailure, ApiResponse } from '@/types/api';
+import { clearState } from '@/hooks/auth/use-auth-mutation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 const DEFAULT_TIMEOUT = 15_000;
 
 export const kyClient = ky.create({
@@ -13,7 +13,7 @@ export const kyClient = ky.create({
   timeout: DEFAULT_TIMEOUT,
   retry: {
     limit: 2,
-    methods: ["get", "put", "delete", "head"],
+    methods: ['get', 'put', 'delete', 'head'],
     statusCodes: [408, 429, 500, 502, 503, 504],
   },
   hooks: {
@@ -25,10 +25,10 @@ export const kyClient = ky.create({
           return;
         }
 
-        if (typeof window !== "undefined") {
+        if (typeof window !== 'undefined') {
           const token = useAuthStore.getState().accessToken;
-          if (token && !request.headers.has("Authorization")) {
-            request.headers.set("Authorization", `Bearer ${token}`);
+          if (token && !request.headers.has('Authorization')) {
+            request.headers.set('Authorization', `Bearer ${token}`);
           }
         }
       },
@@ -36,12 +36,12 @@ export const kyClient = ky.create({
     afterResponse: [
       async ({ request, response }) => {
         const shouldSkipAuthRefresh = request.headers.has(
-          AUTH_HEADERS.SKIP_AUTH_REFRESH,
+          AUTH_HEADERS.SKIP_AUTH_REFRESH
         );
 
         let body: ApiResponse<unknown> | null = null;
-        const contentType = response.headers.get("content-type");
-        if (contentType?.includes("application/json")) {
+        const contentType = response.headers.get('content-type');
+        if (contentType?.includes('application/json')) {
           body = await response.clone().json();
         }
 
@@ -51,12 +51,12 @@ export const kyClient = ky.create({
           const errorDetail = (body as ApiFailure | null)?.error;
           const apiError: ApiError = {
             status: errorDetail?.details?.status ?? response.status,
-            code: errorDetail?.code ?? "UNKNOWN_ERROR",
+            code: errorDetail?.code ?? 'UNKNOWN_ERROR',
             message:
               errorDetail?.details?.detail ??
               errorDetail?.message ??
               response.statusText ??
-              "Something went wrong",
+              'Something went wrong',
           };
 
           const hasRetriedAuth = request.headers.has(AUTH_HEADERS.AUTH_RETRY);
@@ -69,8 +69,8 @@ export const kyClient = ky.create({
 
                 if (newToken) {
                   const newRequest = request.clone();
-                  newRequest.headers.set("Authorization", `Bearer ${newToken}`);
-                  newRequest.headers.set(AUTH_HEADERS.AUTH_RETRY, "true");
+                  newRequest.headers.set('Authorization', `Bearer ${newToken}`);
+                  newRequest.headers.set(AUTH_HEADERS.AUTH_RETRY, 'true');
 
                   return ky(newRequest);
                 }

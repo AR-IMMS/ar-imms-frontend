@@ -1,20 +1,20 @@
-import { httpGet, httpPatch, httpPost, httpPut } from "@/lib/http/http-methods";
-import { IDENTITY_ENDPOINTS } from "@/lib/react-query/api-endpoint";
-import buildQueryString from "@/lib/utils/buildQueryString";
-import { PaginatedResponse } from "@/types/api";
+import { httpGet, httpPatch, httpPost, httpPut } from '@/lib/http/http-methods';
+import { IDENTITY_ENDPOINTS } from '@/lib/react-query/api-endpoint';
+import buildQueryString from '@/lib/utils/buildQueryString';
+import { PaginatedResponse } from '@/types/api';
 import type {
   CreateUserRequestPayload,
   ROLE_ITEM,
   UserProfileResponse,
-} from "@/types/auth";
+} from '@/types/auth';
 import {
   GetUserByUsernameRequest,
   ListUsersRequest,
   UpdateUserRolesRequestPayload,
   UpdateUserStatusRequestPayload,
-} from "@/types/users";
+} from '@/types/users';
 
-const SERVICE_NAME = "identity";
+const SERVICE_NAME = 'identity';
 
 export const identityService = {
   getRoles: (): Promise<ROLE_ITEM[]> =>
@@ -24,11 +24,11 @@ export const identityService = {
     }),
 
   listUsers: (
-    params: ListUsersRequest,
+    params: ListUsersRequest
   ): Promise<PaginatedResponse<UserProfileResponse>> =>
     httpGet<PaginatedResponse<UserProfileResponse>>(
       `${IDENTITY_ENDPOINTS.GET_USERS}${buildQueryString(params)}`,
-      { service: SERVICE_NAME },
+      { service: SERVICE_NAME }
     ),
 
   listTechnicians: (): Promise<UserProfileResponse[]> =>
@@ -37,11 +37,11 @@ export const identityService = {
     }),
 
   getUserByUsername: (
-    params: GetUserByUsernameRequest,
+    params: GetUserByUsernameRequest
   ): Promise<PaginatedResponse<UserProfileResponse>> =>
     httpGet<PaginatedResponse<UserProfileResponse>>(
       `${IDENTITY_ENDPOINTS.GET_USER_BY_USERNAME(params.username)}${buildQueryString(params)}`,
-      { service: SERVICE_NAME },
+      { service: SERVICE_NAME }
     ),
 
   getUserById: (userId: string): Promise<UserProfileResponse> =>
@@ -50,7 +50,7 @@ export const identityService = {
     }),
 
   createUser: (
-    payload: CreateUserRequestPayload,
+    payload: CreateUserRequestPayload
   ): Promise<UserProfileResponse> =>
     httpPost<UserProfileResponse>(IDENTITY_ENDPOINTS.CREATE_USERS, payload, {
       service: SERVICE_NAME,
@@ -58,21 +58,21 @@ export const identityService = {
 
   updateUserStatus: (
     userId: string,
-    payload: UpdateUserStatusRequestPayload,
+    payload: UpdateUserStatusRequestPayload
   ): Promise<UserProfileResponse> =>
     httpPatch<UserProfileResponse>(
       IDENTITY_ENDPOINTS.UPDATE_USER_STATUS(userId),
       payload,
-      { service: SERVICE_NAME },
+      { service: SERVICE_NAME }
     ),
 
   updateUserRoles: (
     userId: string,
-    payload: UpdateUserRolesRequestPayload,
+    payload: UpdateUserRolesRequestPayload
   ): Promise<UserProfileResponse> =>
     httpPut<UserProfileResponse>(
       IDENTITY_ENDPOINTS.UPDATE_USER_ROLES(userId),
       payload,
-      { service: SERVICE_NAME },
+      { service: SERVICE_NAME }
     ),
 };

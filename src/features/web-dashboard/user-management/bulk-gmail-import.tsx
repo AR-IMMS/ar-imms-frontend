@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
@@ -11,18 +11,18 @@ import {
   Send,
   UploadCloud,
   X,
-} from "lucide-react";
+} from 'lucide-react';
 
 type ParsedRow = {
   email: string;
   password: string;
-  status: "valid" | "invalid" | "duplicate";
+  status: 'valid' | 'invalid' | 'duplicate';
   reason?: string;
 };
 
 function randPwd() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%";
-  let s = "";
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+  let s = '';
   for (let i = 0; i < 14; i++)
     s += chars[Math.floor(Math.random() * chars.length)];
   return s;
@@ -40,33 +40,33 @@ function parse(raw: string): ParsedRow[] {
         return {
           email,
           password: randPwd(),
-          status: "duplicate" as const,
-          reason: "duplicate",
+          status: 'duplicate' as const,
+          reason: 'duplicate',
         };
       seen.add(lc);
       const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      const gmail = lc.endsWith("@gmail.com") || lc.endsWith("@arimms.io");
+      const gmail = lc.endsWith('@gmail.com') || lc.endsWith('@arimms.io');
       if (!valid)
         return {
           email,
           password: randPwd(),
-          status: "invalid",
-          reason: "malformed",
+          status: 'invalid',
+          reason: 'malformed',
         };
       if (!gmail)
         return {
           email,
           password: randPwd(),
-          status: "invalid",
-          reason: "domain not allowed",
+          status: 'invalid',
+          reason: 'domain not allowed',
         };
-      return { email, password: randPwd(), status: "valid" };
+      return { email, password: randPwd(), status: 'valid' };
     });
 }
 
 export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
   const [raw, setRaw] = useState(
-    "lena.okafor@gmail.com\ndimitri.roux@gmail.com\naiko.wen@gmail.com\nmarcus.vale@gmail.com\npriya.shankar@gmail.com\nbad-email\ndimitri.roux@gmail.com\nrouge.user@yahoo.com",
+    'lena.okafor@gmail.com\ndimitri.roux@gmail.com\naiko.wen@gmail.com\nmarcus.vale@gmail.com\npriya.shankar@gmail.com\nbad-email\ndimitri.roux@gmail.com\nrouge.user@yahoo.com'
   );
   const [reveal, setReveal] = useState<Record<number, boolean>>({});
   const [notify, setNotify] = useState(true);
@@ -74,7 +74,7 @@ export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
   const [done, setDone] = useState(false);
 
   const rows = useMemo(() => parse(raw), [raw]);
-  const valid = rows.filter((r) => r.status === "valid").length;
+  const valid = rows.filter((r) => r.status === 'valid').length;
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -117,12 +117,12 @@ export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
               onDrop={handleDrop}
               className={`rounded-xl border-2 border-dashed p-6 text-center transition ${
                 dragging
-                  ? "border-cyan bg-cyan/10 shadow-[0_0_20px_rgba(0,209,255,0.2)]"
-                  : "border-border bg-surface-1/60 hover:border-cyan/50"
+                  ? 'border-cyan bg-cyan/10 shadow-[0_0_20px_rgba(0,209,255,0.2)]'
+                  : 'border-border bg-surface-1/60 hover:border-cyan/50'
               }`}
             >
               <UploadCloud
-                className={`mx-auto size-8 ${dragging ? "text-cyan" : "text-muted-foreground"}`}
+                className={`mx-auto size-8 ${dragging ? 'text-cyan' : 'text-muted-foreground'}`}
               />
               <div className="title-display text-sm text-foreground mt-2">
                 Drop CSV / XLSX file or roster sheet
@@ -167,7 +167,7 @@ export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
                     </div>
                     <div className="col-span-4 flex items-center gap-2">
                       <span className="text-cyan-ice tabular-nums">
-                        {reveal[i] ? r.password : "•".repeat(r.password.length)}
+                        {reveal[i] ? r.password : '•'.repeat(r.password.length)}
                       </span>
                       <button
                         onClick={() => setReveal((s) => ({ ...s, [i]: !s[i] }))}
@@ -181,13 +181,13 @@ export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
                       </button>
                     </div>
                     <div className="col-span-3">
-                      {r.status === "valid" ? (
+                      {r.status === 'valid' ? (
                         <span className="inline-flex items-center gap-1 label-mono text-[10px] text-neon-green">
                           <CheckCircle2 className="size-3" /> VALID
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 label-mono text-[10px] text-critical">
-                          <AlertCircle className="size-3" />{" "}
+                          <AlertCircle className="size-3" />{' '}
                           {r.status.toUpperCase()} · {r.reason}
                         </span>
                       )}
@@ -239,8 +239,8 @@ export default function BulkGmailImport({ onClose }: { onClose: () => void }) {
             </div>
             <div className="font-mono text-xs text-muted-foreground mt-2">
               {notify
-                ? "Encrypted credential bundles dispatched via SMTP relay · ETA < 30s"
-                : "Credentials staged for manual distribution"}
+                ? 'Encrypted credential bundles dispatched via SMTP relay · ETA < 30s'
+                : 'Credentials staged for manual distribution'}
             </div>
             <div className="mt-4 inline-flex items-center gap-2 label-mono text-[10px] text-cyan-ice">
               <Send className="size-3" /> audit event recorded

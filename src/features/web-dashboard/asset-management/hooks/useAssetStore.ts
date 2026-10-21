@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { RackTopologyResult } from "@/types/assets";
+import { create } from 'zustand';
+import { RackTopologyResult } from '@/types/assets';
 
 interface AssetStoreState {
   // Active Filters
@@ -11,7 +11,7 @@ interface AssetStoreState {
   selectedNodeCode: string | null;
 
   // Active panel type (mutual exclusion details panels)
-  activePanelType: "site" | "rack" | "node" | null;
+  activePanelType: 'site' | 'rack' | 'node' | null;
 
   // Drawer state
   isUnmappedDrawerOpen: boolean;
@@ -32,9 +32,9 @@ interface AssetStoreState {
   // Mutation Modal States
   createEditRackModal: { isOpen: boolean; rackId?: string | null } | null;
   lifecycleModalState: {
-    entityType: "rack" | "node";
+    entityType: 'rack' | 'node';
     entityId: string;
-    action: "activate" | "retire";
+    action: 'activate' | 'retire';
     displayName: string;
   } | null;
   assignNodeModalState: {
@@ -42,7 +42,7 @@ interface AssetStoreState {
     rackId: string;
   } | null;
   confirmMoveModalState: {
-    assetType: "rack" | "node";
+    assetType: 'rack' | 'node';
     assetId: string | null;
     targetCoords: {
       siteCode: string | null;
@@ -57,9 +57,9 @@ interface AssetStoreState {
 
   // Drag and Drop States
   draggedAsset: {
-    type: "rack" | "node";
+    type: 'rack' | 'node';
     id: string;
-    origin: "drawer" | "canvas";
+    origin: 'drawer' | 'canvas';
   } | null;
   dragOverGridCell: { row: number; col: number } | null;
   dragOverRackId: string | null;
@@ -73,7 +73,7 @@ interface AssetStoreState {
   setSelectedNodeCode: (nodeCode: string | null) => void;
 
   // Panel inspection actions
-  setActivePanelType: (type: "site" | "rack" | "node" | null) => void;
+  setActivePanelType: (type: 'site' | 'rack' | 'node' | null) => void;
 
   // Drawer Actions
   setIsUnmappedDrawerOpen: (isOpen: boolean) => void;
@@ -84,22 +84,22 @@ interface AssetStoreState {
 
   // Modal Actions
   setCreateEditRackModal: (
-    state: { isOpen: boolean; rackId?: string | null } | null,
+    state: { isOpen: boolean; rackId?: string | null } | null
   ) => void;
   setLifecycleModalState: (
     state: {
-      entityType: "rack" | "node";
+      entityType: 'rack' | 'node';
       entityId: string;
-      action: "activate" | "retire";
+      action: 'activate' | 'retire';
       displayName: string;
-    } | null,
+    } | null
   ) => void;
   setAssignNodeModalState: (
-    state: { nodeId: string; rackId: string } | null,
+    state: { nodeId: string; rackId: string } | null
   ) => void;
   setConfirmMoveModalState: (
     state: {
-      assetType: "rack" | "node";
+      assetType: 'rack' | 'node';
       assetId: string | null;
       targetCoords: {
         siteCode: string | null;
@@ -110,16 +110,16 @@ interface AssetStoreState {
         rackName?: string | null;
       };
       onConfirm: () => void;
-    } | null,
+    } | null
   ) => void;
 
   // Drag and Drop Actions
   setDraggedAsset: (
     asset: {
-      type: "rack" | "node";
+      type: 'rack' | 'node';
       id: string;
-      origin: "drawer" | "canvas";
-    } | null,
+      origin: 'drawer' | 'canvas';
+    } | null
   ) => void;
   setDragOverGridCell: (cell: { row: number; col: number } | null) => void;
   setDragOverRackId: (rackId: string | null) => void;
@@ -161,7 +161,7 @@ export const useAssetStore = create<AssetStoreState>()((set) => ({
       selectedRoomCode: null,
       selectedRackId: null,
       selectedNodeCode: null,
-      activePanelType: siteCode ? "site" : null,
+      activePanelType: siteCode ? 'site' : null,
     }),
 
   setSelectedRoomCode: (roomCode) =>

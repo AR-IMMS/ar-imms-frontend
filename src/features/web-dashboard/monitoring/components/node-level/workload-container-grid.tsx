@@ -1,9 +1,13 @@
-"use client";
+'use client';
 
-import { useMemo, memo, useRef, useEffect } from "react";
-import { ShieldAlert, CheckCircle, RefreshCcw } from "lucide-react";
-import ReactECharts from "echarts-for-react";
-import type { ChartDataPoint, NodeOverviewData, WorkloadItem } from "@/types/monitoring";
+import { useMemo, memo, useRef, useEffect } from 'react';
+import { ShieldAlert, CheckCircle, RefreshCcw } from 'lucide-react';
+import ReactECharts from 'echarts-for-react';
+import type {
+  ChartDataPoint,
+  NodeOverviewData,
+  WorkloadItem,
+} from '@/types/monitoring';
 
 interface WorkloadContainerGridProps {
   overview: NodeOverviewData | null;
@@ -18,35 +22,35 @@ interface WorkloadCardProps {
 
 // 1. Pure Helper Color Resolver
 const getLoadColor = (value: number) => {
-  if (value >= 80) return "#ff4d6d"; // Neon Red
-  if (value >= 50) return "#ffc857"; // Warning Amber
-  return "#00d1ff"; // Neon Cyan
+  if (value >= 80) return '#ff4d6d'; // Neon Red
+  if (value >= 50) return '#ffc857'; // Warning Amber
+  return '#00d1ff'; // Neon Cyan
 };
 
 // 2. Pure Factory function tạo Sparkline Option
 const buildSparklineOption = (data: (number | null)[], color: string) => {
   return {
     grid: { left: 0, right: 0, top: 2, bottom: 2 },
-    xAxis: { type: "category", show: false },
-    yAxis: { type: "value", min: 0, max: 100, show: false },
+    xAxis: { type: 'category', show: false },
+    yAxis: { type: 'value', min: 0, max: 100, show: false },
     series: [
       {
         data,
-        type: "line",
+        type: 'line',
         smooth: true,
         showSymbol: false,
         connectNulls: true,
         lineStyle: { width: 1.2, color },
         areaStyle: {
           color: {
-            type: "linear",
+            type: 'linear',
             x: 0,
             y: 0,
             x2: 0,
             y2: 1,
             colorStops: [
               { offset: 0, color: `${color}33` },
-              { offset: 1, color: "transparent" },
+              { offset: 1, color: 'transparent' },
             ],
           },
         },
@@ -61,8 +65,10 @@ const WorkloadCard = memo(function WorkloadCard({
   cpuSeries,
   memSeries,
 }: WorkloadCardProps) {
-  const latestCpu = cpuSeries.length > 0 ? cpuSeries[cpuSeries.length - 1] ?? 0 : 0;
-  const latestMem = memSeries.length > 0 ? memSeries[memSeries.length - 1] ?? 0 : 0;
+  const latestCpu =
+    cpuSeries.length > 0 ? (cpuSeries[cpuSeries.length - 1] ?? 0) : 0;
+  const latestMem =
+    memSeries.length > 0 ? (memSeries[memSeries.length - 1] ?? 0) : 0;
 
   const cpuColor = getLoadColor(latestCpu);
   const memColor = getLoadColor(latestMem);
@@ -104,8 +110,8 @@ const WorkloadCard = memo(function WorkloadCard({
   }, []);
 
   const isAbnormal =
-    workload.healthStatus?.toLowerCase().trim() === "unhealthy" ||
-    workload.status?.toLowerCase().trim() !== "running" ||
+    workload.healthStatus?.toLowerCase().trim() === 'unhealthy' ||
+    workload.status?.toLowerCase().trim() !== 'running' ||
     workload.restartCount > 0;
 
   return (
@@ -113,8 +119,8 @@ const WorkloadCard = memo(function WorkloadCard({
       ref={containerRef}
       className={`panel bg-surface-2/30 p-3 border flex flex-col justify-between h-44 transition-all duration-200 hover:border-cyan/40 hover:shadow-[0_0_12px_rgba(0,209,255,0.05)] ${
         isAbnormal
-          ? "border-critical/30 bg-critical/5 shadow-[0_0_8px_rgba(255,77,109,0.05)]"
-          : "border-border/50"
+          ? 'border-critical/30 bg-critical/5 shadow-[0_0_8px_rgba(255,77,109,0.05)]'
+          : 'border-border/50'
       }`}
     >
       {/* Header Container Identity */}
@@ -152,7 +158,10 @@ const WorkloadCard = memo(function WorkloadCard({
         <div className="flex items-center justify-between gap-2 h-7">
           <div className="flex flex-col text-[8.5px] font-mono leading-none">
             <span className="text-muted-foreground">CPU</span>
-            <span className="font-bold text-[9.5px] mt-0.5" style={{ color: cpuColor }}>
+            <span
+              className="font-bold text-[9.5px] mt-0.5"
+              style={{ color: cpuColor }}
+            >
               {latestCpu.toFixed(1)}%
             </span>
           </div>
@@ -160,7 +169,7 @@ const WorkloadCard = memo(function WorkloadCard({
             <ReactECharts
               ref={cpuChartRef}
               option={cpuOption}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ devicePixelRatio: 2 }}
             />
           </div>
@@ -170,7 +179,10 @@ const WorkloadCard = memo(function WorkloadCard({
         <div className="flex items-center justify-between gap-2 h-7">
           <div className="flex flex-col text-[8.5px] font-mono leading-none">
             <span className="text-muted-foreground">MEM</span>
-            <span className="font-bold text-[9.5px] mt-0.5" style={{ color: memColor }}>
+            <span
+              className="font-bold text-[9.5px] mt-0.5"
+              style={{ color: memColor }}
+            >
               {latestMem.toFixed(1)}%
             </span>
           </div>
@@ -178,7 +190,7 @@ const WorkloadCard = memo(function WorkloadCard({
             <ReactECharts
               ref={memChartRef}
               option={memOption}
-              style={{ height: "100%", width: "100%" }}
+              style={{ height: '100%', width: '100%' }}
               opts={{ devicePixelRatio: 2 }}
             />
           </div>
@@ -188,11 +200,11 @@ const WorkloadCard = memo(function WorkloadCard({
       {/* Status Footer */}
       <div className="border-t border-border/10 pt-1.5 mt-2 flex items-center justify-between font-mono text-[8px] text-muted-foreground">
         <span className="truncate max-w-[80px]">
-          Rule: {workload.primaryIssue?.metricKey || "none"}
+          Rule: {workload.primaryIssue?.metricKey || 'none'}
         </span>
         <span
           className={`uppercase font-bold ${
-            workload.status === "running" ? "text-emerald-400" : "text-amber"
+            workload.status === 'running' ? 'text-emerald-400' : 'text-amber'
           }`}
         >
           {workload.status}
@@ -206,7 +218,11 @@ function WorkloadContainerGrid({
   overview,
   metrics,
 }: WorkloadContainerGridProps) {
-  const summary = overview?.workloadSummary || { total: 0, unhealthy: 0, healthy: 0 };
+  const summary = overview?.workloadSummary || {
+    total: 0,
+    unhealthy: 0,
+    healthy: 0,
+  };
   const workloads = overview?.workloads || [];
 
   // Lấy ra 5 workload đầu tiên
@@ -255,12 +271,12 @@ function WorkloadContainerGrid({
           <span>|</span>
           <span className="flex items-center gap-1">
             <ShieldAlert className="size-3 text-critical" />
-            Unhealthy:{" "}
+            Unhealthy:{' '}
             <b
               className={
                 summary.unhealthy > 0
-                  ? "text-critical font-bold animate-pulse"
-                  : "text-slate-200"
+                  ? 'text-critical font-bold animate-pulse'
+                  : 'text-slate-200'
               }
             >
               {summary.unhealthy}

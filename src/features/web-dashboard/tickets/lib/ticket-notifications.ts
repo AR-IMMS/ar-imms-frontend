@@ -2,9 +2,10 @@ import type {
   TicketActivity,
   TicketProps,
   TicketRealtimeEvent,
-} from "@/types/ticket";
+} from '@/types/ticket';
 
-export type TicketNotificationTone = "cyan" | "purple" | "amber" | "green" | "red";
+export type TicketNotificationTone =
+  'cyan' | 'purple' | 'amber' | 'green' | 'red';
 
 export interface TicketNotification {
   id: string;
@@ -16,18 +17,24 @@ export interface TicketNotification {
   tone: TicketNotificationTone;
 }
 
-export function buildTicketNotifications(tickets: TicketProps[]): TicketNotification[] {
+export function buildTicketNotifications(
+  tickets: TicketProps[]
+): TicketNotification[] {
   return tickets
     .flatMap((ticket) =>
-      (ticket.activities ?? []).map((activity) => toNotification(ticket, activity)),
+      (ticket.activities ?? []).map((activity) =>
+        toNotification(ticket, activity)
+      )
     )
     .filter((item): item is TicketNotification => Boolean(item))
-    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
+    .sort(
+      (left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)
+    )
     .slice(0, 40);
 }
 
 export function toTicketNotificationFromEvent(
-  event: TicketRealtimeEvent,
+  event: TicketRealtimeEvent
 ): TicketNotification {
   const common = {
     id: event.id,
@@ -37,62 +44,64 @@ export function toTicketNotificationFromEvent(
   };
 
   switch (event.type) {
-    case "ticket.created":
+    case 'ticket.created':
       return {
         ...common,
-        title: event.ticket.incidentId ? "Incident ticket created" : "Ticket created",
+        title: event.ticket.incidentId
+          ? 'Incident ticket created'
+          : 'Ticket created',
         body: event.ticket.title,
-        tone: event.ticket.priority === "CRITICAL" ? "red" : "cyan",
+        tone: event.ticket.priority === 'CRITICAL' ? 'red' : 'cyan',
       };
-    case "ticket.assigned":
+    case 'ticket.assigned':
       return {
         ...common,
-        title: "Assignment updated",
+        title: 'Assignment updated',
         body: event.ticket.assigneeUserId
           ? `Assigned to technician ${event.ticket.assigneeUserId}`
           : event.ticket.title,
-        tone: "purple",
+        tone: 'purple',
       };
-    case "ticket.status_changed":
+    case 'ticket.status_changed':
       return {
         ...common,
         title:
-          event.ticket.status === "RESOLVED" || event.ticket.status === "CLOSED"
-            ? "Ticket ready for review"
-            : "Ticket status changed",
+          event.ticket.status === 'RESOLVED' || event.ticket.status === 'CLOSED'
+            ? 'Ticket ready for review'
+            : 'Ticket status changed',
         body: `${event.ticket.ticketCode} is now ${formatStatus(event.ticket.status)}`,
         tone:
-          event.ticket.status === "RESOLVED" || event.ticket.status === "CLOSED"
-            ? "green"
-            : "cyan",
+          event.ticket.status === 'RESOLVED' || event.ticket.status === 'CLOSED'
+            ? 'green'
+            : 'cyan',
       };
-    case "ticket.comment_added":
+    case 'ticket.comment_added':
       return {
         ...common,
-        title: "New ticket note",
+        title: 'New ticket note',
         body: event.ticket.title,
-        tone: "amber",
+        tone: 'amber',
       };
-    case "ticket.evidence_attached":
+    case 'ticket.evidence_attached':
       return {
         ...common,
-        title: "Evidence attached",
+        title: 'Evidence attached',
         body: event.ticket.title,
-        tone: "amber",
+        tone: 'amber',
       };
-    case "ticket.deleted":
+    case 'ticket.deleted':
       return {
         ...common,
-        title: "Ticket removed",
+        title: 'Ticket removed',
         body: event.ticket.title,
-        tone: "red",
+        tone: 'red',
       };
   }
 }
 
 function toNotification(
   ticket: TicketProps,
-  activity: TicketActivity,
+  activity: TicketActivity
 ): TicketNotification | null {
   const common = {
     id: `${ticket.id}:${activity.id}`,
@@ -102,30 +111,57 @@ function toNotification(
   };
 
   switch (activity.type) {
-    case "CREATED":
+    case 'CREATED':
       return {
         ...common,
-        title: ticket.incidentId ? "Incident ticket created" : "Ticket created",
+        title: ticket.incidentId ? 'Incident ticket created' : 'Ticket created',
         body: ticket.title,
-        tone: ticket.priority === "CRITICAL" ? "red" : "cyan",
+        tone: ticket.priority === 'CRITICAL' ? 'red' : 'cyan',
       };
-    case "ASSIGNED":
-      return { ...common, title: "Technician assigned", body: activity.message ?? ticket.title, tone: "purple" };
-    case "REASSIGNED":
-      return { ...common, title: "Assignment updated", body: activity.message ?? ticket.title, tone: "purple" };
-    case "ACKNOWLEDGED":
-      return { ...common, title: "Ticket acknowledged", body: ticket.title, tone: "cyan" };
-    case "COMMENT_ADDED":
-      return { ...common, title: "New ticket note", body: activity.message ?? ticket.title, tone: "amber" };
-    case "EVIDENCE_ATTACHED":
-      return { ...common, title: "Evidence attached", body: activity.message ?? ticket.title, tone: "amber" };
-    case "STATUS_CHANGED": {
-      const resolved = activity.message?.includes("RESOLVED") || activity.message?.includes("CLOSED");
+    case 'ASSIGNED':
       return {
         ...common,
-        title: resolved ? "Ticket ready for review" : "Ticket status changed",
+        title: 'Technician assigned',
         body: activity.message ?? ticket.title,
-        tone: resolved ? "green" : "cyan",
+        tone: 'purple',
+      };
+    case 'REASSIGNED':
+      return {
+        ...common,
+        title: 'Assignment updated',
+        body: activity.message ?? ticket.title,
+        tone: 'purple',
+      };
+    case 'ACKNOWLEDGED':
+      return {
+        ...common,
+        title: 'Ticket acknowledged',
+        body: ticket.title,
+        tone: 'cyan',
+      };
+    case 'COMMENT_ADDED':
+      return {
+        ...common,
+        title: 'New ticket note',
+        body: activity.message ?? ticket.title,
+        tone: 'amber',
+      };
+    case 'EVIDENCE_ATTACHED':
+      return {
+        ...common,
+        title: 'Evidence attached',
+        body: activity.message ?? ticket.title,
+        tone: 'amber',
+      };
+    case 'STATUS_CHANGED': {
+      const resolved =
+        activity.message?.includes('RESOLVED') ||
+        activity.message?.includes('CLOSED');
+      return {
+        ...common,
+        title: resolved ? 'Ticket ready for review' : 'Ticket status changed',
+        body: activity.message ?? ticket.title,
+        tone: resolved ? 'green' : 'cyan',
       };
     }
     default:
@@ -134,5 +170,5 @@ function toNotification(
 }
 
 function formatStatus(status: string) {
-  return status.toLowerCase().replaceAll("_", " ");
+  return status.toLowerCase().replaceAll('_', ' ');
 }

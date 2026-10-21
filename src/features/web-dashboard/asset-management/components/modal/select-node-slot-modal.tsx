@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { toast } from "sonner";
-import { useAssetStore } from "../../hooks/useAssetStore";
-import { useRackTopologyQuery } from "@/hooks/asset/use-asset-queries";
-import { useAssignNodeMutation } from "@/hooks/asset/use-asset-mutations";
-import ModalLayout from "@/components/layout/modal-layout";
+import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
+import { useAssetStore } from '../../hooks/useAssetStore';
+import { useRackTopologyQuery } from '@/hooks/asset/use-asset-queries';
+import { useAssignNodeMutation } from '@/hooks/asset/use-asset-mutations';
+import ModalLayout from '@/components/layout/modal-layout';
 
 export default function AssignUnmapNodeModal() {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -18,13 +18,13 @@ export default function AssignUnmapNodeModal() {
   } = useAssetStore();
 
   const isOpen = !!assignNodeModalState;
-  const nodeId = assignNodeModalState?.nodeId ?? "";
-  const rackId = assignNodeModalState?.rackId ?? "";
+  const nodeId = assignNodeModalState?.nodeId ?? '';
+  const rackId = assignNodeModalState?.rackId ?? '';
 
   // Fetch target rack data
   const { data: rackTopology, isLoading } = useRackTopologyQuery(
     rackId,
-    isOpen,
+    isOpen
   );
 
   const capacity = rackTopology?.rack?.capacityLimit ?? 42;
@@ -35,7 +35,7 @@ export default function AssignUnmapNodeModal() {
     return new Set(
       rackTopology.nodes
         .map((n) => n.positionCode?.trim())
-        .filter(Boolean) as string[],
+        .filter(Boolean) as string[]
     );
   }, [rackTopology]);
 
@@ -48,14 +48,14 @@ export default function AssignUnmapNodeModal() {
 
   const handleNext = () => {
     if (!selectedSlot) {
-      toast.error("Please select a target U-position slot");
+      toast.error('Please select a target U-position slot');
       return;
     }
 
     const targetCoords = {
-      siteCode: rackTopology?.rack?.siteCode ?? "N/A",
-      roomCode: rackTopology?.rack?.roomCode ?? "N/A",
-      rowCode: rackTopology?.rack?.rowCode ?? "N/A",
+      siteCode: rackTopology?.rack?.siteCode ?? 'N/A',
+      roomCode: rackTopology?.rack?.roomCode ?? 'N/A',
+      rowCode: rackTopology?.rack?.rowCode ?? 'N/A',
       positionCode: selectedSlot,
       rackId,
       rackName,
@@ -64,7 +64,7 @@ export default function AssignUnmapNodeModal() {
     // Close ourselves and trigger confirm-move-asset modal
     handleClose();
     setConfirmMoveModalState({
-      assetType: "node",
+      assetType: 'node',
       assetId: null,
       targetCoords,
       onConfirm: () => {
@@ -75,7 +75,7 @@ export default function AssignUnmapNodeModal() {
 
         const successCallback = () => {
           toast.success(
-            `Node assigned to ${rackName} with position ${selectedSlot} successfully`,
+            `Node assigned to ${rackName} with position ${selectedSlot} successfully`
           );
         };
         const errorCallback = (err: Error) => {
@@ -84,7 +84,7 @@ export default function AssignUnmapNodeModal() {
 
         assignNodeMutation.mutate(
           { nodeId, payload },
-          { onSuccess: successCallback, onError: errorCallback },
+          { onSuccess: successCallback, onError: errorCallback }
         );
       },
     });
@@ -109,7 +109,7 @@ export default function AssignUnmapNodeModal() {
           <div className="flex justify-between items-center text-xs font-mono text-muted-foreground light:font-bold border-b border-[#25304A]/60 pb-2">
             <span>TARGET RACK:</span>
             <span className="text-cyan-ice font-bold uppercase">
-              {rackName || rackId || "Undefined"}
+              {rackName || rackId || 'Undefined'}
             </span>
           </div>
 
@@ -140,10 +140,10 @@ export default function AssignUnmapNodeModal() {
                       onClick={() => setSelectedSlot(slotStr)}
                       className={`h-10 border font-mono text-[10px] rounded flex flex-col items-center justify-center transition ${
                         isOccupied
-                          ? "bg-red-500/10 border-red-500/25 text-red-500/70 cursor-not-allowed"
+                          ? 'bg-red-500/10 border-red-500/25 text-red-500/70 cursor-not-allowed'
                           : selectedSlot === slotStr
-                            ? "bg-cyan/15 border-cyan text-cyan shadow-[0_0_10px_rgba(0,209,255,0.2)]"
-                            : "bg-background border-[#25304A] text-foreground hover:border-cyan/50 hover:bg-cyan/10"
+                            ? 'bg-cyan/15 border-cyan text-cyan shadow-[0_0_10px_rgba(0,209,255,0.2)]'
+                            : 'bg-background border-[#25304A] text-foreground hover:border-cyan/50 hover:bg-cyan/10'
                       }`}
                     >
                       <span className="font-bold">{slotStr}</span>

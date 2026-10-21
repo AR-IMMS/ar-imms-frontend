@@ -1,5 +1,5 @@
-import { httpGet, httpPost } from "@/lib/http/http-methods";
-import { AUTH_ENDPOINTS } from "@/lib/react-query/api-endpoint";
+import { httpGet, httpPost } from '@/lib/http/http-methods';
+import { AUTH_ENDPOINTS } from '@/lib/react-query/api-endpoint';
 import type {
   AuthTokens,
   ChangePasswordRequestPayload,
@@ -7,9 +7,9 @@ import type {
   LoginResponse,
   RefreshTokenRequestPayload,
   UserProfileResponse,
-} from "@/types/auth";
+} from '@/types/auth';
 
-const SERVICE_NAME = "identity";
+const SERVICE_NAME = 'identity';
 
 export const authService = {
   login: (payload: LoginRequestPayload): Promise<LoginResponse> =>
@@ -21,7 +21,7 @@ export const authService = {
   refreshToken: (payload: RefreshTokenRequestPayload): Promise<AuthTokens> =>
     httpPost<AuthTokens>(AUTH_ENDPOINTS.REFRESH, payload, {
       skipAuthHooks: true,
-      credentials: "include",
+      credentials: 'include',
       service: SERVICE_NAME,
     }),
 
@@ -36,11 +36,11 @@ export const authService = {
     }),
 
   changePassword: (
-    payload: ChangePasswordRequestPayload,
+    payload: ChangePasswordRequestPayload
   ): Promise<{ success: true; reauthenticationRequired: true }> =>
     httpPost<{ success: true; reauthenticationRequired: true }>(
       AUTH_ENDPOINTS.CHANGE_PASSWORD,
       payload,
-      { service: SERVICE_NAME },
+      { service: SERVICE_NAME }
     ),
 };

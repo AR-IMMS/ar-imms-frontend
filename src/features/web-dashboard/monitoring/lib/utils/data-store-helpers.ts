@@ -1,14 +1,14 @@
 // Performance-Optimized Selectors
 
-import { ChartDataPoint, NodeMetricsData } from "@/types/monitoring";
-import { parseToLocalDate } from "@/lib/utils/formatTime";
+import { ChartDataPoint, NodeMetricsData } from '@/types/monitoring';
+import { parseToLocalDate } from '@/lib/utils/formatTime';
 
 /**
  * Helper transform dữ liệu pure
  * Gọi hàm này bên trong `useMemo` tại React Component
  */
 export const transformToChartData = (
-  metricsData: NodeMetricsData | null,
+  metricsData: NodeMetricsData | null
 ): ChartDataPoint[] => {
   const window = metricsData?.chartWindow ?? metricsData?.seedWindow;
   if (!window) return [];
@@ -17,8 +17,8 @@ export const transformToChartData = (
   return timestamps.map((ts, index) => {
     const localDate = parseToLocalDate(ts);
     const formattedTime = localDate
-      ? `${String(localDate.getHours()).padStart(2, "0")}:${String(localDate.getMinutes()).padStart(2, "0")}`
-      : "";
+      ? `${String(localDate.getHours()).padStart(2, '0')}:${String(localDate.getMinutes()).padStart(2, '0')}`
+      : '';
     const wlData: Record<
       string,
       { cpuUsagePct: number | null; memoryUsagePct: number | null }

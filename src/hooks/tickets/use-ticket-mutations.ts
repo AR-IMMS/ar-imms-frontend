@@ -1,8 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { queryClient } from "@/lib/react-query/query-client";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { ticketService } from "@/services/tickets/ticket-service";
+import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { queryClient } from '@/lib/react-query/query-client';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { ticketService } from '@/services/tickets/ticket-service';
 import type {
   AddTicketCommentInput,
   AssignTicketInput,
@@ -10,7 +10,7 @@ import type {
   CreateTicketInput,
   TicketProps,
   TicketStatus,
-} from "@/types/ticket";
+} from '@/types/ticket';
 
 function syncTicketCaches(ticket: TicketProps) {
   queryClient.setQueryData(queryKeys.tickets.detail(ticket.id), ticket);
@@ -23,9 +23,9 @@ function syncTicketCaches(ticket: TicketProps) {
       }
 
       return cachedData.map((item: TicketProps) =>
-        item.id === ticket.id ? ticket : item,
+        item.id === ticket.id ? ticket : item
       );
-    },
+    }
   );
 }
 
@@ -49,7 +49,7 @@ export function useCreateTicketMutation() {
     onSuccess: (ticket) => {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
-      toast.success("Ticket created.");
+      toast.success('Ticket created.');
     },
   });
 }
@@ -66,7 +66,7 @@ export function useAssignTicketMutation() {
     onSuccess: (ticket) => {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
-      toast.success("Technician assignment updated.");
+      toast.success('Technician assignment updated.');
     },
   });
 }
@@ -76,7 +76,7 @@ export function useDeleteTicketMutation() {
     mutationFn: (ticketId: string) => ticketService.deleteTicket(ticketId),
     onSuccess: (ticket) => {
       invalidateTicketCollections(ticket.id);
-      toast.success("Ticket removed from active workflow.");
+      toast.success('Ticket removed from active workflow.');
     },
   });
 }
@@ -87,7 +87,7 @@ export function useCloseTicketMutation() {
     onSuccess: (ticket) => {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
-      toast.success("Ticket closed.");
+      toast.success('Ticket closed.');
     },
   });
 }
@@ -104,7 +104,7 @@ export function useUpdateTicketStatusMutation() {
     onSuccess: (ticket) => {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
-      toast.success("Ticket status updated.");
+      toast.success('Ticket status updated.');
     },
   });
 }
@@ -121,7 +121,7 @@ export function useAddTicketCommentMutation() {
     onSuccess: (ticket) => {
       syncTicketCaches(ticket);
       invalidateTicketCollections(ticket.id);
-      toast.success("Comment added.");
+      toast.success('Comment added.');
     },
   });
 }
@@ -138,9 +138,9 @@ export function useAttachTicketEvidenceMutation() {
       note?: string;
     }) => {
       const upload = await ticketService.createEvidenceUploadUrl(ticketId, {
-        type: "IMAGE",
+        type: 'IMAGE',
         fileName: file.name,
-        mimeType: file.type || "application/octet-stream",
+        mimeType: file.type || 'application/octet-stream',
       });
 
       const uploadResponse = await fetch(upload.uploadUrl, {
@@ -150,7 +150,9 @@ export function useAttachTicketEvidenceMutation() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error(`Evidence upload failed with ${uploadResponse.status}.`);
+        throw new Error(
+          `Evidence upload failed with ${uploadResponse.status}.`
+        );
       }
 
       const payload: AttachTicketEvidenceInput = {
@@ -167,7 +169,7 @@ export function useAttachTicketEvidenceMutation() {
     },
     onSuccess: (_evidence, variables) => {
       invalidateTicketCollections(variables.ticketId);
-      toast.success("Evidence attached.");
+      toast.success('Evidence attached.');
     },
   });
 }

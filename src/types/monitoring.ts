@@ -1,7 +1,7 @@
-export type MetricMode = "standard" | "live";
+export type MetricMode = 'standard' | 'live';
 
-export type NodeStatus = "healthy" | "alerting" | "unknown";
-export type CollectorStatus = "ONLINE" | "OFFLINE" | "UNKNOWN";
+export type NodeStatus = 'healthy' | 'alerting' | 'unknown';
+export type CollectorStatus = 'ONLINE' | 'OFFLINE' | 'UNKNOWN';
 
 // #region Node Overview Data
 export interface NodeOverviewDataNode {
@@ -62,7 +62,7 @@ export interface WorkloadSummary {
 
 export interface WorkloadItem {
   workloadId: string;
-  type: "container";
+  type: 'container';
   name: string;
   status: string;
   healthStatus: string;
@@ -71,7 +71,7 @@ export interface WorkloadItem {
 }
 
 export interface RealtimeConfig {
-  transport: "socket.io";
+  transport: 'socket.io';
   channel: string;
 }
 
@@ -93,7 +93,7 @@ export interface NodeMetricsQueryParams {
 }
 
 export interface MetricsConfig {
-  transport: "socket.io";
+  transport: 'socket.io';
   channel: string;
   bucketSec: number;
   retentionSec: number;
@@ -114,7 +114,7 @@ export interface MetricsUnits {
 
 export interface TrackedWorkload {
   workloadId: string;
-  workloadType: "container";
+  workloadType: 'container';
   name: string;
 }
 
@@ -155,7 +155,7 @@ export interface NodeMetricsData {
 
 // #region Socket IO Event payloads
 export interface NodeOverviewChangedPayload {
-  event: "monitoring.node.overview.changed";
+  event: 'monitoring.node.overview.changed';
   nodeId: string;
   channel: string;
   changedAt: string;
@@ -176,7 +176,7 @@ interface RealtimeWorkloadMetrics {
 }
 
 export interface NodeMetricsUpdatedPayload {
-  event: "monitoring.node.metrics.updated";
+  event: 'monitoring.node.metrics.updated';
   nodeId: string;
   channel: string;
   ts: string;
@@ -187,7 +187,7 @@ export interface NodeMetricsUpdatedPayload {
 
 export interface RealtimeWorkloadItem {
   workloadId: string;
-  workloadType: "container";
+  workloadType: 'container';
   name: string;
   status: string;
   latestCpuUsagePct: number | null;
@@ -195,14 +195,14 @@ export interface RealtimeWorkloadItem {
 }
 
 export interface NodeWorkloadsChangedPayload {
-  event: "monitoring.node.metrics.workloads.changed";
+  event: 'monitoring.node.metrics.workloads.changed';
   nodeId: string;
   channel: string;
   ts: string;
   workloadSummary: {
     total: number;
     returned: number;
-    selectionMode: "top_cpu_then_memory";
+    selectionMode: 'top_cpu_then_memory';
   };
   workloads: RealtimeWorkloadItem[];
 }
@@ -217,24 +217,22 @@ export interface ChartDataPoint extends RealtimeNodeMetrics {
 // #endregion Chart Data
 
 // #region Rack Investigation Overview Data Types
-export type RackSeverity = "healthy" | "stale" | "warning" | "high" | "critical";
-export type RackStatus = "healthy" | "alerting" | "unknown";
+export type RackSeverity =
+  'healthy' | 'stale' | 'warning' | 'high' | 'critical';
+export type RackStatus = 'healthy' | 'alerting' | 'unknown';
 
-export type RackAlertSeverity = "warning" | "critical";
-export type RackAlertScope = "node" | "rack" | "workload" | "service";
+export type RackAlertSeverity = 'warning' | 'critical';
+export type RackAlertScope = 'node' | 'rack' | 'workload' | 'service';
 export type RackAlertCategory =
-  | "availability"
-  | "resource"
-  | "thermal"
-  | "runtime"
-  | "network"
-  | "connectivity";
-export type RackAlertStatus = "firing" | "resolved";
+  | 'availability'
+  | 'resource'
+  | 'thermal'
+  | 'runtime'
+  | 'network'
+  | 'connectivity';
+export type RackAlertStatus = 'firing' | 'resolved';
 export type RackAlertTriageStatus =
-  | "new"
-  | "acknowledged"
-  | "incident_created"
-  | "suppressed";
+  'new' | 'acknowledged' | 'incident_created' | 'suppressed';
 
 export interface RackInvestigationAlert {
   fingerprint: string;
@@ -259,7 +257,7 @@ export interface RackInvestigationAlert {
     incidentId: string;
     incidentCode: string;
     status: string;
-    severity: "HIGH" | "CRITICAL";
+    severity: 'HIGH' | 'CRITICAL';
     title: string;
     createdAt: string;
     linkedAt: string | null;
@@ -272,7 +270,7 @@ export interface RackNodeSnapshotItem {
   severity: RackSeverity;
   lastSeenAt: string;
   freshnessSec: number;
-  collectorStatus: "UNKNOWN";
+  collectorStatus: 'UNKNOWN';
   alertCounters: {
     criticalMetricCount: number;
     warningMetricCount: number;
@@ -293,8 +291,8 @@ export interface RackNodeSnapshotItem {
 
 export interface RackInvestigationOverviewResponse {
   generatedAt: string;
-  scope: "rack";
-  view: "rack_investigation_overview";
+  scope: 'rack';
+  view: 'rack_investigation_overview';
   rack: {
     rackInfo: {
       id: string;
@@ -314,7 +312,7 @@ export interface RackInvestigationOverviewResponse {
     };
     healthStatus: {
       severityCode: number;
-      severityText: "HEALTHY" | "STALE" | "WARNING" | "HIGH" | "CRITICAL";
+      severityText: 'HEALTHY' | 'STALE' | 'WARNING' | 'HIGH' | 'CRITICAL';
       isRackLevelFailure: boolean;
       hasSignalLoss: boolean;
       hasOverrideFlag: boolean;
@@ -362,7 +360,7 @@ export interface RackInvestigationOverviewResponse {
   nodeSnapshot: {
     totalNodes: number;
     returned: number;
-    selectionMode: "problem_first_then_recent";
+    selectionMode: 'problem_first_then_recent';
     items: RackNodeSnapshotItem[];
   };
   navigation: {

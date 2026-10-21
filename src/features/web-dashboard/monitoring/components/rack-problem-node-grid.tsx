@@ -1,11 +1,22 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import Link from "next/link";
-import { ShieldAlert, AlertTriangle, RefreshCcw, ArrowRight, Activity, Clock, Cpu } from "lucide-react";
-import type { RackInvestigationOverviewResponse, RackNodeSnapshotItem } from "@/types/monitoring";
-import { formatToExactDateTime } from "@/lib/utils/formatTime";
-import { useRackTopologyQuery } from "@/hooks/asset/use-asset-queries";
+import { useMemo } from 'react';
+import Link from 'next/link';
+import {
+  ShieldAlert,
+  AlertTriangle,
+  RefreshCcw,
+  ArrowRight,
+  Activity,
+  Clock,
+  Cpu,
+} from 'lucide-react';
+import type {
+  RackInvestigationOverviewResponse,
+  RackNodeSnapshotItem,
+} from '@/types/monitoring';
+import { formatToExactDateTime } from '@/lib/utils/formatTime';
+import { useRackTopologyQuery } from '@/hooks/asset/use-asset-queries';
 
 interface RackProblemNodeGridProps {
   rackId: string;
@@ -13,15 +24,27 @@ interface RackProblemNodeGridProps {
 }
 
 // Mini progress bar with null/missing data fallback
-function MiniProgressBar({ label, value, color }: { label: string; value: number | null; color: string }) {
+function MiniProgressBar({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number | null;
+  color: string;
+}) {
   const isAvailable = value !== null && value !== undefined;
   const pct = isAvailable ? Math.min(100, Math.max(0, value)) : 0;
   return (
     <div className="flex flex-col gap-0.5 w-full font-mono text-[8.5px]">
       <div className="flex justify-between items-baseline text-slate-400 font-semibold">
         <span>{label}</span>
-        <span className={isAvailable ? "text-slate-300" : "text-slate-500 font-normal"}>
-          {isAvailable ? `${pct.toFixed(0)}%` : "--"}
+        <span
+          className={
+            isAvailable ? 'text-slate-300' : 'text-slate-500 font-normal'
+          }
+        >
+          {isAvailable ? `${pct.toFixed(0)}%` : '--'}
         </span>
       </div>
       <div className="h-1.5 w-full rounded bg-slate-950/60 overflow-hidden flex border border-border/10 p-[1px]">
@@ -55,16 +78,16 @@ function NodeSnapshotCard({
 
   const severityColor = useMemo(() => {
     switch (item.severity) {
-      case "critical":
-      case "high":
-        return "border-critical/30 bg-critical/5 hover:border-critical/50 text-critical shadow-[inset_0_0_8px_rgba(255,77,109,0.02)]";
-      case "warning":
-        return "border-amber/30 bg-amber/5 hover:border-amber/50 text-amber shadow-[inset_0_0_8px_rgba(255,200,87,0.02)]";
-      case "stale":
-        return "border-purple/30 bg-purple/5 hover:border-purple/50 text-purple shadow-[inset_0_0_8px_rgba(139,92,246,0.02)]";
-      case "healthy":
+      case 'critical':
+      case 'high':
+        return 'border-critical/30 bg-critical/5 hover:border-critical/50 text-critical shadow-[inset_0_0_8px_rgba(255,77,109,0.02)]';
+      case 'warning':
+        return 'border-amber/30 bg-amber/5 hover:border-amber/50 text-amber shadow-[inset_0_0_8px_rgba(255,200,87,0.02)]';
+      case 'stale':
+        return 'border-purple/30 bg-purple/5 hover:border-purple/50 text-purple shadow-[inset_0_0_8px_rgba(139,92,246,0.02)]';
+      case 'healthy':
       default:
-        return "border-border/50 bg-slate-950/20 hover:border-cyan/40 text-slate-300";
+        return 'border-border/50 bg-slate-950/20 hover:border-cyan/40 text-slate-300';
     }
   }, [item.severity]);
 
@@ -78,20 +101,25 @@ function NodeSnapshotCard({
     <Link
       href={`/monitoring/${rackId}/${actualNodeId}`}
       className={`panel p-3 border flex flex-col justify-between h-[180px] transition-all duration-200 cursor-pointer select-none font-mono ${severityColor} ${
-        isStale ? "opacity-60" : "opacity-100"
+        isStale ? 'opacity-60' : 'opacity-100'
       }`}
     >
       {/* Header Info */}
       <div className="flex justify-between items-start shrink-0">
-        <span className="text-[10px] font-bold tracking-tight truncate max-w-[110px]" title={item.nodeId}>
+        <span
+          className="text-[10px] font-bold tracking-tight truncate max-w-[110px]"
+          title={item.nodeId}
+        >
           {item.nodeId}
         </span>
         <div className="flex items-center gap-1">
-          <span className={`text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded border shrink-0 ${
-            item.status === "alerting"
-              ? "border-critical/30 bg-critical/15 text-critical animate-pulse"
-              : "border-slate-800 bg-slate-900/50 text-slate-400"
-          }`}>
+          <span
+            className={`text-[6.5px] font-extrabold uppercase px-1 py-0.5 rounded border shrink-0 ${
+              item.status === 'alerting'
+                ? 'border-critical/30 bg-critical/15 text-critical animate-pulse'
+                : 'border-slate-800 bg-slate-900/50 text-slate-400'
+            }`}
+          >
             {item.status}
           </span>
         </div>
@@ -100,24 +128,51 @@ function NodeSnapshotCard({
       {/* Hardware Metrics Progress list */}
       <div className="space-y-1.5 mt-1.5 flex-1 min-h-0">
         <div className="grid grid-cols-2 gap-x-2.5 gap-y-1">
-          <MiniProgressBar label="CPU" value={item.currentMetrics.cpuUsagePct} color="#00d1ff" />
-          <MiniProgressBar label="RAM" value={item.currentMetrics.memoryUsedPct} color="#34d399" />
-          <MiniProgressBar label="DISK" value={item.currentMetrics.diskUsedPct} color="#a78bfa" />
-          
+          <MiniProgressBar
+            label="CPU"
+            value={item.currentMetrics.cpuUsagePct}
+            color="#00d1ff"
+          />
+          <MiniProgressBar
+            label="RAM"
+            value={item.currentMetrics.memoryUsedPct}
+            color="#34d399"
+          />
+          <MiniProgressBar
+            label="DISK"
+            value={item.currentMetrics.diskUsedPct}
+            color="#a78bfa"
+          />
+
           <div className="flex flex-col gap-0.5 font-mono text-[8.5px]">
             <span className="text-slate-400 font-semibold">TEMP</span>
-            <span className={item.currentMetrics.cpuTemperatureC !== null ? "text-slate-200 font-bold" : "text-slate-500"}>
-              {item.currentMetrics.cpuTemperatureC !== null ? `${item.currentMetrics.cpuTemperatureC.toFixed(0)}°C` : "--"}
+            <span
+              className={
+                item.currentMetrics.cpuTemperatureC !== null
+                  ? 'text-slate-200 font-bold'
+                  : 'text-slate-500'
+              }
+            >
+              {item.currentMetrics.cpuTemperatureC !== null
+                ? `${item.currentMetrics.cpuTemperatureC.toFixed(0)}°C`
+                : '--'}
             </span>
           </div>
         </div>
 
         {/* Worst performance issue readout */}
         <div className="text-[8.5px] text-slate-400 border-t border-border/10 pt-1.5 flex justify-between items-center gap-2">
-          <span className="shrink-0 text-slate-500 uppercase font-semibold">Worst:</span>
+          <span className="shrink-0 text-slate-500 uppercase font-semibold">
+            Worst:
+          </span>
           {item.worstMetric.metricKey ? (
-            <span className="font-bold text-slate-300 truncate max-w-[120px]" title={item.worstMetric.metricKey}>
-              {item.worstMetric.metricKey} = {item.worstMetric.metricValueText || item.worstMetric.metricValueNumeric}
+            <span
+              className="font-bold text-slate-300 truncate max-w-[120px]"
+              title={item.worstMetric.metricKey}
+            >
+              {item.worstMetric.metricKey} ={' '}
+              {item.worstMetric.metricValueText ||
+                item.worstMetric.metricValueNumeric}
             </span>
           ) : (
             <span className="text-slate-500 italic">None</span>
@@ -127,7 +182,10 @@ function NodeSnapshotCard({
 
       {/* Freshness, status and Counter strip */}
       <div className="border-t border-border/10 pt-1.5 mt-1.5 shrink-0 flex items-center justify-between text-[7px] text-slate-500 font-semibold">
-        <span className="flex items-center gap-0.5 shrink-0" title={`Last seen: ${formattedLastSeen} | Collector: ${item.collectorStatus}`}>
+        <span
+          className="flex items-center gap-0.5 shrink-0"
+          title={`Last seen: ${formattedLastSeen} | Collector: ${item.collectorStatus}`}
+        >
           <Clock className="size-2 text-slate-600" /> {item.freshnessSec}s lag
         </span>
         <div className="flex items-center gap-1 font-mono text-[7px] scale-95 origin-right">
@@ -149,7 +207,10 @@ function NodeSnapshotCard({
   );
 }
 
-export function RackProblemNodeGrid({ rackId, overview }: RackProblemNodeGridProps) {
+export function RackProblemNodeGrid({
+  rackId,
+  overview,
+}: RackProblemNodeGridProps) {
   const { nodeSnapshot, navigation } = overview;
   const { data: rackTopology } = useRackTopologyQuery(rackId, !!rackId);
 
@@ -169,7 +230,8 @@ export function RackProblemNodeGrid({ rackId, overview }: RackProblemNodeGridPro
       <div className="flex items-center justify-between font-mono border-b border-border/40 pb-2">
         <div className="flex items-baseline gap-2.5">
           <h3 className="text-xs font-extrabold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Activity className="size-3.5 text-cyan" /> Node Investigation Snapshot
+            <Activity className="size-3.5 text-cyan" /> Node Investigation
+            Snapshot
           </h3>
           <span className="text-[9px] text-muted-foreground font-semibold">
             ({nodeSnapshot.returned} of {nodeSnapshot.totalNodes} total nodes)

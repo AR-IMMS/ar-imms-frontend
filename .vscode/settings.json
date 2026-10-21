@@ -1,0 +1,35 @@
+{
+  // Bật tính năng tự động format khi bấm Save (Ctrl+S)
+  "editor.formatOnSave": true,
+
+  // Đặt Prettier làm trình định dạng mặc định cho toàn bộ editor
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Tự động chạy fix các lỗi của ESLint khi Save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Cấu hình cụ thể cho từng loại file dùng Prettier
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

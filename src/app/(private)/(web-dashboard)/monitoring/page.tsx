@@ -1,8 +1,9 @@
-import { Cpu } from "lucide-react";
+import { Cpu } from 'lucide-react';
 
 export const metadata = {
-  title: "Telemetry Monitoring - AR-IMMS Command Center",
-  description: "Real-time infrastructure health, telemetry thresholds, and container workloads monitoring control center",
+  title: 'Telemetry Monitoring - AR-IMMS Command Center',
+  description:
+    'Real-time infrastructure health, telemetry thresholds, and container workloads monitoring control center',
 };
 
 export default function FleetMonitoringPage() {

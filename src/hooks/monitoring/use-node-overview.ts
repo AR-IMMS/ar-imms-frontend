@@ -1,11 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { monitoringService } from "@/services/monitoring/monitoring-service";
-import { useMonitoringStore } from "@/stores/node-monitoring-store";
-import { queryKeys } from "@/lib/react-query/query-keys";
-import { socketManager } from "@/lib/socket/socket-manager";
-import type { ApiError } from "@/types/api";
-import type { NodeOverviewChangedPayload } from "@/types/monitoring";
+import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { monitoringService } from '@/services/monitoring/monitoring-service';
+import { useMonitoringStore } from '@/stores/node-monitoring-store';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { socketManager } from '@/lib/socket/socket-manager';
+import type { ApiError } from '@/types/api';
+import type { NodeOverviewChangedPayload } from '@/types/monitoring';
 
 export const useNodeOverview = (nodeCode: string) => {
   const overviewState = useMonitoringStore((s) => s.nodesOverview[nodeCode]);
@@ -30,8 +30,8 @@ export const useNodeOverview = (nodeCode: string) => {
     if (error && nodeCode) {
       const apiErr = error as unknown as ApiError;
       setOverviewError(nodeCode, {
-        code: apiErr.code || "FETCH_ERROR",
-        message: apiErr.message || "Failed to fetch node overview",
+        code: apiErr.code || 'FETCH_ERROR',
+        message: apiErr.message || 'Failed to fetch node overview',
       });
     }
   }, [error, nodeCode, setOverviewError]);
@@ -47,10 +47,10 @@ export const useNodeOverview = (nodeCode: string) => {
       (payload) => {
         console.log(
           `[useNodeOverview] Node overview change notification received for ${nodeCode}, refetching...`,
-          payload,
+          payload
         );
         refetch();
-      },
+      }
     );
 
     return () => {

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { X, Network, Server, Cpu, Store } from "lucide-react";
-import { useAssetStore } from "../../hooks/useAssetStore";
-import Stat from "@/components/common/stat";
-import CopyableUserId from "@/components/common/copyable-user-id";
+import { useMemo } from 'react';
+import { X, Network, Server, Cpu, Store } from 'lucide-react';
+import { useAssetStore } from '../../hooks/useAssetStore';
+import Stat from '@/components/common/stat';
+import CopyableUserId from '@/components/common/copyable-user-id';
 
 interface SiteDetailPanelProps {
   onClose: () => void;
@@ -16,7 +16,7 @@ export function SiteDetailPanel({ onClose }: SiteDetailPanelProps) {
   const siteTopology = useMemo(() => {
     if (!selectedSiteCode) return [];
     return topologyData.filter(
-      (item) => item.rack.siteCode === selectedSiteCode,
+      (item) => item.rack.siteCode === selectedSiteCode
     );
   }, [topologyData, selectedSiteCode]);
 
@@ -24,13 +24,13 @@ export function SiteDetailPanel({ onClose }: SiteDetailPanelProps) {
     const totalRacks = siteTopology.length;
     const totalNodes = siteTopology.reduce(
       (acc, item) => acc + (item.nodes?.length || 0),
-      0,
+      0
     );
 
     const totalUsedSlots = totalNodes;
     const totalCapacityLimit = siteTopology.reduce(
       (acc, item) => acc + (item.rack.capacityLimit || 42),
-      0,
+      0
     );
 
     const capacityPercent = totalCapacityLimit
@@ -38,7 +38,7 @@ export function SiteDetailPanel({ onClose }: SiteDetailPanelProps) {
       : 0;
 
     const rooms = Array.from(
-      new Set(siteTopology.map((item) => item.rack.roomCode).filter(Boolean)),
+      new Set(siteTopology.map((item) => item.rack.roomCode).filter(Boolean))
     );
 
     return {
@@ -63,11 +63,11 @@ export function SiteDetailPanel({ onClose }: SiteDetailPanelProps) {
                 SITE REGION PROFILE
               </div>
               <div className="title-display mt-1 text-lg text-foreground truncate max-w-[280px]">
-                {selectedSiteCode || "UNASSIGNED SITE"}
+                {selectedSiteCode || 'UNASSIGNED SITE'}
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="font-mono text-xs text-muted-foreground/60 light:text-muted-foreground/80 light:font-semibold">
-                  SITE CODE{": "}
+                  SITE CODE{': '}
                 </div>
                 <CopyableUserId value={selectedSiteCode} />
               </div>
@@ -141,9 +141,9 @@ export function SiteDetailPanel({ onClose }: SiteDetailPanelProps) {
                   <span className=" text-[11px] text-muted-foreground/70 light:text-background light:font-bold">
                     {
                       siteTopology.filter(
-                        (item) => item.rack.roomCode === roomCode,
+                        (item) => item.rack.roomCode === roomCode
                       ).length
-                    }{" "}
+                    }{' '}
                     Rack(s)
                   </span>
                 </div>

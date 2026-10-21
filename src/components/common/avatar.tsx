@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { getUserFullNameInitial } from "@/lib/utils/getUserFullNameInitial";
-import Image from "next/image";
-import { useState } from "react";
+import { getUserFullNameInitial } from '@/lib/utils/getUserFullNameInitial';
+import Image from 'next/image';
+import { useState } from 'react';
 
 interface AvatarProps {
   avatarUrl?: string | null;
   fullName?: string;
-  variant?: "circle" | "square";
-  size?: "sm" | "md" | "lg";
+  variant?: 'circle' | 'square';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export function Avatar({
   avatarUrl,
-  fullName = "User",
-  variant = "circle",
-  size = "md",
+  fullName = 'User',
+  variant = 'circle',
+  size = 'md',
 }: AvatarProps) {
   const cleanUrl = avatarUrl?.trim();
 
@@ -27,12 +27,12 @@ export function Avatar({
     setUrlState([cleanUrl, false]);
   }
 
-  const shapeClass = variant === "circle" ? "rounded-full" : "rounded-md";
+  const shapeClass = variant === 'circle' ? 'rounded-full' : 'rounded-md';
 
   const sizeClasses = {
-    sm: "size-9 text-sm",
-    md: "size-16 text-xl",
-    lg: "size-24 text-3xl",
+    sm: 'size-9 text-sm',
+    md: 'size-16 text-xl',
+    lg: 'size-24 text-3xl',
   };
 
   const currentSizeClass = sizeClasses[size];

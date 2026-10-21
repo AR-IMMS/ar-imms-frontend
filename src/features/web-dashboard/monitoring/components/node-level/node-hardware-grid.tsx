@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { memo, useMemo, useRef, useEffect } from "react";
-import { Activity, Cpu, Thermometer, Database } from "lucide-react";
-import ReactECharts from "echarts-for-react";
-import type { ChartDataPoint } from "@/types/monitoring";
+import { memo, useMemo, useRef, useEffect } from 'react';
+import { Activity, Cpu, Thermometer, Database } from 'lucide-react';
+import ReactECharts from 'echarts-for-react';
+import type { ChartDataPoint } from '@/types/monitoring';
 import {
   buildLineChartOption,
   formatBytes,
   getLatestValue,
-} from "../../lib/utils/metrics-chart-helpers";
+} from '../../lib/utils/metrics-chart-helpers';
 
 type NetworkTooltipParam = {
   name: string;
@@ -103,8 +103,8 @@ function NodeHardwareGrid({
     return buildLineChartOption(
       extractedMetrics.cpuSeries,
       extractedMetrics.timestamps,
-      "CPU",
-      "#00d1ff",
+      'CPU',
+      '#00d1ff'
     );
   }, [extractedMetrics.cpuSeries, extractedMetrics.timestamps]);
 
@@ -113,102 +113,102 @@ function NodeHardwareGrid({
     return buildLineChartOption(
       extractedMetrics.memSeries,
       extractedMetrics.timestamps,
-      "Memory",
-      "#38bdf8",
+      'Memory',
+      '#38bdf8'
     );
   }, [extractedMetrics.memSeries, extractedMetrics.timestamps]);
 
   // Memoize Temperature Option with threshold markers (WARN/CRIT)
   const tempOption = useMemo(() => {
     return {
-      backgroundColor: "transparent",
+      backgroundColor: 'transparent',
       tooltip: {
-        trigger: "axis",
-        backgroundColor: "rgba(20, 27, 45, 0.95)",
-        borderColor: "rgba(255, 77, 109, 0.2)",
-        textStyle: { color: "#f8fafc", fontSize: 9, fontFamily: "monospace" },
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 27, 45, 0.95)',
+        borderColor: 'rgba(255, 77, 109, 0.2)',
+        textStyle: { color: '#f8fafc', fontSize: 9, fontFamily: 'monospace' },
         formatter: (params: any) => {
           const val = params[0].value;
-          return `TEMP: ${val !== null && val !== undefined ? val.toFixed(1) : "N/A"}°C`;
+          return `TEMP: ${val !== null && val !== undefined ? val.toFixed(1) : 'N/A'}°C`;
         },
       },
       grid: { top: 15, bottom: 20, left: 32, right: 32 },
       xAxis: {
-        type: "category",
+        type: 'category',
         data: extractedMetrics.timestamps,
-        axisLine: { lineStyle: { color: "rgba(255, 255, 255, 0.08)" } },
-        axisLabel: { color: "#64748b", fontSize: 8, fontFamily: "monospace" },
+        axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.08)' } },
+        axisLabel: { color: '#64748b', fontSize: 8, fontFamily: 'monospace' },
       },
       yAxis: {
-        type: "value",
+        type: 'value',
         min: 30,
         max: 100,
         splitLine: { show: false },
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: {
-          color: "#64748b",
+          color: '#64748b',
           fontSize: 8,
-          fontFamily: "monospace",
-          formatter: "{value}°C",
+          fontFamily: 'monospace',
+          formatter: '{value}°C',
         },
       },
       series: [
         {
-          name: "Temperature",
+          name: 'Temperature',
           data: extractedMetrics.tempSeries,
-          type: "line",
+          type: 'line',
           smooth: true,
           showSymbol: false,
           connectNulls: true,
           lineStyle: {
             width: 1.5,
             color: {
-              type: "linear",
+              type: 'linear',
               x: 0,
               y: 0,
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "#ff4d6d" },
-                { offset: 0.5, color: "#ffc857" },
-                { offset: 1, color: "#34d399" },
+                { offset: 0, color: '#ff4d6d' },
+                { offset: 0.5, color: '#ffc857' },
+                { offset: 1, color: '#34d399' },
               ],
             },
           },
           markLine: {
-            symbol: ["none", "none"],
+            symbol: ['none', 'none'],
             data: [
               {
                 yAxis: 70,
-                name: "WARN",
+                name: 'WARN',
                 lineStyle: {
-                  color: "rgba(255, 200, 87, 0.5)",
-                  type: "dashed",
+                  color: 'rgba(255, 200, 87, 0.5)',
+                  type: 'dashed',
                   width: 0.8,
                 },
                 label: {
-                  position: "end",
-                  formatter: "70°C",
-                  color: "rgba(255, 200, 87, 0.8)",
+                  position: 'end',
+                  formatter: '70°C',
+                  color: 'rgba(255, 200, 87, 0.8)',
                   fontSize: 7,
-                  fontFamily: "monospace",
+                  fontFamily: 'monospace',
                 },
               },
               {
                 yAxis: 80,
-                name: "CRIT",
+                name: 'CRIT',
                 lineStyle: {
-                  color: "rgba(255, 77, 109, 0.5)",
-                  type: "dashed",
+                  color: 'rgba(255, 77, 109, 0.5)',
+                  type: 'dashed',
                   width: 0.8,
                 },
                 label: {
-                  position: "end",
-                  formatter: "80°C",
-                  color: "rgba(255, 77, 109, 0.8)",
+                  position: 'end',
+                  formatter: '80°C',
+                  color: 'rgba(255, 77, 109, 0.8)',
                   fontSize: 7,
-                  fontFamily: "monospace",
+                  fontFamily: 'monospace',
                 },
               },
             ],
@@ -221,63 +221,63 @@ function NodeHardwareGrid({
   // Memoize Network Option
   const networkOption = useMemo(() => {
     return {
-      backgroundColor: "transparent",
+      backgroundColor: 'transparent',
       tooltip: {
-        trigger: "axis",
-        backgroundColor: "rgba(20, 27, 45, 0.95)",
-        borderColor: "rgba(0, 209, 255, 0.2)",
-        textStyle: { color: "#f8fafc", fontSize: 10, fontFamily: "monospace" },
+        trigger: 'axis',
+        backgroundColor: 'rgba(20, 27, 45, 0.95)',
+        borderColor: 'rgba(0, 209, 255, 0.2)',
+        textStyle: { color: '#f8fafc', fontSize: 10, fontFamily: 'monospace' },
         formatter: (params: NetworkTooltipParam[]) => {
           let html = `<span style="font-size:9px;color:#64748b">${params[0].name}</span><br/>`;
           params.forEach((p) => {
             html += `<span style="color:${p.color}">${p.seriesName}: <b>${formatBytes(
-              p.value,
+              p.value
             )}</b></span><br/>`;
           });
           return html;
         },
       },
       legend: {
-        data: ["Rx Input", "Tx Output"],
-        textStyle: { color: "#94a3b8", fontSize: 9, fontFamily: "monospace" },
+        data: ['Rx Input', 'Tx Output'],
+        textStyle: { color: '#94a3b8', fontSize: 9, fontFamily: 'monospace' },
         right: 10,
         top: 0,
       },
       grid: { top: 25, bottom: 20, left: 45, right: 10 },
       xAxis: {
-        type: "category",
+        type: 'category',
         data: extractedMetrics.timestamps,
-        axisLine: { lineStyle: { color: "rgba(255, 255, 255, 0.08)" } },
-        axisLabel: { color: "#64748b", fontSize: 9, fontFamily: "monospace" },
+        axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.08)' } },
+        axisLabel: { color: '#64748b', fontSize: 9, fontFamily: 'monospace' },
       },
       yAxis: {
-        type: "value",
-        splitLine: { lineStyle: { color: "rgba(255, 255, 255, 0.03)" } },
+        type: 'value',
+        splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.03)' } },
         axisLabel: {
-          color: "#64748b",
+          color: '#64748b',
           fontSize: 9,
-          fontFamily: "monospace",
-          formatter: (value: number) => formatBytes(value).split(" ")[0],
+          fontFamily: 'monospace',
+          formatter: (value: number) => formatBytes(value).split(' ')[0],
         },
       },
       series: [
         {
-          name: "Rx Input",
+          name: 'Rx Input',
           data: extractedMetrics.rxSeries,
-          type: "line",
+          type: 'line',
           smooth: true,
           showSymbol: false,
           connectNulls: true,
-          lineStyle: { width: 1.5, color: "#38bdf8" },
+          lineStyle: { width: 1.5, color: '#38bdf8' },
         },
         {
-          name: "Tx Output",
+          name: 'Tx Output',
           data: extractedMetrics.txSeries,
-          type: "line",
+          type: 'line',
           smooth: true,
           showSymbol: false,
           connectNulls: true,
-          lineStyle: { width: 1.5, color: "#8b5cf6" },
+          lineStyle: { width: 1.5, color: '#8b5cf6' },
         },
       ],
     };
@@ -287,7 +287,7 @@ function NodeHardwareGrid({
     extractedMetrics.timestamps,
   ]);
 
-  const isDormant = primaryNicStatus?.value?.trim().toLowerCase() === "dormant";
+  const isDormant = primaryNicStatus?.value?.trim().toLowerCase() === 'dormant';
 
   return (
     <div
@@ -308,7 +308,7 @@ function NodeHardwareGrid({
           <ReactECharts
             ref={cpuChartRef}
             option={cpuOption}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
             opts={{ devicePixelRatio: 2 }}
           />
         </div>
@@ -325,12 +325,12 @@ function NodeHardwareGrid({
             <div
               className={`size-2 rounded-full shadow-[0_0_8px] ${
                 isDormant
-                  ? "bg-slate-500 shadow-slate-500/50"
-                  : "bg-emerald-400 shadow-emerald-400/50"
+                  ? 'bg-slate-500 shadow-slate-500/50'
+                  : 'bg-emerald-400 shadow-emerald-400/50'
               }`}
             />
             <span className="font-semibold uppercase">
-              {primaryNicStatus?.value || "offline"}
+              {primaryNicStatus?.value || 'offline'}
             </span>
           </div>
         </div>
@@ -338,7 +338,7 @@ function NodeHardwareGrid({
           <ReactECharts
             ref={netChartRef}
             option={networkOption}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
             opts={{ devicePixelRatio: 2 }}
           />
         </div>
@@ -372,7 +372,7 @@ function NodeHardwareGrid({
               <circle
                 className="transition-all duration-500 ease-out"
                 stroke={
-                  extractedMetrics.latestDisk >= 85 ? "#ff4d6d" : "#00d1ff"
+                  extractedMetrics.latestDisk >= 85 ? '#ff4d6d' : '#00d1ff'
                 }
                 fill="transparent"
                 strokeWidth="8"
@@ -391,8 +391,8 @@ function NodeHardwareGrid({
                 style={{
                   filter:
                     extractedMetrics.latestDisk >= 85
-                      ? "drop-shadow(0 0 6px rgba(255, 77, 109, 0.6))"
-                      : "drop-shadow(0 0 6px rgba(0, 209, 255, 0.4))",
+                      ? 'drop-shadow(0 0 6px rgba(255, 77, 109, 0.6))'
+                      : 'drop-shadow(0 0 6px rgba(0, 209, 255, 0.4))',
                 }}
               />
             </svg>
@@ -418,10 +418,10 @@ function NodeHardwareGrid({
           <span
             className={`text-xs font-bold ${
               extractedMetrics.latestTemp >= 80
-                ? "text-critical drop-shadow-[0_0_8px_rgba(255,77,109,0.5)]"
+                ? 'text-critical drop-shadow-[0_0_8px_rgba(255,77,109,0.5)]'
                 : extractedMetrics.latestTemp >= 70
-                  ? "text-amber drop-shadow-[0_0_8px_rgba(255,200,87,0.5)]"
-                  : "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]"
+                  ? 'text-amber drop-shadow-[0_0_8px_rgba(255,200,87,0.5)]'
+                  : 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]'
             }`}
           >
             {extractedMetrics.latestTemp.toFixed(0)}°C
@@ -431,7 +431,7 @@ function NodeHardwareGrid({
           <ReactECharts
             ref={tempChartRef}
             option={tempOption}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
             opts={{ devicePixelRatio: 2 }}
           />
         </div>
@@ -451,7 +451,7 @@ function NodeHardwareGrid({
           <ReactECharts
             ref={memChartRef}
             option={memoryOption}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: '100%', width: '100%' }}
             opts={{ devicePixelRatio: 2 }}
           />
         </div>

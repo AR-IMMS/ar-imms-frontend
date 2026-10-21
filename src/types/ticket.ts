@@ -1,15 +1,15 @@
 export type TicketStatus =
-  | "OPEN"
-  | "ASSIGNED"
-  | "IN_PROGRESS"
-  | "WAITING_FOR_INFO"
-  | "RESOLVED"
-  | "CLOSED"
-  | "CANCELLED";
+  | 'OPEN'
+  | 'ASSIGNED'
+  | 'IN_PROGRESS'
+  | 'WAITING_FOR_INFO'
+  | 'RESOLVED'
+  | 'CLOSED'
+  | 'CANCELLED';
 
-export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type TicketPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
-export type TicketAssetType = "RACK" | "NODE";
+export type TicketAssetType = 'RACK' | 'NODE';
 
 export interface TicketAssetReference {
   type: TicketAssetType;
@@ -31,21 +31,21 @@ export interface TechnicianOption {
 }
 
 export type EvidenceType =
-  | "IMAGE"
-  | "NOTE"
-  | "DOCUMENT"
-  | "LINK"
-  | "DIAGNOSTIC_SNAPSHOT"
-  | "FIELD_EVIDENCE";
+  | 'IMAGE'
+  | 'NOTE'
+  | 'DOCUMENT'
+  | 'LINK'
+  | 'DIAGNOSTIC_SNAPSHOT'
+  | 'FIELD_EVIDENCE';
 
 export type TicketActivityType =
-  | "CREATED"
-  | "ASSIGNED"
-  | "REASSIGNED"
-  | "ACKNOWLEDGED"
-  | "COMMENT_ADDED"
-  | "STATUS_CHANGED"
-  | "EVIDENCE_ATTACHED";
+  | 'CREATED'
+  | 'ASSIGNED'
+  | 'REASSIGNED'
+  | 'ACKNOWLEDGED'
+  | 'COMMENT_ADDED'
+  | 'STATUS_CHANGED'
+  | 'EVIDENCE_ATTACHED';
 
 export interface TicketEvidence {
   id: string;
@@ -107,12 +107,12 @@ export interface Ticket {
 export type TicketProps = Ticket;
 
 export type TicketRealtimeEventType =
-  | "ticket.created"
-  | "ticket.assigned"
-  | "ticket.status_changed"
-  | "ticket.deleted"
-  | "ticket.comment_added"
-  | "ticket.evidence_attached";
+  | 'ticket.created'
+  | 'ticket.assigned'
+  | 'ticket.status_changed'
+  | 'ticket.deleted'
+  | 'ticket.comment_added'
+  | 'ticket.evidence_attached';
 
 export interface TicketRealtimeEventTicket {
   id: string;
@@ -163,13 +163,13 @@ export interface AttachTicketEvidenceInput {
 }
 
 export interface CreateEvidenceUploadUrlInput {
-  type: Exclude<EvidenceType, "NOTE" | "LINK">;
+  type: Exclude<EvidenceType, 'NOTE' | 'LINK'>;
   fileName: string;
   mimeType: string;
 }
 
 export interface UploadTarget {
-  method: "PUT";
+  method: 'PUT';
   uploadUrl: string;
   storageKey: string;
   objectUrl?: string;

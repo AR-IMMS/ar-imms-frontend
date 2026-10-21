@@ -1,8 +1,8 @@
-import { httpGet } from "@/lib/http/http-methods";
-import { INCIDENT_ENDPOINTS } from "@/lib/react-query/api-endpoint";
-import type { IncidentDetail, IncidentListItem } from "@/types/incident";
+import { httpGet } from '@/lib/http/http-methods';
+import { INCIDENT_ENDPOINTS } from '@/lib/react-query/api-endpoint';
+import type { IncidentDetail, IncidentListItem } from '@/types/incident';
 
-const INCIDENT_SERVICE_NAME = "incident";
+const INCIDENT_SERVICE_NAME = 'incident';
 
 export const incidentService = {
   listIncidents: (): Promise<IncidentListItem[]> =>

@@ -1,14 +1,14 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 import {
   createJSONStorage,
   persist,
   type StateStorage,
-} from "zustand/middleware";
+} from 'zustand/middleware';
 
 export interface NavigationPathItem {
   id: string;
   name: string;
-  type: "site" | "room" | "rack";
+  type: 'site' | 'room' | 'rack';
 }
 
 interface UiConfigState {
@@ -26,13 +26,13 @@ interface UiConfigState {
   setActiveNavigationPath: (path: NavigationPathItem[]) => void;
 
   // Theme state & actions
-  theme: "light" | "dark" | "system";
-  setTheme: (theme: "light" | "dark" | "system") => void;
+  theme: 'light' | 'dark' | 'system';
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
 }
 
 type PersistedUiConfigState = Pick<
   UiConfigState,
-  "isCollapsed" | "isTopologyTreeCollapsed" | "theme"
+  'isCollapsed' | 'isTopologyTreeCollapsed' | 'theme'
 >;
 
 const createFallbackStorage = (): StateStorage => {
@@ -50,7 +50,7 @@ const createFallbackStorage = (): StateStorage => {
 };
 
 const createBrowserStorage = (): StateStorage => {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return createFallbackStorage();
   }
 
@@ -72,9 +72,10 @@ export const useUiConfigStore = create<UiConfigState>()(
       hasHydrated: false,
       isTopologyTreeCollapsed: false,
       activeNavigationPath: [],
-      theme: "dark",
+      theme: 'dark',
 
-      toggleSidebar: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
+      toggleSidebar: () =>
+        set((state) => ({ isCollapsed: !state.isCollapsed })),
       setCollapsed: (isCollapsed) => set({ isCollapsed }),
       setHasHydrated: (value) => set({ hasHydrated: value }),
 
@@ -90,7 +91,7 @@ export const useUiConfigStore = create<UiConfigState>()(
       setTheme: (theme) => set({ theme }),
     }),
     {
-      name: "ui-config-store",
+      name: 'ui-config-store',
       storage: createJSONStorage<PersistedUiConfigState>(createBrowserStorage),
       partialize: (state): PersistedUiConfigState => ({
         isCollapsed: state.isCollapsed,
@@ -100,8 +101,6 @@ export const useUiConfigStore = create<UiConfigState>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
-    },
-  ),
+    }
+  )
 );
-
-

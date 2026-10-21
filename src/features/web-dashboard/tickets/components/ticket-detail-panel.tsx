@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   AlertCircle,
@@ -13,34 +13,30 @@ import {
   Unlock,
   UserPlus,
   X,
-} from "lucide-react";
-import Link from "next/link";
-import {
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/auth/use-auth";
+} from 'lucide-react';
+import Link from 'next/link';
+import { useMemo, useState, type ReactNode } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/auth/use-auth';
 import {
   useAddTicketCommentMutation,
   useAssignTicketMutation,
   useCloseTicketMutation,
   useDeleteTicketMutation,
-} from "@/hooks/tickets/use-ticket-mutations";
+} from '@/hooks/tickets/use-ticket-mutations';
 import {
   useTicketDetailQuery,
   useTicketEvidenceQuery,
-} from "@/hooks/tickets/use-ticket-queries";
-import type { TechnicianOption, TicketProps } from "@/types/ticket";
+} from '@/hooks/tickets/use-ticket-queries';
+import type { TechnicianOption, TicketProps } from '@/types/ticket';
 import {
   formatDateTime,
   getTechnicianName,
   isActiveTicket,
   priorityTone,
   statusTone,
-} from "../lib/ticket-ui";
-import TicketConfirmDialog from "./ticket-confirm-dialog";
+} from '../lib/ticket-ui';
+import TicketConfirmDialog from './ticket-confirm-dialog';
 
 type TicketDetailPanelProps = {
   ticket: TicketProps;
@@ -51,12 +47,12 @@ type TicketDetailPanelProps = {
 
 type PendingDetailAction =
   | {
-      type: "assignment";
+      type: 'assignment';
       technician: TechnicianOption;
       activeTicketCount: number;
     }
   | {
-      type: "close" | "delete";
+      type: 'close' | 'delete';
     }
   | null;
 
@@ -76,9 +72,9 @@ export default function TicketDetailPanel({
 
   const detailTicket = detailQuery.data ?? ticket;
   const [assigneeUserId, setAssigneeUserId] = useState(
-    detailTicket.assigneeUserId ?? "",
+    detailTicket.assigneeUserId ?? ''
   );
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('');
   const [previewImage, setPreviewImage] = useState<{
     url: string;
     title: string;
@@ -89,16 +85,16 @@ export default function TicketDetailPanel({
     const merged = evidenceQuery.data ?? detailTicket.evidence ?? [];
     return [...merged].sort(
       (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
     );
   }, [detailTicket.evidence, evidenceQuery.data]);
 
   const comments = useMemo(
     () =>
       [...(detailTicket.activities ?? [])]
-        .filter((activity) => activity.type === "COMMENT_ADDED")
+        .filter((activity) => activity.type === 'COMMENT_ADDED')
         .reverse(),
-    [detailTicket.activities],
+    [detailTicket.activities]
   );
 
   const activeTicketsForSelectedAssignee = useMemo(() => {
@@ -110,13 +106,13 @@ export default function TicketDetailPanel({
       (item) =>
         item.id !== detailTicket.id &&
         item.assigneeUserId === assigneeUserId &&
-        isActiveTicket(item),
+        isActiveTicket(item)
     );
   }, [assigneeUserId, detailTicket.id, tickets]);
 
   const selectedTechnician =
     technicians.find((technician) => technician.id === assigneeUserId) ?? null;
-  const isTerminal = ["CLOSED", "CANCELLED"].includes(detailTicket.status);
+  const isTerminal = ['CLOSED', 'CANCELLED'].includes(detailTicket.status);
   const isBusy =
     assignMutation.isPending ||
     commentMutation.isPending ||
@@ -125,19 +121,19 @@ export default function TicketDetailPanel({
 
   function requestAssignmentConfirmation() {
     if (!assigneeUserId) {
-      toast.error("Select a technician first.");
+      toast.error('Select a technician first.');
       return;
     }
 
     const technician = technicians.find((item) => item.id === assigneeUserId);
 
     if (!technician) {
-      toast.error("Selected technician is not available.");
+      toast.error('Selected technician is not available.');
       return;
     }
 
     setPendingAction({
-      type: "assignment",
+      type: 'assignment',
       technician,
       activeTicketCount: activeTicketsForSelectedAssignee.length,
     });
@@ -157,7 +153,7 @@ export default function TicketDetailPanel({
 
   async function handleAddComment() {
     if (!comment.trim()) {
-      toast.error("Comment cannot be empty.");
+      toast.error('Comment cannot be empty.');
       return;
     }
 
@@ -165,7 +161,7 @@ export default function TicketDetailPanel({
       ticketId: detailTicket.id,
       payload: { comment: comment.trim() },
     });
-    setComment("");
+    setComment('');
   }
 
   async function performCloseTicket() {
@@ -185,12 +181,12 @@ export default function TicketDetailPanel({
       return;
     }
 
-    if (pendingAction.type === "assignment") {
+    if (pendingAction.type === 'assignment') {
       await performAssign();
       return;
     }
 
-    if (pendingAction.type === "close") {
+    if (pendingAction.type === 'close') {
       await performCloseTicket();
       return;
     }
@@ -228,29 +224,57 @@ export default function TicketDetailPanel({
 
         <div className="mt-7 grid grid-cols-2 gap-3">
           <PanelStat label="Ticket ID" value={detailTicket.id.slice(0, 8)} />
-          <PanelStat label="Assignee" value={getTechnicianName(detailTicket.assigneeUserId, technicians)} />
-          <PanelStat label="Updated" value={formatDateTime(detailTicket.updatedAt)} />
-          <PanelStat label="Evidence" value={String(evidenceItems.length)} tone="text-cyan-ice" />
+          <PanelStat
+            label="Assignee"
+            value={getTechnicianName(detailTicket.assigneeUserId, technicians)}
+          />
+          <PanelStat
+            label="Updated"
+            value={formatDateTime(detailTicket.updatedAt)}
+          />
+          <PanelStat
+            label="Evidence"
+            value={String(evidenceItems.length)}
+            tone="text-cyan-ice"
+          />
         </div>
 
         {detailTicket.assetRef ? (
           <section className="mt-7">
-            <div className="label-mono mb-3 text-[10px] text-muted-foreground">Related Asset</div>
+            <div className="label-mono mb-3 text-[10px] text-muted-foreground">
+              Related Asset
+            </div>
             <Link
-              href={detailTicket.assetRef.type === "NODE" && detailTicket.assetRef.rackId
-                ? `/assets/${detailTicket.assetRef.rackId}/${detailTicket.assetRef.assetId}`
-                : detailTicket.assetRef.type === "RACK"
-                  ? `/assets/${detailTicket.assetRef.assetId}`
-                  : "/assets"}
+              href={
+                detailTicket.assetRef.type === 'NODE' &&
+                detailTicket.assetRef.rackId
+                  ? `/assets/${detailTicket.assetRef.rackId}/${detailTicket.assetRef.assetId}`
+                  : detailTicket.assetRef.type === 'RACK'
+                    ? `/assets/${detailTicket.assetRef.assetId}`
+                    : '/assets'
+              }
               className="flex items-center gap-3 rounded-2xl border border-cyan/30 bg-cyan/10 p-4 transition hover:border-cyan/55"
             >
               <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-cyan/25 bg-background/30">
-                {detailTicket.assetRef.type === "RACK" ? <Server className="size-5 text-cyan" /> : <Box className="size-5 text-cyan" />}
+                {detailTicket.assetRef.type === 'RACK' ? (
+                  <Server className="size-5 text-cyan" />
+                ) : (
+                  <Box className="size-5 text-cyan" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="label-mono text-[9px] text-cyan-ice">{detailTicket.assetRef.type} · {detailTicket.assetRef.code}</div>
-                <div className="mt-1 truncate text-sm font-semibold text-foreground">{detailTicket.assetRef.displayName}</div>
-                {detailTicket.assetRef.type === "NODE" && detailTicket.assetRef.rackCode ? <div className="mt-1 font-mono text-[10px] text-muted-foreground">Located in {detailTicket.assetRef.rackCode}</div> : null}
+                <div className="label-mono text-[9px] text-cyan-ice">
+                  {detailTicket.assetRef.type} · {detailTicket.assetRef.code}
+                </div>
+                <div className="mt-1 truncate text-sm font-semibold text-foreground">
+                  {detailTicket.assetRef.displayName}
+                </div>
+                {detailTicket.assetRef.type === 'NODE' &&
+                detailTicket.assetRef.rackCode ? (
+                  <div className="mt-1 font-mono text-[10px] text-muted-foreground">
+                    Located in {detailTicket.assetRef.rackCode}
+                  </div>
+                ) : null}
               </div>
               <ChevronRight className="size-4 text-muted-foreground" />
             </Link>
@@ -278,31 +302,35 @@ export default function TicketDetailPanel({
             />
             <WorkflowStateRow
               label="Acknowledgement"
-              value={detailTicket.acknowledgedAt ? "Acknowledged" : "Waiting for technician"}
+              value={
+                detailTicket.acknowledgedAt
+                  ? 'Acknowledged'
+                  : 'Waiting for technician'
+              }
               helper={
                 detailTicket.acknowledgedAt
                   ? `Ack at ${formatDateTime(detailTicket.acknowledgedAt)}`
-                  : "Assigned technician has not confirmed receipt yet."
+                  : 'Assigned technician has not confirmed receipt yet.'
               }
               className={
                 detailTicket.acknowledgedAt
-                  ? "border-neon-green/35 bg-neon-green/10 text-neon-green"
-                  : "border-amber/35 bg-amber/10 text-amber"
+                  ? 'border-neon-green/35 bg-neon-green/10 text-neon-green'
+                  : 'border-amber/35 bg-amber/10 text-amber'
               }
               icon={<CheckCircle2 className="size-4" />}
             />
             <WorkflowStateRow
               label="Ticket Lock"
-              value={isTerminal ? "Locked" : "Editable"}
+              value={isTerminal ? 'Locked' : 'Editable'}
               helper={
                 isTerminal
-                  ? "Terminal ticket: workflow actions are disabled."
-                  : "Operator actions are available for this ticket."
+                  ? 'Terminal ticket: workflow actions are disabled.'
+                  : 'Operator actions are available for this ticket.'
               }
               className={
                 isTerminal
-                  ? "border-white/10 bg-white/5 text-muted-foreground"
-                  : "border-cyan/35 bg-cyan/10 text-cyan-ice"
+                  ? 'border-white/10 bg-white/5 text-muted-foreground'
+                  : 'border-cyan/35 bg-cyan/10 text-cyan-ice'
               }
               icon={<Unlock className="size-4" />}
             />
@@ -324,7 +352,7 @@ export default function TicketDetailPanel({
                     getTechnicianName(detailTicket.assigneeUserId, technicians)}
                 </div>
                 <div className="truncate font-mono text-[11px] text-muted-foreground">
-                  {selectedTechnician?.email ?? "Select technician below"}
+                  {selectedTechnician?.email ?? 'Select technician below'}
                 </div>
               </div>
             </div>
@@ -345,15 +373,15 @@ export default function TicketDetailPanel({
                       onClick={() => setAssigneeUserId(technician.id)}
                       className={`w-full border-b border-border/50 px-3 py-3 text-left last:border-b-0 transition disabled:cursor-not-allowed disabled:opacity-50 ${
                         selected
-                          ? "bg-cyan/10 text-cyan-ice"
-                          : "text-foreground hover:bg-white/5"
+                          ? 'bg-cyan/10 text-cyan-ice'
+                          : 'text-foreground hover:bg-white/5'
                       }`}
                     >
                       <div className="label-mono text-[10px]">
                         {technician.fullName}
                       </div>
                       <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
-                        {technician.jobTitle ?? technician.username} -{" "}
+                        {technician.jobTitle ?? technician.username} -{' '}
                         {technician.email}
                       </div>
                     </button>
@@ -374,7 +402,9 @@ export default function TicketDetailPanel({
               className="label-mono mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-cyan/35 bg-cyan/10 px-3 text-[10px] text-cyan-ice transition hover:border-cyan/60 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ShieldCheck className="size-3.5" />
-              {detailTicket.assigneeUserId ? "Update Assignment" : "Assign Technician"}
+              {detailTicket.assigneeUserId
+                ? 'Update Assignment'
+                : 'Assign Technician'}
             </button>
           </div>
         </section>
@@ -387,14 +417,14 @@ export default function TicketDetailPanel({
             <ActionButton
               label="Confirm Close"
               icon={<CheckCircle2 className="size-4 text-neon-green" />}
-              onClick={() => setPendingAction({ type: "close" })}
-              disabled={detailTicket.status !== "RESOLVED" || isBusy}
+              onClick={() => setPendingAction({ type: 'close' })}
+              disabled={detailTicket.status !== 'RESOLVED' || isBusy}
             />
             <ActionButton
               label="Delete Ticket"
               icon={<Trash2 className="size-4 text-critical" />}
-              onClick={() => setPendingAction({ type: "delete" })}
-              disabled={isBusy || detailTicket.status === "CLOSED"}
+              onClick={() => setPendingAction({ type: 'delete' })}
+              disabled={isBusy || detailTicket.status === 'CLOSED'}
               danger
             />
           </div>
@@ -441,7 +471,7 @@ export default function TicketDetailPanel({
                 className="label-mono inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-cyan/35 bg-cyan/10 px-4 text-[10px] text-cyan-ice transition hover:border-cyan/60 hover:bg-cyan/15 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Send className="size-3.5" />
-                {commentMutation.isPending ? "Posting..." : "Post Note"}
+                {commentMutation.isPending ? 'Posting...' : 'Post Note'}
               </button>
             </div>
           </div>
@@ -454,7 +484,7 @@ export default function TicketDetailPanel({
                 const actor = resolveActorProfile(
                   activity.actorUserId,
                   technicians,
-                  currentUser,
+                  currentUser
                 );
 
                 return (
@@ -500,7 +530,7 @@ export default function TicketDetailPanel({
             ) : (
               evidenceItems.map((evidence) => {
                 const isImage =
-                  evidence.url && evidence.mimeType?.startsWith("image/");
+                  evidence.url && evidence.mimeType?.startsWith('image/');
 
                 return (
                   <div
@@ -512,7 +542,7 @@ export default function TicketDetailPanel({
                         type="button"
                         onClick={() =>
                           setPreviewImage({
-                            url: evidence.url ?? "",
+                            url: evidence.url ?? '',
                             title:
                               evidence.fileName ??
                               evidence.storageKey ??
@@ -544,8 +574,12 @@ export default function TicketDetailPanel({
                           evidence.type}
                       </div>
                       <div className="font-mono text-[11px] text-muted-foreground">
-                        By {resolveActorName(evidence.attachedByUserId, technicians)} -{" "}
-                        {formatDateTime(evidence.createdAt)}
+                        By{' '}
+                        {resolveActorName(
+                          evidence.attachedByUserId,
+                          technicians
+                        )}{' '}
+                        - {formatDateTime(evidence.createdAt)}
                       </div>
                       {evidence.note ? (
                         <div className="text-xs text-muted-foreground">
@@ -615,7 +649,7 @@ export default function TicketDetailPanel({
               ticket={detailTicket}
               currentAssignee={getTechnicianName(
                 detailTicket.assigneeUserId,
-                technicians,
+                technicians
               )}
             />
           ) : null
@@ -630,39 +664,39 @@ function confirmDialogCopy(action: PendingDetailAction): {
   title: string;
   message: string;
   confirmLabel: string;
-  tone: "cyan" | "green" | "red" | "amber";
+  tone: 'cyan' | 'green' | 'red' | 'amber';
 } {
-  if (action?.type === "assignment") {
+  if (action?.type === 'assignment') {
     return {
-      eyebrow: "// UPDATE ASSIGNMENT",
-      title: "Update Technician Assignment",
+      eyebrow: '// UPDATE ASSIGNMENT',
+      title: 'Update Technician Assignment',
       message:
         action.activeTicketCount > 0
-          ? "The selected technician already has active work. Confirm that this ticket should still be assigned to them."
-          : "Confirm the technician assignment for this ticket workflow.",
-      confirmLabel: "Update Assignment",
-      tone: action.activeTicketCount > 0 ? "amber" : "cyan",
+          ? 'The selected technician already has active work. Confirm that this ticket should still be assigned to them.'
+          : 'Confirm the technician assignment for this ticket workflow.',
+      confirmLabel: 'Update Assignment',
+      tone: action.activeTicketCount > 0 ? 'amber' : 'cyan',
     };
   }
 
-  if (action?.type === "delete") {
+  if (action?.type === 'delete') {
     return {
-      eyebrow: "// DELETE TICKET",
-      title: "Delete Ticket",
+      eyebrow: '// DELETE TICKET',
+      title: 'Delete Ticket',
       message:
-        "Remove this ticket from the active workflow? Use this only for invalid or cancelled work.",
-      confirmLabel: "Delete Ticket",
-      tone: "red",
+        'Remove this ticket from the active workflow? Use this only for invalid or cancelled work.',
+      confirmLabel: 'Delete Ticket',
+      tone: 'red',
     };
   }
 
   return {
-    eyebrow: "// FINAL CONFIRMATION",
-    title: "Confirm Ticket Close",
+    eyebrow: '// FINAL CONFIRMATION',
+    title: 'Confirm Ticket Close',
     message:
-      "Close this ticket after final operator verification? Closed tickets will no longer appear in the active queue.",
-    confirmLabel: "Confirm Close",
-    tone: "green",
+      'Close this ticket after final operator verification? Closed tickets will no longer appear in the active queue.',
+    confirmLabel: 'Confirm Close',
+    tone: 'green',
   };
 }
 
@@ -683,21 +717,27 @@ function ConfirmDetailSummary({
           {ticket.title}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
-          <span className={`label-mono rounded-md border px-2 py-1 text-[10px] ${priorityTone(ticket.priority)}`}>
+          <span
+            className={`label-mono rounded-md border px-2 py-1 text-[10px] ${priorityTone(ticket.priority)}`}
+          >
             {ticket.priority}
           </span>
-          <span className={`label-mono rounded-md border px-2 py-1 text-[10px] ${statusTone(ticket.status)}`}>
+          <span
+            className={`label-mono rounded-md border px-2 py-1 text-[10px] ${statusTone(ticket.status)}`}
+          >
             {ticket.status}
           </span>
         </div>
       </div>
 
-      {action.type === "assignment" ? (
+      {action.type === 'assignment' ? (
         <div className="rounded-xl border border-border bg-background/25 p-4">
           <div className="grid gap-2 font-mono text-xs">
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Current:</span>
-              <span className="truncate text-foreground">{currentAssignee}</span>
+              <span className="truncate text-foreground">
+                {currentAssignee}
+              </span>
             </div>
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Next:</span>
@@ -709,7 +749,9 @@ function ConfirmDetailSummary({
               <span className="text-muted-foreground">Active tickets:</span>
               <span
                 className={
-                  action.activeTicketCount > 0 ? "text-amber" : "text-neon-green"
+                  action.activeTicketCount > 0
+                    ? 'text-amber'
+                    : 'text-neon-green'
                 }
               >
                 {action.activeTicketCount}
@@ -725,7 +767,7 @@ function ConfirmDetailSummary({
 function PanelStat({
   label,
   value,
-  tone = "text-foreground",
+  tone = 'text-foreground',
 }: {
   label: string;
   value: string;
@@ -770,42 +812,42 @@ function WorkflowStateRow({
   );
 }
 
-function formatStatusLabel(status: TicketProps["status"]) {
+function formatStatusLabel(status: TicketProps['status']) {
   return status
-    .split("_")
+    .split('_')
     .map((part) => part.charAt(0) + part.slice(1).toLowerCase())
-    .join(" ");
+    .join(' ');
 }
 
-function statusHelperText(status: TicketProps["status"]) {
+function statusHelperText(status: TicketProps['status']) {
   switch (status) {
-    case "OPEN":
-      return "Ticket is open and ready for assignment or triage.";
-    case "ASSIGNED":
-      return "Technician is assigned; waiting for acknowledgement or progress.";
-    case "IN_PROGRESS":
-      return "Field work is currently underway.";
-    case "WAITING_FOR_INFO":
-      return "Work is paused while more information is required.";
-    case "RESOLVED":
-      return "Technician completed work; operator must confirm close.";
-    case "CLOSED":
-      return "Ticket has been finally closed.";
-    case "CANCELLED":
-      return "Ticket was cancelled and can no longer be worked.";
+    case 'OPEN':
+      return 'Ticket is open and ready for assignment or triage.';
+    case 'ASSIGNED':
+      return 'Technician is assigned; waiting for acknowledgement or progress.';
+    case 'IN_PROGRESS':
+      return 'Field work is currently underway.';
+    case 'WAITING_FOR_INFO':
+      return 'Work is paused while more information is required.';
+    case 'RESOLVED':
+      return 'Technician completed work; operator must confirm close.';
+    case 'CLOSED':
+      return 'Ticket has been finally closed.';
+    case 'CANCELLED':
+      return 'Ticket was cancelled and can no longer be worked.';
   }
 }
 
-function priorityHelperText(priority: TicketProps["priority"]) {
+function priorityHelperText(priority: TicketProps['priority']) {
   switch (priority) {
-    case "CRITICAL":
-      return "Immediate operator attention recommended.";
-    case "HIGH":
-      return "High impact task; prioritize dispatch.";
-    case "MEDIUM":
-      return "Standard operational priority.";
-    case "LOW":
-      return "Low urgency maintenance item.";
+    case 'CRITICAL':
+      return 'Immediate operator attention recommended.';
+    case 'HIGH':
+      return 'High impact task; prioritize dispatch.';
+    case 'MEDIUM':
+      return 'Standard operational priority.';
+    case 'LOW':
+      return 'Low urgency maintenance item.';
   }
 }
 
@@ -829,8 +871,8 @@ function ActionButton({
       disabled={disabled}
       className={`inline-flex h-10 items-center justify-between rounded-lg border px-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${
         danger
-          ? "border-critical/35 bg-critical/10 text-critical hover:bg-critical/15"
-          : "border-border bg-surface-1 text-foreground hover:border-cyan/35"
+          ? 'border-critical/35 bg-critical/10 text-critical hover:bg-critical/15'
+          : 'border-border bg-surface-1 text-foreground hover:border-cyan/35'
       }`}
     >
       <span className="inline-flex items-center gap-2">
@@ -850,7 +892,10 @@ function EmptyBox({ label }: { label: string }) {
   );
 }
 
-function resolveActorName(actorUserId: string, technicians: TechnicianOption[]) {
+function resolveActorName(
+  actorUserId: string,
+  technicians: TechnicianOption[]
+) {
   return (
     technicians.find((technician) => technician.id === actorUserId)?.fullName ??
     actorUserId
@@ -865,13 +910,13 @@ function resolveActorProfile(
     fullName?: string;
     username?: string;
     roleCodes?: string[];
-  } | null,
+  } | null
 ) {
   if (currentUser?.id === actorUserId) {
     return {
-      name: currentUser.fullName ?? currentUser.username ?? "Operator",
+      name: currentUser.fullName ?? currentUser.username ?? 'Operator',
       initials: getInitials(
-        currentUser.fullName ?? currentUser.username ?? "Operator",
+        currentUser.fullName ?? currentUser.username ?? 'Operator'
       ),
       role: formatActorRole(currentUser.roleCodes),
     };
@@ -882,14 +927,14 @@ function resolveActorProfile(
     return {
       name: technician.fullName,
       initials: getInitials(technician.fullName),
-      role: technician.jobTitle ?? "Technician",
+      role: technician.jobTitle ?? 'Technician',
     };
   }
 
   return {
-    name: "Former or unavailable user",
-    initials: "?",
-    role: "User unavailable",
+    name: 'Former or unavailable user',
+    initials: '?',
+    role: 'User unavailable',
   };
 }
 
@@ -899,13 +944,13 @@ function getInitials(name: string) {
     .split(/\s+/)
     .slice(-2)
     .map((part) => part.charAt(0))
-    .join("")
+    .join('')
     .toUpperCase();
 }
 
 function formatActorRole(roleCodes?: string[]) {
-  if (roleCodes?.includes("SYSTEM_MONITORING_OPERATOR")) return "Operator";
-  if (roleCodes?.includes("IT_ADMINISTRATOR")) return "Administrator";
-  if (roleCodes?.includes("MAINTENANCE_TECHNICIAN")) return "Technician";
-  return "Operator";
+  if (roleCodes?.includes('SYSTEM_MONITORING_OPERATOR')) return 'Operator';
+  if (roleCodes?.includes('IT_ADMINISTRATOR')) return 'Administrator';
+  if (roleCodes?.includes('MAINTENANCE_TECHNICIAN')) return 'Technician';
+  return 'Operator';
 }

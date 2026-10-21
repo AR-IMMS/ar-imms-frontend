@@ -1,14 +1,20 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { Download, Link2, LoaderCircle, QrCode, ShieldCheck } from "lucide-react";
-import Image from "next/image";
-import QRCode from "qrcode";
-import { toast } from "sonner";
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Download,
+  Link2,
+  LoaderCircle,
+  QrCode,
+  ShieldCheck,
+} from 'lucide-react';
+import Image from 'next/image';
+import QRCode from 'qrcode';
+import { toast } from 'sonner';
 
-import ModalLayout from "@/components/layout/modal-layout";
-import { useCreateMarkerMutation } from "@/hooks/asset/use-asset-mutations";
-import type { MarkerEntity, MarkerTargetType } from "@/types/assets";
+import ModalLayout from '@/components/layout/modal-layout';
+import { useCreateMarkerMutation } from '@/hooks/asset/use-asset-mutations';
+import type { MarkerEntity, MarkerTargetType } from '@/types/assets';
 
 export interface AssetQrTarget {
   id: string;
@@ -28,8 +34,8 @@ function buildDefaultMarkerCode(target: AssetQrTarget) {
   const normalizedCode = target.code
     .trim()
     .toUpperCase()
-    .replace(/[^A-Z0-9_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^A-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
   return `AR-${target.type.toUpperCase()}-${normalizedCode || target.id}`;
 }
@@ -40,7 +46,7 @@ function buildQrPayload(markerCode: string) {
   if (webArUrl) {
     try {
       const url = new URL(webArUrl);
-      url.searchParams.set("markerCode", markerCode);
+      url.searchParams.set('markerCode', markerCode);
       return url.toString();
     } catch {
       // Fall through to the app deep link when the configured URL is invalid.
@@ -57,32 +63,34 @@ export default function AssetQrModal({
   onClose,
 }: AssetQrModalProps) {
   const createMarker = useCreateMarkerMutation();
-  const [createdMarker, setCreatedMarker] = useState<MarkerEntity | undefined>();
+  const [createdMarker, setCreatedMarker] = useState<
+    MarkerEntity | undefined
+  >();
   const marker = existingMarker ?? createdMarker;
   const [markerCode, setMarkerCode] = useState(
-    existingMarker?.markerCode ?? buildDefaultMarkerCode(target),
+    existingMarker?.markerCode ?? buildDefaultMarkerCode(target)
   );
-  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState('');
 
   const qrPayload = useMemo(
     () => buildQrPayload(marker?.markerCode ?? markerCode.trim()),
-    [marker?.markerCode, markerCode],
+    [marker?.markerCode, markerCode]
   );
 
   useEffect(() => {
     let cancelled = false;
 
     void QRCode.toDataURL(qrPayload, {
-      errorCorrectionLevel: "H",
+      errorCorrectionLevel: 'H',
       margin: 2,
       width: 360,
-      color: { dark: "#08111f", light: "#ffffff" },
+      color: { dark: '#08111f', light: '#ffffff' },
     })
       .then((dataUrl) => {
         if (!cancelled) setQrDataUrl(dataUrl);
       })
       .catch(() => {
-        if (!cancelled) setQrDataUrl("");
+        if (!cancelled) setQrDataUrl('');
       });
 
     return () => {
@@ -93,7 +101,7 @@ export default function AssetQrModal({
   const handleCreate = () => {
     const normalizedMarkerCode = markerCode.trim();
     if (!normalizedMarkerCode) {
-      toast.error("Marker code is required.");
+      toast.error('Marker code is required.');
       return;
     }
 
@@ -104,11 +112,12 @@ export default function AssetQrModal({
         targetType: target.type,
         targetId: target.id,
         worldTrackingEnabled: true,
-        notes: "QR identifies the asset; the shared MindAR image target handles spatial tracking.",
+        notes:
+          'QR identifies the asset; the shared MindAR image target handles spatial tracking.',
         metadata: {
           qrPayloadVersion: 1,
-          identificationMethod: "qr",
-          trackingTarget: "shared-mindar",
+          identificationMethod: 'qr',
+          trackingTarget: 'shared-mindar',
         },
       },
       {
@@ -119,16 +128,16 @@ export default function AssetQrModal({
           toast.success(`QR marker mapped to ${target.code}.`);
         },
         onError: (error: Error) => {
-          toast.error(error.message || "Could not create the QR marker.");
+          toast.error(error.message || 'Could not create the QR marker.');
         },
-      },
+      }
     );
   };
 
   const handleDownload = () => {
     if (!qrDataUrl || !marker) return;
 
-    const anchor = document.createElement("a");
+    const anchor = document.createElement('a');
     anchor.href = qrDataUrl;
     anchor.download = `${marker.markerCode}.png`;
     document.body.appendChild(anchor);
@@ -241,7 +250,7 @@ export default function AssetQrModal({
                 ) : (
                   <QrCode className="size-4" />
                 )}
-                {createMarker.isPending ? "CREATING..." : "CREATE QR MAPPING"}
+                {createMarker.isPending ? 'CREATING...' : 'CREATE QR MAPPING'}
               </button>
             )}
           </div>

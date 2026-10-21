@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Header from "@/components/layout/web-dashboard/header";
-import BulkMarkerExport from "@/features/web-dashboard/asset-management/bulk-marker-export";
-import HierarchicalTreeSidebar from "@/features/web-dashboard/asset-management/components/hierachical-tree";
-import { UnmappedAssetsDrawer } from "@/features/web-dashboard/asset-management/components/panel/unmapped-asset-drawer";
-import { QrCode, Plus } from "lucide-react";
-import { ReactNode, useState, useEffect } from "react";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
+import Header from '@/components/layout/web-dashboard/header';
+import BulkMarkerExport from '@/features/web-dashboard/asset-management/bulk-marker-export';
+import HierarchicalTreeSidebar from '@/features/web-dashboard/asset-management/components/hierachical-tree';
+import { UnmappedAssetsDrawer } from '@/features/web-dashboard/asset-management/components/panel/unmapped-asset-drawer';
+import { QrCode, Plus } from 'lucide-react';
+import { ReactNode, useState, useEffect } from 'react';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
 import {
   useUiConfigStore,
   type NavigationPathItem,
-} from "@/stores/ui-config-store";
-import { motion } from "framer-motion";
-import { WorkspaceBreadcrumbs } from "@/components/common/workspace-breadcrumbs";
+} from '@/stores/ui-config-store';
+import { motion } from 'framer-motion';
+import { WorkspaceBreadcrumbs } from '@/components/common/workspace-breadcrumbs';
 
 export default function AssetManagementLayout({
   children,
@@ -33,20 +33,20 @@ export default function AssetManagementLayout({
     if (selectedSiteCode !== null) {
       path.push({
         id: selectedSiteCode,
-        name: selectedSiteCode || "Unassigned Site",
-        type: "site",
+        name: selectedSiteCode || 'Unassigned Site',
+        type: 'site',
       });
 
       if (selectedRoomCode !== null) {
         path.push({
           id: selectedRoomCode,
-          name: selectedRoomCode || "Unknown Room",
-          type: "room",
+          name: selectedRoomCode || 'Unknown Room',
+          type: 'room',
         });
 
         if (selectedRackId !== null) {
           const rack = topologyData.find(
-            (t) => t.rack.id === selectedRackId,
+            (t) => t.rack.id === selectedRackId
           )?.rack;
           const rackName = rack
             ? rack.displayName || rack.rackCode
@@ -54,7 +54,7 @@ export default function AssetManagementLayout({
           path.push({
             id: selectedRackId,
             name: rackName,
-            type: "rack",
+            type: 'rack',
           });
         }
       }
@@ -101,18 +101,20 @@ export default function AssetManagementLayout({
         <motion.aside
           initial={false}
           animate={{
-            width: isTopologyTreeCollapsed ? 0 : "20%",
+            width: isTopologyTreeCollapsed ? 0 : '20%',
             minWidth: isTopologyTreeCollapsed ? 0 : 240,
             paddingLeft: 24,
           }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="relative pb-6 z-10 shrink-0 flex flex-col overflow-visible"
         >
           <HierarchicalTreeSidebar />
         </motion.aside>
 
         <main className="relative flex-1 min-w-0 overflow-hidden flex flex-col">
-          <WorkspaceBreadcrumbs className={`absolute top-0 ${isTopologyTreeCollapsed ? "left-0" : "left-4"}`} />
+          <WorkspaceBreadcrumbs
+            className={`absolute top-0 ${isTopologyTreeCollapsed ? 'left-0' : 'left-4'}`}
+          />
           <div className="flex-1 min-h-0 h-full w-full">{children}</div>
         </main>
 

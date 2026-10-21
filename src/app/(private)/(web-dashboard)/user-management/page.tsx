@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import Header from "@/components/layout/web-dashboard/header";
-import BulkGmailImport from "@/features/web-dashboard/user-management/bulk-gmail-import";
-import UserListView from "@/features/web-dashboard/user-management/user-list-view";
-import AddUserModal from "@/features/web-dashboard/user-management/add-user-modal";
-import { Plus, Upload } from "lucide-react";
-import { useState } from "react";
+import Header from '@/components/layout/web-dashboard/header';
+import BulkGmailImport from '@/features/web-dashboard/user-management/bulk-gmail-import';
+import UserListView from '@/features/web-dashboard/user-management/user-list-view';
+import AddUserModal from '@/features/web-dashboard/user-management/add-user-modal';
+import { Plus, Upload } from 'lucide-react';
+import { useState } from 'react';
 
 export default function UserManagementPage() {
   const [importOpen, setImportOpen] = useState(false);
   const [addUserOpen, setAddUserOpen] = useState(false);
-  
+
   return (
     <div className="flex flex-col gap-6">
       <Header

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { ChevronDown, ChevronRight, Layers } from "lucide-react";
-import { RoomGroup } from "./types";
-import { RackItem } from "./RackItem";
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
+import { RoomGroup } from './types';
+import { RackItem } from './RackItem';
 
 interface RoomItemProps {
   room: RoomGroup;
   siteCode: string;
-  maxLevel: "rack" | "node";
+  maxLevel: 'rack' | 'node';
   roomKey: string;
   roomOpen: boolean;
   toggleRoom: (roomKey: string) => void;
@@ -30,12 +30,14 @@ export function RoomItem({
   const selectedRoomCode = useAssetStore((s) => s.selectedRoomCode);
   const selectedRackId = useAssetStore((s) => s.selectedRackId);
   const selectedNodeCode = useAssetStore((s) => s.selectedNodeCode);
-  
+
   const setSelectedSiteCode = useAssetStore((s) => s.setSelectedSiteCode);
   const setSelectedRoomCode = useAssetStore((s) => s.setSelectedRoomCode);
   const setSelectedRackId = useAssetStore((s) => s.setSelectedRackId);
   const setSelectedNodeCode = useAssetStore((s) => s.setSelectedNodeCode);
-  const setIsUnmappedDrawerOpen = useAssetStore((s) => s.setIsUnmappedDrawerOpen);
+  const setIsUnmappedDrawerOpen = useAssetStore(
+    (s) => s.setIsUnmappedDrawerOpen
+  );
   const setActivePanelType = useAssetStore((s) => s.setActivePanelType);
 
   const isActive =
@@ -52,8 +54,8 @@ export function RoomItem({
       setActivePanelType(null);
       return;
     }
-    setSelectedSiteCode(siteCode || "");
-    setSelectedRoomCode(room.roomCode || "");
+    setSelectedSiteCode(siteCode || '');
+    setSelectedRoomCode(room.roomCode || '');
     setIsUnmappedDrawerOpen(false);
   };
 
@@ -79,14 +81,12 @@ export function RoomItem({
           }}
           className={`flex-1 text-left px-2 py-1 rounded flex items-center gap-2 min-w-0 transition-colors ${
             isActive
-              ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-              : "text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent"
+              ? 'bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]'
+              : 'text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent'
           }`}
         >
           <Layers className="size-3.5 text-cyan-ice shrink-0" />
-          <span className="truncate flex-1">
-            {room.displayName}
-          </span>
+          <span className="truncate flex-1">{room.displayName}</span>
         </button>
       </div>
 
@@ -94,7 +94,7 @@ export function RoomItem({
       {roomOpen && (
         <div
           className={`${
-            maxLevel === "rack" ? "ml-8" : "ml-2"
+            maxLevel === 'rack' ? 'ml-8' : 'ml-2'
           } border-l border-border/40 pl-2 space-y-0.5 mt-0.5`}
         >
           {room.racks.map((rack) => {

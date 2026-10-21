@@ -1,6 +1,6 @@
-export type IncidentSeverity = "INFO" | "WARNING" | "CRITICAL";
+export type IncidentSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
 
-export type IncidentStatus = "OPEN" | "RESOLVED" | "CLOSED";
+export type IncidentStatus = 'OPEN' | 'RESOLVED' | 'CLOSED';
 
 export interface IncidentListItem {
   id: string;

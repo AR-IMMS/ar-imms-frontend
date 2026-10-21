@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { toast } from "sonner";
-import { useAssetStore } from "../../hooks/useAssetStore";
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { toast } from 'sonner';
+import { useAssetStore } from '../../hooks/useAssetStore';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import {
   useActivateRackMutation,
   useRetireRackMutation,
   useActivateNodeMutation,
   useRetireNodeMutation,
-} from "@/hooks/asset/use-asset-mutations";
-import ModalLayout from "@/components/layout/modal-layout";
+} from '@/hooks/asset/use-asset-mutations';
+import ModalLayout from '@/components/layout/modal-layout';
 
 export default function ConfirmRetireModal() {
   const { lifecycleModalState, setLifecycleModalState } = useAssetStore();
   const isOpen = !!lifecycleModalState;
   const entityType = lifecycleModalState?.entityType ?? null;
-  const entityId = lifecycleModalState?.entityId ?? "";
-  const action = lifecycleModalState?.action ?? "retire";
-  const displayName = lifecycleModalState?.displayName ?? "";
+  const entityId = lifecycleModalState?.entityId ?? '';
+  const action = lifecycleModalState?.action ?? 'retire';
+  const displayName = lifecycleModalState?.displayName ?? '';
 
   const activateRack = useActivateRackMutation();
   const retireRack = useRetireRackMutation();
@@ -40,9 +40,9 @@ export default function ConfirmRetireModal() {
   const handleConfirm = () => {
     const successCallback = () => {
       toast.success(
-        `${entityType === "rack" ? "Rack" : "Node"} successfully ${
-          action === "activate" ? "activated" : "retired"
-        }.`,
+        `${entityType === 'rack' ? 'Rack' : 'Node'} successfully ${
+          action === 'activate' ? 'activated' : 'retired'
+        }.`
       );
       handleClose();
     };
@@ -51,8 +51,8 @@ export default function ConfirmRetireModal() {
       toast.error(err.message || `Failed to transition state`);
     };
 
-    if (entityType === "rack") {
-      if (action === "activate") {
+    if (entityType === 'rack') {
+      if (action === 'activate') {
         activateRack.mutate(entityId, {
           onSuccess: successCallback,
           onError: errorCallback,
@@ -64,7 +64,7 @@ export default function ConfirmRetireModal() {
         });
       }
     } else {
-      if (action === "activate") {
+      if (action === 'activate') {
         activateNode.mutate(entityId, {
           onSuccess: successCallback,
           onError: errorCallback,
@@ -78,7 +78,7 @@ export default function ConfirmRetireModal() {
     }
   };
 
-  const isRetire = action === "retire";
+  const isRetire = action === 'retire';
 
   return (
     <ModalLayout
@@ -140,8 +140,8 @@ export default function ConfirmRetireModal() {
             <span
               className={
                 isRetire
-                  ? "text-red-400 font-bold"
-                  : "text-emerald-400 font-bold"
+                  ? 'text-red-400 font-bold'
+                  : 'text-emerald-400 font-bold'
               }
             >
               {action.toUpperCase()}
@@ -164,11 +164,11 @@ export default function ConfirmRetireModal() {
             onClick={handleConfirm}
             className={`px-4 py-2 text-xs font-mono rounded-lg font-semibold transition ${
               isRetire
-                ? "bg-red-500 text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]"
-                : "bg-emerald-500 text-primary-foreground hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                ? 'bg-red-500 text-white hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+                : 'bg-emerald-500 text-primary-foreground hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
             }`}
           >
-            {isPending ? "COMPLETING..." : "CONFIRM ACTION"}
+            {isPending ? 'COMPLETING...' : 'CONFIRM ACTION'}
           </button>
         </div>
       </div>

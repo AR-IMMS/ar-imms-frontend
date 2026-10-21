@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { ChevronDown, Search, X } from "lucide-react";
-import { useMemo, useState, type ReactNode } from "react";
-import type { TicketPriority, TicketStatus } from "@/types/ticket";
-import { PRIORITY_OPTIONS, STATUS_OPTIONS } from "../lib/ticket-ui";
+import { ChevronDown, Search, X } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import type { TicketPriority, TicketStatus } from '@/types/ticket';
+import { PRIORITY_OPTIONS, STATUS_OPTIONS } from '../lib/ticket-ui';
 
-type AssigneeFilter = "ALL" | "UNASSIGNED" | string;
-type MenuKey = "priority" | "status" | "assignee" | null;
+type AssigneeFilter = 'ALL' | 'UNASSIGNED' | string;
+type MenuKey = 'priority' | 'status' | 'assignee' | null;
 
 type TicketListFiltersProps = {
   search: string;
-  priority: TicketPriority | "ALL";
-  status: TicketStatus | "ALL";
+  priority: TicketPriority | 'ALL';
+  status: TicketStatus | 'ALL';
   assignee: AssigneeFilter;
   assigneeOptions: Array<{ id: string; label: string }>;
   onSearchChange: (value: string) => void;
-  onPriorityChange: (value: TicketPriority | "ALL") => void;
-  onStatusChange: (value: TicketStatus | "ALL") => void;
+  onPriorityChange: (value: TicketPriority | 'ALL') => void;
+  onStatusChange: (value: TicketStatus | 'ALL') => void;
   onAssigneeChange: (value: AssigneeFilter) => void;
 };
 
@@ -34,24 +34,24 @@ export default function TicketListFilters({
   const [openMenu, setOpenMenu] = useState<MenuKey>(null);
 
   const assigneeLabel = useMemo(() => {
-    if (assignee === "ALL") {
-      return "All";
+    if (assignee === 'ALL') {
+      return 'All';
     }
 
-    if (assignee === "UNASSIGNED") {
-      return "Unassigned";
+    if (assignee === 'UNASSIGNED') {
+      return 'Unassigned';
     }
 
     return (
       assigneeOptions.find((option) => option.id === assignee)?.label ??
-      "Technician"
+      'Technician'
     );
   }, [assignee, assigneeOptions]);
 
   const activeFilters = [
-    priority !== "ALL" ? `Priority: ${priority}` : null,
-    status !== "ALL" ? `Status: ${status}` : null,
-    assignee !== "ALL" ? `Assign Tech: ${assigneeLabel}` : null,
+    priority !== 'ALL' ? `Priority: ${priority}` : null,
+    status !== 'ALL' ? `Status: ${status}` : null,
+    assignee !== 'ALL' ? `Assign Tech: ${assigneeLabel}` : null,
   ].filter((label): label is string => Boolean(label));
 
   return (
@@ -70,17 +70,17 @@ export default function TicketListFilters({
         <FilterDropdown
           menuKey="priority"
           label="Priority"
-          value={priority === "ALL" ? "All" : priority}
+          value={priority === 'ALL' ? 'All' : priority}
           openMenu={openMenu}
           onOpenMenu={setOpenMenu}
-          active={priority !== "ALL"}
+          active={priority !== 'ALL'}
         >
           <FilterItem
             label="All Priorities"
-            selected={priority === "ALL"}
-            onSelect={() => onPriorityChange("ALL")}
+            selected={priority === 'ALL'}
+            onSelect={() => onPriorityChange('ALL')}
           />
-          {PRIORITY_OPTIONS.filter((option) => option !== "ALL").map(
+          {PRIORITY_OPTIONS.filter((option) => option !== 'ALL').map(
             (option) => (
               <FilterItem
                 key={option}
@@ -88,24 +88,24 @@ export default function TicketListFilters({
                 selected={priority === option}
                 onSelect={() => onPriorityChange(option)}
               />
-            ),
+            )
           )}
         </FilterDropdown>
 
         <FilterDropdown
           menuKey="status"
           label="Status"
-          value={status === "ALL" ? "All" : status}
+          value={status === 'ALL' ? 'All' : status}
           openMenu={openMenu}
           onOpenMenu={setOpenMenu}
-          active={status !== "ALL"}
+          active={status !== 'ALL'}
         >
           <FilterItem
             label="All Statuses"
-            selected={status === "ALL"}
-            onSelect={() => onStatusChange("ALL")}
+            selected={status === 'ALL'}
+            onSelect={() => onStatusChange('ALL')}
           />
-          {STATUS_OPTIONS.filter((option) => option !== "ALL").map((option) => (
+          {STATUS_OPTIONS.filter((option) => option !== 'ALL').map((option) => (
             <FilterItem
               key={option}
               label={option}
@@ -121,18 +121,18 @@ export default function TicketListFilters({
           value={assigneeLabel}
           openMenu={openMenu}
           onOpenMenu={setOpenMenu}
-          active={assignee !== "ALL"}
+          active={assignee !== 'ALL'}
           menuClassName="w-72"
         >
           <FilterItem
             label="All Technicians"
-            selected={assignee === "ALL"}
-            onSelect={() => onAssigneeChange("ALL")}
+            selected={assignee === 'ALL'}
+            onSelect={() => onAssigneeChange('ALL')}
           />
           <FilterItem
             label="Unassigned"
-            selected={assignee === "UNASSIGNED"}
-            onSelect={() => onAssigneeChange("UNASSIGNED")}
+            selected={assignee === 'UNASSIGNED'}
+            onSelect={() => onAssigneeChange('UNASSIGNED')}
           />
           {assigneeOptions.map((option) => (
             <FilterItem
@@ -152,12 +152,12 @@ export default function TicketListFilters({
               key={label}
               type="button"
               onClick={() => {
-                if (label.startsWith("Priority")) {
-                  onPriorityChange("ALL");
-                } else if (label.startsWith("Status")) {
-                  onStatusChange("ALL");
+                if (label.startsWith('Priority')) {
+                  onPriorityChange('ALL');
+                } else if (label.startsWith('Status')) {
+                  onStatusChange('ALL');
                 } else {
-                  onAssigneeChange("ALL");
+                  onAssigneeChange('ALL');
                 }
               }}
               className="inline-flex items-center gap-2 rounded-md border border-cyan/30 bg-cyan/10 px-3 py-1.5 text-[10px] text-cyan-ice transition hover:border-cyan/50"
@@ -179,7 +179,7 @@ function FilterDropdown({
   openMenu,
   active,
   children,
-  menuClassName = "w-52",
+  menuClassName = 'w-52',
   onOpenMenu,
 }: {
   menuKey: Exclude<MenuKey, null>;
@@ -201,8 +201,8 @@ function FilterDropdown({
         onClick={() => onOpenMenu(isOpen ? null : menuKey)}
         className={`inline-flex h-11 w-full items-center justify-between gap-2 rounded-lg border px-4 text-xs transition lg:w-auto ${
           active || isOpen
-            ? "border-cyan/45 bg-cyan/10 text-cyan-ice"
-            : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice"
+            ? 'border-cyan/45 bg-cyan/10 text-cyan-ice'
+            : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30 hover:text-cyan-ice'
         }`}
       >
         <span className="label-mono text-[10px]">{label}</span>
@@ -237,7 +237,9 @@ function FilterItem({
       type="button"
       onClick={onSelect}
       className={`flex w-full items-center justify-between px-4 py-3 text-left transition ${
-        selected ? "bg-cyan/10 text-cyan-ice" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+        selected
+          ? 'bg-cyan/10 text-cyan-ice'
+          : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
       }`}
     >
       <span className="label-mono text-[11px]">{label}</span>

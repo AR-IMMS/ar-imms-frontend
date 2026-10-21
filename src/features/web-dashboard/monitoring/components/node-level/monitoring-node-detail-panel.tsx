@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
-import { formatDistanceToNow, format } from "date-fns";
-import { Monitor, CpuIcon, Activity, RefreshCcw } from "lucide-react";
-import { useMonitoringStore } from "@/stores/node-monitoring-store";
-import CopyableUserId from "@/components/common/copyable-user-id";
+import React, { useMemo } from 'react';
+import { formatDistanceToNow, format } from 'date-fns';
+import { Monitor, CpuIcon, Activity, RefreshCcw } from 'lucide-react';
+import { useMonitoringStore } from '@/stores/node-monitoring-store';
+import CopyableUserId from '@/components/common/copyable-user-id';
 import {
   COLLECTOR_STATUS_COLOR_TEXT,
   STATUS_COLOR_TEXT,
   STATUS_EXPLANATIONS,
-} from "../../lib/constant";
-import Stat from "@/components/common/stat";
-import { DiscoveredNodeEntity, NodeEntity } from "@/types/assets";
-import { InfoTooltip } from "@/components/common/infor-tooltip";
-import { CollectorStatusInfo, NodeHardwareInfo } from "@/types/monitoring";
-import { parseToLocalDate } from "@/lib/utils/formatTime";
+} from '../../lib/constant';
+import Stat from '@/components/common/stat';
+import { DiscoveredNodeEntity, NodeEntity } from '@/types/assets';
+import { InfoTooltip } from '@/components/common/infor-tooltip';
+import { CollectorStatusInfo, NodeHardwareInfo } from '@/types/monitoring';
+import { parseToLocalDate } from '@/lib/utils/formatTime';
 
 interface MonitoringNodeDetailPanelProps {
   nodeItem: NodeEntity;
@@ -76,14 +76,14 @@ const AssetIdentitySection = React.memo(
               className="text-foreground text-right truncate max-w-[65%] tooltip"
               title={osProduct}
             >
-              {osProduct || "N/A"}
+              {osProduct || 'N/A'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground font-semibold text-[10.5px] uppercase">
               Model
             </span>
-            <span className="text-foreground text-right">{model || "N/A"}</span>
+            <span className="text-foreground text-right">{model || 'N/A'}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground font-semibold text-[10.5px] uppercase">
@@ -91,18 +91,18 @@ const AssetIdentitySection = React.memo(
             </span>
             <span
               className="text-foreground text-right truncate max-w-[65%] tooltip"
-              title={vendor || "N/A"}
+              title={vendor || 'N/A'}
             >
-              {vendor || "N/A"}
+              {vendor || 'N/A'}
             </span>
           </div>
         </div>
       </div>
     );
-  },
+  }
 );
 
-AssetIdentitySection.displayName = "AssetIdentitySection";
+AssetIdentitySection.displayName = 'AssetIdentitySection';
 
 // Memoized Hardware Specifications Section to prevent re-renders when data updates
 const HardwareSpecificationsSection = React.memo(
@@ -206,10 +206,10 @@ const HardwareSpecificationsSection = React.memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
-HardwareSpecificationsSection.displayName = "HardwareSpecificationsSection";
+HardwareSpecificationsSection.displayName = 'HardwareSpecificationsSection';
 
 const DEFAULT_OVERVIEW_STATE = { overview: null, loading: false, error: null };
 
@@ -217,7 +217,7 @@ export function MonitoringNodeDetailPanel({
   nodeItem,
 }: MonitoringNodeDetailPanelProps) {
   const overviewState = useMonitoringStore(
-    (s) => s.nodesOverview[nodeItem?.nodeCode || ""] || DEFAULT_OVERVIEW_STATE,
+    (s) => s.nodesOverview[nodeItem?.nodeCode || ''] || DEFAULT_OVERVIEW_STATE
   );
   const overview = overviewState.overview;
 
@@ -233,28 +233,28 @@ export function MonitoringNodeDetailPanel({
     // Localize and format last seen date and distance
     const localLastSeenDate = parseToLocalDate(node.lastSeenAt);
     const lastSeenAtDate = localLastSeenDate
-      ? format(localLastSeenDate, "dd/MM/yyyy - HH:mm:ss")
-      : "N/A";
+      ? format(localLastSeenDate, 'dd/MM/yyyy - HH:mm:ss')
+      : 'N/A';
     const lastSeenAtDistance = localLastSeenDate
       ? formatDistanceToNow(localLastSeenDate, {
           addSuffix: true,
           includeSeconds: true,
         })
-      : "N/A";
+      : 'N/A';
 
     // Localize and format last heartbeat date
     const localLastHeartbeatDate = parseToLocalDate(
-      nodeCollector.lastHeartbeatAt,
+      nodeCollector.lastHeartbeatAt
     );
     const lastHeartbeatAtDate = localLastHeartbeatDate
-      ? format(localLastHeartbeatDate, "dd/MM/yyyy - HH:mm:ss")
-      : "N/A";
+      ? format(localLastHeartbeatDate, 'dd/MM/yyyy - HH:mm:ss')
+      : 'N/A';
     const lastHeartbeatAtDistance = localLastHeartbeatDate
       ? formatDistanceToNow(localLastHeartbeatDate, {
           addSuffix: true,
           includeSeconds: true,
         })
-      : "N/A";
+      : 'N/A';
 
     return {
       // Node Overview
@@ -270,20 +270,20 @@ export function MonitoringNodeDetailPanel({
       lastHeartbeatAtDistanceFormatted: lastHeartbeatAtDistance,
       heartbeatTimeoutSec: nodeCollector.heartbeatTimeoutSec,
       // Node hardware
-      batteryModel: nodeHardware.batteryModel || "N/A",
-      cpuArchitecture: nodeHardware.cpuArchitecture || "N/A",
-      cpuModel: nodeHardware.cpuModel || "N/A",
-      gpuModelPrimary: nodeHardware.gpuModelPrimary || "N/A",
-      hardwareSerial: nodeHardware.hardwareSerial || "N/A",
+      batteryModel: nodeHardware.batteryModel || 'N/A',
+      cpuArchitecture: nodeHardware.cpuArchitecture || 'N/A',
+      cpuModel: nodeHardware.cpuModel || 'N/A',
+      gpuModelPrimary: nodeHardware.gpuModelPrimary || 'N/A',
+      hardwareSerial: nodeHardware.hardwareSerial || 'N/A',
       logicalCpuCount: nodeHardware.logicalCpuCount || 0,
-      macAddress: nodeHardware.macAddress || "N/A",
-      motherboardModel: nodeHardware.motherboardModel || "N/A",
-      osProduct: nodeHardware.osProduct || "N/A",
-      model: nodeItem.model || "N/A",
-      vendor: nodeItem.vendor || "N/A",
-      arch: nodeMetaData?.hardware?.cpuArchitecture || "N/A",
-      primaryIpv4: nodeHardware.primaryIpv4 || "N/A",
-      ssdModelPrimary: nodeHardware.ssdModelPrimary || "N/A",
+      macAddress: nodeHardware.macAddress || 'N/A',
+      motherboardModel: nodeHardware.motherboardModel || 'N/A',
+      osProduct: nodeHardware.osProduct || 'N/A',
+      model: nodeItem.model || 'N/A',
+      vendor: nodeItem.vendor || 'N/A',
+      arch: nodeMetaData?.hardware?.cpuArchitecture || 'N/A',
+      primaryIpv4: nodeHardware.primaryIpv4 || 'N/A',
+      ssdModelPrimary: nodeHardware.ssdModelPrimary || 'N/A',
     };
   }, [overview, nodeItem]);
 
@@ -313,7 +313,7 @@ export function MonitoringNodeDetailPanel({
             </div>
             <div className="flex items-center gap-1.5">
               <div className="font-mono text-xs text-muted-foreground/60 light:text-muted-foreground/80 light:font-semibold">
-                NODE CODE{": "}
+                NODE CODE{': '}
               </div>
               <CopyableUserId
                 value={nodeItem.nodeCode}
@@ -334,7 +334,7 @@ export function MonitoringNodeDetailPanel({
                 {nodeInfo.lastSeenAtFormatted}
               </div>
               <div
-                className={`-mt-0.5 text-xs ${nodeInfo.lastSeenAtDistanceFormatted.includes("less than") ? "text-cyan" : "text-amber"}`}
+                className={`-mt-0.5 text-xs ${nodeInfo.lastSeenAtDistanceFormatted.includes('less than') ? 'text-cyan' : 'text-amber'}`}
               >
                 {nodeInfo.lastSeenAtDistanceFormatted}
               </div>
@@ -345,7 +345,7 @@ export function MonitoringNodeDetailPanel({
 
           <div className="flex justify-between items-center">
             <div className="text-muted-foreground font-semibold text-[11px] uppercase flex items-center gap-2">
-              <Activity className="size-3 text-cyan-ice" /> Collector Last{" "}
+              <Activity className="size-3 text-cyan-ice" /> Collector Last{' '}
               <br /> Heartbeat
             </div>
             <div className="flex flex-col items-end">
@@ -353,7 +353,7 @@ export function MonitoringNodeDetailPanel({
                 {nodeInfo.lastHeartbeatAtFormatted}
               </div>
               <div
-                className={`-mt-0.5 text-xs ${nodeInfo.lastHeartbeatAtDistanceFormatted.includes("less than") ? "text-cyan" : "text-amber"}`}
+                className={`-mt-0.5 text-xs ${nodeInfo.lastHeartbeatAtDistanceFormatted.includes('less than') ? 'text-cyan' : 'text-amber'}`}
               >
                 {nodeInfo.lastHeartbeatAtDistanceFormatted}
               </div>
@@ -367,20 +367,20 @@ export function MonitoringNodeDetailPanel({
             label="COLLECTOR STATUS"
             value={nodeInfo.collectorStatus}
             mono
-            tone={`${COLLECTOR_STATUS_COLOR_TEXT[nodeInfo.collectorStatus] || ""} light:font-bold uppercase`}
+            tone={`${COLLECTOR_STATUS_COLOR_TEXT[nodeInfo.collectorStatus] || ''} light:font-bold uppercase`}
             themeConfig="light:bg-background light:border-2 light:border-cyan/45 rounded"
           />
           <Stat
             label="SNAPSHOT STATUS"
             value={nodeInfo.status}
             mono
-            tone={`${STATUS_COLOR_TEXT[nodeInfo.status] || ""} light:font-bold uppercase`}
+            tone={`${STATUS_COLOR_TEXT[nodeInfo.status] || ''} light:font-bold uppercase`}
             themeConfig="light:bg-background light:border-2 light:border-cyan/45 rounded"
             icon={
               <InfoTooltip
                 content={
                   STATUS_EXPLANATIONS[nodeInfo.status] ||
-                  "No explanation available"
+                  'No explanation available'
                 }
               />
             }

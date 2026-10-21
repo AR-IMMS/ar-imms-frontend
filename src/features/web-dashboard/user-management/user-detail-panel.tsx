@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   ChevronDown,
@@ -8,18 +8,18 @@ import {
   UserMinus,
   UserPlus,
   X,
-} from "lucide-react";
+} from 'lucide-react';
 import type {
   USER,
   RoleCode,
   UserStatus,
   UserProfileResponse,
-} from "@/types/auth";
-import { useUpdateUserStatusMutation } from "@/hooks/identity/use-identity-mutations";
-import { ROLE_COLORS, USER_STATUS_TONE_CLASSES } from "./lib/constant";
-import { useUserByIdQuery } from "@/hooks/identity/use-identity-queries";
-import Stat from "@/components/common/stat";
-import CopyableUserId from "@/components/common/copyable-user-id";
+} from '@/types/auth';
+import { useUpdateUserStatusMutation } from '@/hooks/identity/use-identity-mutations';
+import { ROLE_COLORS, USER_STATUS_TONE_CLASSES } from './lib/constant';
+import { useUserByIdQuery } from '@/hooks/identity/use-identity-queries';
+import Stat from '@/components/common/stat';
+import CopyableUserId from '@/components/common/copyable-user-id';
 
 type UserDetailPanelProps = {
   user: USER;
@@ -32,17 +32,17 @@ function getUserStatusAction(status: UserStatus): {
   nextStatus: UserStatus;
   icon: typeof UserPlus;
 } {
-  if (status === "ACTIVE") {
+  if (status === 'ACTIVE') {
     return {
-      label: "Deactivate Account",
-      nextStatus: "INACTIVE",
+      label: 'Deactivate Account',
+      nextStatus: 'INACTIVE',
       icon: UserMinus,
     };
   }
 
   return {
-    label: "Activate Account",
-    nextStatus: "ACTIVE",
+    label: 'Activate Account',
+    nextStatus: 'ACTIVE',
     icon: UserPlus,
   };
 }
@@ -79,13 +79,13 @@ export default function UserDetailPanel({
               OPERATOR PROFILE
             </div>
             <div className="title-display mt-1 text-lg text-foreground">
-              {detailUser.fullName || "N/A"}
+              {detailUser.fullName || 'N/A'}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              {detailUser.email || "N/A"}
+              {detailUser.email || 'N/A'}
             </div>
             <div className="font-mono text-xs text-muted-foreground">
-              Last Login: {detailUser.lastLoginAt ?? "-"}
+              Last Login: {detailUser.lastLoginAt ?? '-'}
             </div>
           </div>
           <button onClick={onClose} className="rounded p-1 hover:bg-white/5">
@@ -95,7 +95,7 @@ export default function UserDetailPanel({
 
         {/* User Details */}
         <div className="mt-6 grid grid-cols-2 gap-3">
-          <Stat label="Username" value={detailUser.username || "N/A"} mono />
+          <Stat label="Username" value={detailUser.username || 'N/A'} mono />
           <div className="panel p-3 light:bg-muted">
             <div className="label-mono text-[9px] text-muted-foreground">
               Operator ID
@@ -104,22 +104,24 @@ export default function UserDetailPanel({
           </div>
           <Stat
             label="Department"
-            value={detailUser.department || "N/A"}
+            value={detailUser.department || 'N/A'}
             mono
           />
-          <Stat label="Phone No" value={detailUser.phoneNumber || "N/A"} mono />
+          <Stat label="Phone No" value={detailUser.phoneNumber || 'N/A'} mono />
           <Stat
             label="Status"
-            value={detailUser.status || "N/A"}
+            value={detailUser.status || 'N/A'}
             mono
             tone={USER_STATUS_TONE_CLASSES[detailUser.status as UserStatus]}
           />
           <Stat
             label="Need Password Change"
-            value={detailUser.mustChangePassword ? "YES" : "NO"}
+            value={detailUser.mustChangePassword ? 'YES' : 'NO'}
             mono
             tone={
-              detailUser.mustChangePassword ? "text-amber light:font-bold" : "text-neon-green light:font-bold"
+              detailUser.mustChangePassword
+                ? 'text-amber light:font-bold'
+                : 'text-neon-green light:font-bold'
             }
           />
         </div>
@@ -134,7 +136,7 @@ export default function UserDetailPanel({
               detailUser.roleCodes.map((roleCode: RoleCode) => {
                 const colorClass =
                   ROLE_COLORS[roleCode] ??
-                  "border-white/10 bg-white/5 text-muted-foreground";
+                  'border-white/10 bg-white/5 text-muted-foreground';
 
                 return (
                   <button
@@ -146,7 +148,7 @@ export default function UserDetailPanel({
                       <ShieldCheck className="size-3.5 shrink-0" />
                       <span className="label-mono whitespace-nowrap text-[10px] font-medium text-foreground light:text-destructive-foreground">
                         {roleNameMap.get(roleCode) ??
-                          roleCode.replace(/_/g, " ")}
+                          roleCode.replace(/_/g, ' ')}
                       </span>
                     </div>
                   </button>
@@ -170,7 +172,7 @@ export default function UserDetailPanel({
           <button
             type="button"
             disabled={
-              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+              detailUser.status === 'LOCKED' || updateStatusMutation.isPending
             }
             className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -184,7 +186,7 @@ export default function UserDetailPanel({
           <button
             type="button"
             disabled={
-              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+              detailUser.status === 'LOCKED' || updateStatusMutation.isPending
             }
             className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -202,7 +204,7 @@ export default function UserDetailPanel({
             className="inline-flex w-full items-center justify-between rounded-md border border-border bg-surface-1 px-3 py-2 transition hover:border-cyan/30 hover:light:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span className="inline-flex items-center gap-2 text-xs text-foreground">
-              {user.status === "ACTIVE" ? (
+              {user.status === 'ACTIVE' ? (
                 <>
                   <UserMinus className="size-3.5 text-amber" />
                   Deactivate Account
@@ -221,14 +223,14 @@ export default function UserDetailPanel({
           {/* Lock Account */}
           <button
             type="button"
-            onClick={() => handleStatusUpdate("LOCKED")}
+            onClick={() => handleStatusUpdate('LOCKED')}
             disabled={
-              detailUser.status === "LOCKED" || updateStatusMutation.isPending
+              detailUser.status === 'LOCKED' || updateStatusMutation.isPending
             }
             className={`inline-flex w-full items-center justify-between rounded-md border border-critical/30 bg-critical/10 px-3 py-2 transition ${
-              detailUser.status === "LOCKED" || updateStatusMutation.isPending
-                ? "cursor-not-allowed opacity-50"
-                : "hover:bg-critical/20"
+              detailUser.status === 'LOCKED' || updateStatusMutation.isPending
+                ? 'cursor-not-allowed opacity-50'
+                : 'hover:bg-critical/20'
             }`}
           >
             <span className="inline-flex items-center gap-2 text-xs text-critical">

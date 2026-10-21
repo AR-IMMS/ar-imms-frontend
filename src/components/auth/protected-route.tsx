@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/auth/use-auth";
+import { useEffect, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/auth/use-auth';
 import {
   hasAllPermissions,
   hasAnyPermission,
   hasAnyRole,
-} from "@/lib/auth/auth-permissions";
+} from '@/lib/auth/auth-permissions';
 import type {
   PermissionCode,
   RoleCode,
   UserProfileResponse,
-} from "@/types/auth";
+} from '@/types/auth';
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -24,7 +24,7 @@ type ProtectedRouteProps = {
 
 export function ProtectedRoute({
   children,
-  redirectTo = "/login",
+  redirectTo = '/login',
   requiredRoles,
   requiredPermissions,
   requireAllPermissions = false,
@@ -49,7 +49,7 @@ export function ProtectedRoute({
       requiredRoles.length > 0 &&
       !hasAnyRole(user, requiredRoles)
     ) {
-      router.replace("/403");
+      router.replace('/403');
       return;
     }
 
@@ -59,7 +59,7 @@ export function ProtectedRoute({
         : hasAnyPermission(user, requiredPermissions);
 
       if (!allowed) {
-        router.replace("/403");
+        router.replace('/403');
       }
     }
   }, [

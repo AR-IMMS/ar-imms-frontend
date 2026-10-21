@@ -1,14 +1,14 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 import {
   createJSONStorage,
   persist,
   type StateStorage,
-} from "zustand/middleware";
+} from 'zustand/middleware';
 import type {
   LoginResponse,
   AuthTokens,
   UserProfileResponse,
-} from "@/types/auth";
+} from '@/types/auth';
 
 interface AuthState {
   user: Partial<UserProfileResponse> | null;
@@ -26,7 +26,7 @@ interface AuthState {
 
 type PersistedAuthState = Pick<
   AuthState,
-  "user" | "accessToken" | "refreshToken" | "sessionId"
+  'user' | 'accessToken' | 'refreshToken' | 'sessionId'
 >;
 
 const createFallbackStorage = (): StateStorage => {
@@ -44,7 +44,7 @@ const createFallbackStorage = (): StateStorage => {
 };
 
 const createBrowserStorage = (): StateStorage => {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return createFallbackStorage();
   }
 
@@ -92,7 +92,7 @@ export const useAuthStore = create<AuthState>()(
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
-      name: "auth-store",
+      name: 'auth-store',
       storage: createJSONStorage<PersistedAuthState>(createBrowserStorage),
       partialize: (state): PersistedAuthState => ({
         user: state.user
@@ -110,6 +110,6 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },
-    },
-  ),
+    }
+  )
 );

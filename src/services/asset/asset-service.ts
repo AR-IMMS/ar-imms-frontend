@@ -1,6 +1,6 @@
-import { httpGet, httpPost, httpPatch } from "@/lib/http/http-methods";
-import { ASSET_ENDPOINTS } from "@/lib/react-query/api-endpoint";
-import buildQueryString from "@/lib/utils/buildQueryString";
+import { httpGet, httpPost, httpPatch } from '@/lib/http/http-methods';
+import { ASSET_ENDPOINTS } from '@/lib/react-query/api-endpoint';
+import buildQueryString from '@/lib/utils/buildQueryString';
 import type {
   RackTopologyResult,
   AssetSummary,
@@ -15,9 +15,9 @@ import type {
   CreateMarkerRequestDto,
   MarkerEntity,
   MarkerResolutionResult,
-} from "@/types/assets";
+} from '@/types/assets';
 
-const ASSET_SERVICE_NAME = "asset";
+const ASSET_SERVICE_NAME = 'asset';
 
 export const assetService = {
   // --- Queries ---
@@ -46,19 +46,19 @@ export const assetService = {
       ASSET_ENDPOINTS.PENDING_ASSIGNMENT_NODES,
       {
         service: ASSET_SERVICE_NAME,
-      },
+      }
     ),
 
   searchAssets: (params?: {
     q?: string;
     type?: string;
   }): Promise<AssetSummary[]> => {
-    const queryString = params ? buildQueryString(params) : "";
+    const queryString = params ? buildQueryString(params) : '';
     return httpGet<AssetSummary[]>(
       `${ASSET_ENDPOINTS.SEARCH_ASSETS}${queryString}`,
       {
         service: ASSET_SERVICE_NAME,
-      },
+      }
     );
   },
 
@@ -70,7 +70,7 @@ export const assetService = {
 
   updateRack: (
     rackId: string,
-    payload: UpdateRackRequestDto,
+    payload: UpdateRackRequestDto
   ): Promise<RackEntity> =>
     httpPatch<RackEntity>(ASSET_ENDPOINTS.ADMIN_RACK_BY_ID(rackId), payload, {
       service: ASSET_SERVICE_NAME,
@@ -104,7 +104,7 @@ export const assetService = {
 
   updateNode: (
     nodeId: string,
-    payload: UpdateNodeRequestDto,
+    payload: UpdateNodeRequestDto
   ): Promise<NodeEntity> =>
     httpPatch<NodeEntity>(ASSET_ENDPOINTS.ADMIN_NODE_BY_ID(nodeId), payload, {
       service: ASSET_SERVICE_NAME,
@@ -112,7 +112,7 @@ export const assetService = {
 
   assignNode: (
     nodeId: string,
-    payload: AssignNodeToRackRequestDto,
+    payload: AssignNodeToRackRequestDto
   ): Promise<NodeEntity> =>
     httpPost<NodeEntity>(ASSET_ENDPOINTS.ASSIGN_RACK(nodeId), payload, {
       service: ASSET_SERVICE_NAME,
@@ -140,7 +140,7 @@ export const assetService = {
       ASSET_ENDPOINTS.RESOLVE_MARKER(markerCode),
       {
         service: ASSET_SERVICE_NAME,
-      },
+      }
     ),
 
   createMarker: (payload: CreateMarkerRequestDto): Promise<MarkerEntity> =>

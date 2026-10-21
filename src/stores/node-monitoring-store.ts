@@ -1,12 +1,12 @@
-import { create } from "zustand";
-import type { ErrorResponse } from "@/types/api";
+import { create } from 'zustand';
+import type { ErrorResponse } from '@/types/api';
 import type {
   MetricMode,
   NodeMetricsData,
   NodeMetricsUpdatedPayload,
   NodeOverviewData,
   SeedWindow,
-} from "@/types/monitoring";
+} from '@/types/monitoring';
 
 interface NodeOverviewState {
   overview: NodeOverviewData | null;
@@ -31,23 +31,23 @@ interface MonitoringState {
   setMetricsLoading: (
     nodeCode: string,
     mode: MetricMode,
-    loading: boolean,
+    loading: boolean
   ) => void;
   setMetricsData: (
     nodeCode: string,
     mode: MetricMode,
-    data: NodeMetricsData,
+    data: NodeMetricsData
   ) => void;
   setMetricsError: (
     nodeCode: string,
     mode: MetricMode,
-    error: ErrorResponse | null,
+    error: ErrorResponse | null
   ) => void;
 
   appendMetricPoint: (
     nodeCode: string,
     mode: MetricMode,
-    payload: NodeMetricsUpdatedPayload,
+    payload: NodeMetricsUpdatedPayload
   ) => void;
 }
 
@@ -67,7 +67,7 @@ const cloneSeedWindow = (seedWindow: SeedWindow): SeedWindow => ({
     networkTxBytesSec: [...seedWindow.nodeMetrics.networkTxBytesSec],
   },
   workloadMetrics: Object.entries(seedWindow.workloadMetrics).reduce<
-    Record<string, SeedWindow["workloadMetrics"][string]>
+    Record<string, SeedWindow['workloadMetrics'][string]>
   >((acc, [wlId, series]) => {
     acc[wlId] = {
       cpuUsagePct: [...series.cpuUsagePct],
@@ -80,7 +80,7 @@ const cloneSeedWindow = (seedWindow: SeedWindow): SeedWindow => ({
 const appendToWindow = (
   window: SeedWindow,
   payload: NodeMetricsUpdatedPayload,
-  maxPoints: number,
+  maxPoints: number
 ): SeedWindow => {
   const nextTimestamps = [...window.timestamps, payload.ts];
 
@@ -90,7 +90,10 @@ const appendToWindow = (
       ...window.nodeMetrics.memoryUsagePct,
       payload.node.memoryUsagePct,
     ],
-    diskUsagePct: [...window.nodeMetrics.diskUsagePct, payload.node.diskUsagePct],
+    diskUsagePct: [
+      ...window.nodeMetrics.diskUsagePct,
+      payload.node.diskUsagePct,
+    ],
     cpuTemperatureC: [
       ...window.nodeMetrics.cpuTemperatureC,
       payload.node.cpuTemperatureC,
@@ -105,12 +108,15 @@ const appendToWindow = (
     ],
   };
 
-  const nextWorkloadMetrics: SeedWindow["workloadMetrics"] = {};
+  const nextWorkloadMetrics: SeedWindow['workloadMetrics'] = {};
   Object.entries(window.workloadMetrics).forEach(([wlId, series]) => {
     const wlUpdate = payload.workloads[wlId];
     nextWorkloadMetrics[wlId] = {
       cpuUsagePct: [...series.cpuUsagePct, wlUpdate?.cpuUsagePct ?? null],
-      memoryUsagePct: [...series.memoryUsagePct, wlUpdate?.memoryUsagePct ?? null],
+      memoryUsagePct: [
+        ...series.memoryUsagePct,
+        wlUpdate?.memoryUsagePct ?? null,
+      ],
     };
   });
 
@@ -131,7 +137,7 @@ const appendToWindow = (
   }
 
   const slicedTimestamps = nextTimestamps.slice(overflowCount);
-  const sliceSeries = <T,>(series: T[]) => series.slice(overflowCount);
+  const sliceSeries = <T>(series: T[]) => series.slice(overflowCount);
 
   return {
     ...window,
@@ -147,7 +153,7 @@ const appendToWindow = (
       networkTxBytesSec: sliceSeries(nextNodeMetrics.networkTxBytesSec),
     },
     workloadMetrics: Object.entries(nextWorkloadMetrics).reduce<
-      SeedWindow["workloadMetrics"]
+      SeedWindow['workloadMetrics']
     >((acc, [wlId, series]) => {
       acc[wlId] = {
         cpuUsagePct: sliceSeries(series.cpuUsagePct),
@@ -256,7 +262,7 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
       const nextWindow = appendToWindow(
         currentWindow,
         payload,
-        currentWindow.timestamps.length,
+        currentWindow.timestamps.length
       );
 
       return {

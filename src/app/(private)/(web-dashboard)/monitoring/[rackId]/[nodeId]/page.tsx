@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, use } from "react";
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { MonitoringNodeDetailPanel } from "@/features/web-dashboard/monitoring/components/node-level/monitoring-node-detail-panel";
-import MonitoringTelemetryViewport from "@/features/web-dashboard/monitoring/monitoring-telemetry-viewport";
-import { useNodeContextQuery } from "@/hooks/asset/use-asset-queries";
-import { Loader2 } from "lucide-react";
+import { useEffect, use } from 'react';
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { MonitoringNodeDetailPanel } from '@/features/web-dashboard/monitoring/components/node-level/monitoring-node-detail-panel';
+import MonitoringTelemetryViewport from '@/features/web-dashboard/monitoring/monitoring-telemetry-viewport';
+import { useNodeContextQuery } from '@/hooks/asset/use-asset-queries';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   params: Promise<{
@@ -25,15 +25,15 @@ export default function NodeMonitoringPage({ params }: Props) {
 
   const { data: nodeContext, isLoading } = useNodeContextQuery(
     nodeId,
-    !!nodeId,
+    !!nodeId
   );
 
   // Resolve and synchronize the full parent hierarchy (site, room, rack) from node context
   useEffect(() => {
     if (nodeContext) {
-      setSelectedSiteCode(nodeContext?.rack?.siteCode || "");
-      setSelectedRoomCode(nodeContext?.rack?.roomCode || "");
-      setSelectedRackId(nodeContext?.rack?.id || "");
+      setSelectedSiteCode(nodeContext?.rack?.siteCode || '');
+      setSelectedRoomCode(nodeContext?.rack?.roomCode || '');
+      setSelectedRackId(nodeContext?.rack?.id || '');
       setSelectedNodeCode(nodeId);
     }
   }, [

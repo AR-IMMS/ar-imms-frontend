@@ -1,12 +1,19 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { X, Download, FileImage, FileText, Sticker, Loader2 } from "lucide-react";
-import { useTopologyTreeQuery } from "@/hooks/asset/use-asset-queries";
-import { ArucoSVG } from "@/components/assets/aruco-svg";
+import { useMemo, useState } from 'react';
+import {
+  X,
+  Download,
+  FileImage,
+  FileText,
+  Sticker,
+  Loader2,
+} from 'lucide-react';
+import { useTopologyTreeQuery } from '@/hooks/asset/use-asset-queries';
+import { ArucoSVG } from '@/components/assets/aruco-svg';
 
-type Fmt = "SVG" | "PNG" | "PDF";
-type Size = "5x5" | "10x10";
+type Fmt = 'SVG' | 'PNG' | 'PDF';
+type Size = '5x5' | '10x10';
 
 export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
   const { data: topology = [], isLoading } = useTopologyTreeQuery();
@@ -15,14 +22,15 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
     return topology.flatMap((t) => {
       const r = t.rack;
       return t.nodes.map((node) => {
-        const markerCode = (node.metadata?.markerCode as string) || `M-${node.nodeCode}`;
+        const markerCode =
+          (node.metadata?.markerCode as string) || `M-${node.nodeCode}`;
         return {
           id: node.id,
           name: node.displayName || node.nodeCode,
-          ip: node.managementIp || "N/A",
+          ip: node.managementIp || 'N/A',
           rackName: r.displayName || r.rackCode,
-          siteCode: r.siteCode || "Unassigned Location",
-          roomCode: r.roomCode || "Unassigned Room",
+          siteCode: r.siteCode || 'Unassigned Location',
+          roomCode: r.roomCode || 'Unassigned Room',
           marker: markerCode,
         };
       });
@@ -30,8 +38,8 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
   }, [topology]);
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [fmt, setFmt] = useState<Fmt>("PDF");
-  const [size, setSize] = useState<Size>("5x5");
+  const [fmt, setFmt] = useState<Fmt>('PDF');
+  const [size, setSize] = useState<Size>('5x5');
   const [progress, setProgress] = useState<number | null>(null);
 
   // Initialize selection once data is loaded during render (avoids useEffect cascading renders)
@@ -78,7 +86,7 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div
         className="absolute inset-0 bg-background/70"
-        style={{ backdropFilter: "blur(12px)" }}
+        style={{ backdropFilter: 'blur(12px)' }}
         onClick={onClose}
       />
       <div className="relative w-full max-w-6xl glass rounded-2xl border border-cyan/30 p-6 shadow-[0_0_40px_rgba(0,209,255,0.15)] max-h-[92vh] overflow-y-auto">
@@ -87,9 +95,14 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
             <div className="label-mono text-[10px] text-cyan-ice font-semibold tracking-wider">
               AR / ArUco GENERATION SYSTEM
             </div>
-            <div className="title-display text-lg text-foreground mt-1">Bulk Marker Export</div>
+            <div className="title-display text-lg text-foreground mt-1">
+              Bulk Marker Export
+            </div>
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-white/5 transition">
+          <button
+            onClick={onClose}
+            className="p-1 rounded hover:bg-white/5 transition"
+          >
             <X className="size-4 text-muted-foreground hover:text-foreground" />
           </button>
         </div>
@@ -97,7 +110,9 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="size-8 text-cyan animate-spin" />
-            <div className="text-xs font-mono text-muted-foreground">Loading topology nodes...</div>
+            <div className="text-xs font-mono text-muted-foreground">
+              Loading topology nodes...
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-12 gap-5 animate-fade-in">
@@ -111,7 +126,9 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                     onClick={toggleAll}
                     className="text-[9px] font-mono text-cyan-ice hover:text-cyan border-b border-cyan/30 hover:border-cyan transition"
                   >
-                    {selected.size === all.length ? "Deselect All" : "Select All"}
+                    {selected.size === all.length
+                      ? 'Deselect All'
+                      : 'Select All'}
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto divide-y divide-border/40 custom-scrollbar pr-1">
@@ -127,7 +144,9 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                         className="accent-cyan size-3.5"
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="font-mono text-xs text-foreground truncate">{n.name}</div>
+                        <div className="font-mono text-xs text-foreground truncate">
+                          {n.name}
+                        </div>
                         <div className="font-mono text-[10px] text-muted-foreground truncate">
                           {n.rackName} · {n.ip}
                         </div>
@@ -147,13 +166,15 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
 
               <div className="panel p-4 space-y-4">
                 <div>
-                  <div className="label-mono text-[10px] text-muted-foreground mb-2">Export Format</div>
+                  <div className="label-mono text-[10px] text-muted-foreground mb-2">
+                    Export Format
+                  </div>
                   <div className="grid grid-cols-3 gap-2">
                     {(
                       [
-                        { k: "SVG" as Fmt, label: "SVG", icon: FileImage },
-                        { k: "PNG" as Fmt, label: "PNG", icon: FileImage },
-                        { k: "PDF" as Fmt, label: "PDF A4", icon: FileText },
+                        { k: 'SVG' as Fmt, label: 'SVG', icon: FileImage },
+                        { k: 'PNG' as Fmt, label: 'PNG', icon: FileImage },
+                        { k: 'PDF' as Fmt, label: 'PDF A4', icon: FileText },
                       ] as const
                     ).map(({ k, label, icon: Icon }) => (
                       <button
@@ -161,8 +182,8 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                         onClick={() => setFmt(k)}
                         className={`p-2.5 rounded-md border text-center transition ${
                           fmt === k
-                            ? "border-cyan/50 bg-cyan/10 text-cyan"
-                            : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30"
+                            ? 'border-cyan/50 bg-cyan/10 text-cyan'
+                            : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30'
                         }`}
                       >
                         <Icon className="size-4 mx-auto mb-1" />
@@ -172,12 +193,17 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
                 <div>
-                  <div className="label-mono text-[10px] text-muted-foreground mb-2">AR Overlay Size</div>
+                  <div className="label-mono text-[10px] text-muted-foreground mb-2">
+                    AR Overlay Size
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     {(
                       [
-                        { k: "5x5" as Size, label: "Laptop Sticker 5×5cm" },
-                        { k: "10x10" as Size, label: "Server Rack Plate 10×10cm" },
+                        { k: '5x5' as Size, label: 'Laptop Sticker 5×5cm' },
+                        {
+                          k: '10x10' as Size,
+                          label: 'Server Rack Plate 10×10cm',
+                        },
                       ] as const
                     ).map(({ k, label }) => (
                       <button
@@ -185,8 +211,8 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                         onClick={() => setSize(k)}
                         className={`p-2.5 rounded-md border text-left text-xs transition ${
                           size === k
-                            ? "border-cyan/50 bg-cyan/10 text-cyan"
-                            : "border-border bg-surface-1 text-muted-foreground hover:border-cyan/30"
+                            ? 'border-cyan/50 bg-cyan/10 text-cyan'
+                            : 'border-border bg-surface-1 text-muted-foreground hover:border-cyan/30'
                         }`}
                       >
                         <Sticker className="size-3.5 inline mr-1" />
@@ -210,24 +236,32 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                 </div>
                 <div
                   className="rounded-lg p-4 bg-[#0e1422] border border-border overflow-hidden flex flex-col justify-center"
-                  style={{ aspectRatio: "1 / 1.414" }}
+                  style={{ aspectRatio: '1 / 1.414' }}
                 >
                   <div className="grid grid-cols-2 gap-3 h-full overflow-y-auto custom-scrollbar p-1">
                     {preview.map((n) => (
                       <div
                         key={n.id}
                         className="bg-white rounded-md p-2 flex gap-2 items-stretch overflow-hidden border border-white"
-                        style={{ contentVisibility: "auto" }}
+                        style={{ contentVisibility: 'auto' }}
                       >
                         <div className="w-16 shrink-0 grid place-items-center bg-zinc-50 rounded p-1">
                           <ArucoSVG seed={n.id} />
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-between font-mono text-[8px] leading-tight text-black">
                           <div>
-                            <div className="text-[9px] font-bold truncate text-zinc-900">{n.name}</div>
-                            <div className="truncate text-zinc-600">IP {n.ip}</div>
-                            <div className="truncate text-zinc-600">{n.rackName}</div>
-                            <div className="truncate text-zinc-500 font-semibold">{n.marker}</div>
+                            <div className="text-[9px] font-bold truncate text-zinc-900">
+                              {n.name}
+                            </div>
+                            <div className="truncate text-zinc-600">
+                              IP {n.ip}
+                            </div>
+                            <div className="truncate text-zinc-600">
+                              {n.rackName}
+                            </div>
+                            <div className="truncate text-zinc-500 font-semibold">
+                              {n.marker}
+                            </div>
                           </div>
                           <div className="text-[6px] uppercase tracking-wider text-black/50 border-t border-zinc-100 pt-1">
                             AR-IMMS · Security Tracker
@@ -257,10 +291,10 @@ export default function BulkMarkerExport({ onClose }: { onClose: () => void }) {
                   <Download className="size-3.5 relative" />
                   <span className="relative font-bold">
                     {progress === null
-                      ? "Generate & Download Batch Asset Pack"
+                      ? 'Generate & Download Batch Asset Pack'
                       : progress >= 100
-                      ? "✓ Asset Pack Ready"
-                      : `Rendering markers… ${progress}%`}
+                        ? '✓ Asset Pack Ready'
+                        : `Rendering markers… ${progress}%`}
                   </span>
                 </button>
               </div>

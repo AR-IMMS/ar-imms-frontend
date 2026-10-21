@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import CommonHierarchicalTree from "@/components/common/hierarchical-tree";
+import CommonHierarchicalTree from '@/components/common/hierarchical-tree';
 
 export default function MonitoringHierarchicalTree() {
   return (

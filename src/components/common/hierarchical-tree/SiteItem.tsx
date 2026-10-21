@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useAssetStore } from "@/features/web-dashboard/asset-management/hooks/useAssetStore";
-import { ChevronDown, ChevronRight, MapPin } from "lucide-react";
-import { SiteGroup } from "./types";
-import { RoomItem } from "./RoomItem";
+import { useAssetStore } from '@/features/web-dashboard/asset-management/hooks/useAssetStore';
+import { ChevronDown, ChevronRight, MapPin } from 'lucide-react';
+import { SiteGroup } from './types';
+import { RoomItem } from './RoomItem';
 
 interface SiteItemProps {
   site: SiteGroup;
-  maxLevel: "rack" | "node";
+  maxLevel: 'rack' | 'node';
   siteKey: string;
   siteOpen: boolean;
   toggleSite: (siteKey: string) => void;
@@ -30,12 +30,14 @@ export function SiteItem({
   const selectedRoomCode = useAssetStore((s) => s.selectedRoomCode);
   const selectedRackId = useAssetStore((s) => s.selectedRackId);
   const selectedNodeCode = useAssetStore((s) => s.selectedNodeCode);
-  
+
   const setSelectedSiteCode = useAssetStore((s) => s.setSelectedSiteCode);
   const setSelectedRoomCode = useAssetStore((s) => s.setSelectedRoomCode);
   const setSelectedRackId = useAssetStore((s) => s.setSelectedRackId);
   const setSelectedNodeCode = useAssetStore((s) => s.setSelectedNodeCode);
-  const setIsUnmappedDrawerOpen = useAssetStore((s) => s.setIsUnmappedDrawerOpen);
+  const setIsUnmappedDrawerOpen = useAssetStore(
+    (s) => s.setIsUnmappedDrawerOpen
+  );
   const setActivePanelType = useAssetStore((s) => s.setActivePanelType);
 
   const isActive =
@@ -53,7 +55,7 @@ export function SiteItem({
       setActivePanelType(null);
       return;
     }
-    setSelectedSiteCode(site.siteCode || "");
+    setSelectedSiteCode(site.siteCode || '');
     setIsUnmappedDrawerOpen(false);
   };
 
@@ -79,8 +81,8 @@ export function SiteItem({
           }}
           className={`flex-1 text-left px-2 py-1.5 rounded flex items-center gap-2 min-w-0 transition-colors ${
             isActive
-              ? "bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]"
-              : "text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent"
+              ? 'bg-cyan/10 text-cyan border border-cyan/30 font-semibold light:bg-primary/30 hover:light:bg-primary/40 shadow-[0_0_8px_rgba(0,209,255,0.15)]'
+              : 'text-foreground hover:bg-white/3 hover:light:bg-primary/15 border border-transparent'
           }`}
         >
           <MapPin className="size-3.5 text-purple shrink-0" />
@@ -94,7 +96,7 @@ export function SiteItem({
       {siteOpen && (
         <div className="ml-2 border-l border-border/40 pl-2 space-y-0.5 mt-0.5">
           {Object.values(site.rooms).map((room) => {
-            const roomKey = `${siteKey}/${room.roomCode || "unknown-room"}`;
+            const roomKey = `${siteKey}/${room.roomCode || 'unknown-room'}`;
             const roomOpen = !!openNodes[roomKey];
 
             return (
