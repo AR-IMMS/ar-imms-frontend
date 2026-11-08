@@ -2,13 +2,57 @@ export type IncidentSeverity = "INFO" | "WARNING" | "CRITICAL";
 
 export type IncidentStatus = "OPEN" | "RESOLVED" | "CLOSED";
 
+export interface IncidentTicketLinkageItem {
+  id: string;
+  ticketCode: string;
+  status: string;
+}
+
+export interface IncidentTicketLinkage {
+  linkingStatus: "linked" | "not_linked" | string;
+  isLinked: boolean;
+  linkedTicketCount: number;
+  tickets: IncidentTicketLinkageItem[];
+}
+
 export interface IncidentListItem {
   id: string;
   incidentCode: string;
   title: string;
   severity: IncidentSeverity | string;
   status: IncidentStatus | string;
+  summary?: {
+    whatHappened?: string;
+    where?: string;
+    whatIsAffected?: string | null;
+    urgency?: string;
+  };
+  scope?: {
+    type: string;
+    id: string;
+    rackId?: string;
+    nodeId?: string;
+  };
+  impact?: {
+    affectedNodeCount?: number;
+    totalNodeCount?: number;
+    affectedRatio?: number;
+    criticalNodeCount?: number;
+    silentDeadNodeCount?: number;
+  };
+  primaryAlert?: {
+    fingerprint?: string;
+    name?: string;
+    severity?: string;
+    startedAt?: string;
+    lastReceivedAt?: string;
+  };
   ticketCount: number;
+  ticketLinkage?: IncidentTicketLinkage;
+  links?: {
+    dashboardUrl?: string;
+    runbookUrl?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

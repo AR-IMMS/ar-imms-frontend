@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import Header from "@/components/layout/web-dashboard/header";
 import CreateTicketModal from "./components/create-ticket-modal";
@@ -27,11 +28,22 @@ const PAGE_COPY = {
 export default function TicketManagementPage({
   mode = "all",
 }: TicketManagementPageProps) {
-  const [createOpen, setCreateOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const initialIncidentId = searchParams.get("incidentId") || "";
+  const initialCreate = searchParams.get("create") === "true";
+
+  const [createOpen, setCreateOpen] = useState(initialCreate);
   const copy = PAGE_COPY[mode];
   const canCreateTickets = mode === "all";
   const techniciansQuery = useTechniciansQuery(canCreateTickets);
   const technicians = canCreateTickets ? (techniciansQuery.data ?? []) : [];
+
+  const handleClose = () => {
+    setCreateOpen(false);
+    if (typeof window !== "undefined") {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  };
 
   return (
     <div className="ticket-readable h-full min-h-0 overflow-y-auto overscroll-contain">
@@ -58,7 +70,8 @@ export default function TicketManagementPage({
         {canCreateTickets && createOpen ? (
           <CreateTicketModal
             technicians={technicians}
-            onClose={() => setCreateOpen(false)}
+            initialIncidentId={initialIncidentId}
+            onClose={handleClose}
           />
         ) : null}
       </div>
