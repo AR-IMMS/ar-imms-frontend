@@ -8,7 +8,13 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import { toast } from 'sonner';
 import ModalLayout from '@/components/layout/modal-layout';
 import { useIncidentsQuery } from '@/hooks/incidents/use-incident-queries';
@@ -17,6 +23,7 @@ import type { IncidentListItem } from '@/types/incident';
 import type {
   TechnicianOption,
   TicketAssetReference,
+  TicketAssetType,
   TicketPriority,
 } from '@/types/ticket';
 import { PRIORITY_OPTIONS, priorityTone } from '../lib/ticket-ui';
@@ -25,6 +32,7 @@ import TicketAssetPicker from './ticket-asset-picker';
 type CreateTicketModalProps = {
   technicians: TechnicianOption[];
   onClose: () => void;
+  initialIncidentId?: string;
 };
 
 type FormErrors = {
@@ -36,6 +44,7 @@ type FormErrors = {
 export default function CreateTicketModal({
   technicians,
   onClose,
+  initialIncidentId,
 }: CreateTicketModalProps) {
   const createTicketMutation = useCreateTicketMutation();
   const incidentsQuery = useIncidentsQuery();
@@ -44,7 +53,7 @@ export default function CreateTicketModal({
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TicketPriority>('HIGH');
   const [assigneeUserId, setAssigneeUserId] = useState('');
-  const [incidentId, setIncidentId] = useState('');
+  const [incidentId, setIncidentId] = useState(initialIncidentId || '');
   const [assetRef, setAssetRef] = useState<TicketAssetReference | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -67,6 +76,31 @@ export default function CreateTicketModal({
     () => incidents.find((incident) => incident.id === incidentId) ?? null,
     [incidentId, incidents]
   );
+
+  useEffect(() => {
+    if (!selectedIncident) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      if (!title) setTitle(selectedIncident.title || '');
+      if (!description)
+        setDescription(selectedIncident.summary?.whatHappened || '');
+      if (selectedIncident.scope) {
+        const typeUpper = selectedIncident.scope.type.toUpperCase();
+        if (typeUpper === 'NODE' || typeUpper === 'RACK') {
+          setAssetRef({
+            type: typeUpper as TicketAssetType,
+            assetId: selectedIncident.scope.id,
+            code: selectedIncident.scope.id,
+            displayName: selectedIncident.title || selectedIncident.scope.id,
+            rackId: selectedIncident.scope.rackId,
+          });
+        }
+      }
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [description, selectedIncident, title]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,24 +155,26 @@ export default function CreateTicketModal({
       isPending={createTicketMutation.isPending}
       maxWidth="max-w-6xl"
     >
-      <div className="grid max-h-[76vh] flex-1 overflow-y-auto md:grid-cols-12">
+      <div className="grid max-h-[76vh] flex-1 overflow-y-auto overflow-x-hidden md:grid-cols-12">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-5 border-r-0 border-border p-6 md:col-span-7 md:border-r"
+          className="flex min-w-0 flex-col gap-5 border-r-0 border-border p-6 md:col-span-7 md:border-r"
         >
           <section className="grid gap-4">
             <div className="label-mono text-[10px] text-cyan-ice">
               Primary Ticket Context
             </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Ticket Code" required error={errors.ticketCode}>
                 <input
                   value={ticketCode}
                   onChange={(event) => setTicketCode(event.target.value)}
-                  className="ticket-input"
+                  className="ticket-input w-full min-w-0"
                   placeholder="TCK-WEB-0001"
                 />
               </Field>
+
               <Field label="Priority" required>
                 <div className="grid grid-cols-2 gap-2">
                   {PRIORITY_OPTIONS.filter((item) => item !== 'ALL').map(
@@ -165,7 +201,7 @@ export default function CreateTicketModal({
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="ticket-input"
+                className="ticket-input w-full min-w-0"
                 placeholder="E.g., Rack thermal threshold breached"
               />
             </Field>
@@ -174,14 +210,14 @@ export default function CreateTicketModal({
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                className="ticket-input min-h-28 resize-none py-3"
+                className="ticket-input min-h-28 w-full min-w-0 resize-none py-3"
                 placeholder="Add operational context, symptoms, or next action..."
               />
             </Field>
 
             <Field label="Related Incident (optional)">
               <div className="grid gap-2">
-                <div className="relative">
+                <div className="relative min-w-0">
                   <Link2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-cyan" />
                   <select
                     value={incidentId}
@@ -189,7 +225,7 @@ export default function CreateTicketModal({
                     disabled={
                       incidentsQuery.isLoading || incidentsQuery.isError
                     }
-                    className="ticket-input appearance-none pl-10 pr-10 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="ticket-input w-full min-w-0 appearance-none pl-10 pr-10 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">
                       {incidentsQuery.isLoading
@@ -204,13 +240,14 @@ export default function CreateTicketModal({
                     ))}
                   </select>
                 </div>
+
                 {incidentsQuery.isError ? (
                   <p className="text-xs text-critical">
                     Could not load incidents. Ticket creation is still available
                     without a link.
                   </p>
                 ) : selectedIncident ? (
-                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-cyan/20 bg-cyan/5 px-3 py-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg border border-cyan/20 bg-cyan/5 px-3 py-2">
                     <span className="label-mono text-[10px] text-cyan-ice">
                       {selectedIncident.incidentCode}
                     </span>
@@ -241,13 +278,14 @@ export default function CreateTicketModal({
             <div className="label-mono text-[10px] text-cyan-ice">
               Assignment
             </div>
-            <div className="rounded-xl border border-border bg-surface-1 p-4">
-              <div className="flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-lg border border-cyan/25 bg-cyan/10">
+
+            <div className="min-w-0 rounded-xl border border-border bg-surface-1 p-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-cyan/25 bg-cyan/10">
                   <UserRound className="size-4 text-cyan" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-foreground">
+                  <div className="truncate text-sm font-semibold text-foreground">
                     {selectedTechnician?.fullName ?? 'Unassigned'}
                   </div>
                   <div className="truncate font-mono text-[11px] text-muted-foreground">
@@ -256,6 +294,7 @@ export default function CreateTicketModal({
                   </div>
                 </div>
               </div>
+
               <div className="mt-4 grid gap-2">
                 <button
                   type="button"
@@ -273,6 +312,7 @@ export default function CreateTicketModal({
                     Create ticket without dispatching a technician.
                   </div>
                 </button>
+
                 <div className="max-h-44 overflow-y-auto rounded-lg border border-border bg-background/30">
                   {technicians.length === 0 ? (
                     <div className="px-3 py-4 text-xs text-muted-foreground">
@@ -315,7 +355,7 @@ export default function CreateTicketModal({
             </div>
           ) : null}
 
-          <div className="mt-auto flex justify-center gap-3 border-t border-border pt-4">
+          <div className="mt-auto flex flex-wrap justify-center gap-3 border-t border-border pt-4">
             <button
               type="button"
               onClick={onClose}
@@ -367,7 +407,7 @@ function TicketPreview({
   assetRef: TicketAssetReference | null;
 }) {
   return (
-    <aside className="flex flex-col gap-6 p-6 md:col-span-5">
+    <aside className="flex min-w-0 flex-col gap-6 p-6 md:col-span-5">
       <div>
         <div className="label-mono text-[10px] text-cyan-ice">
           {'// Workflow Compliance'}
@@ -377,12 +417,13 @@ function TicketPreview({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface-1/50 p-6">
+      <div className="min-w-0 rounded-2xl border border-border bg-surface-1/50 p-6">
         <div className="mx-auto grid size-20 place-items-center rounded-full border border-cyan/20 bg-cyan/10 text-2xl font-black text-cyan">
           {priority.slice(0, 2)}
         </div>
+
         <div className="mt-5 text-center">
-          <div className="title-display text-base text-foreground">
+          <div className="break-words text-base font-display text-foreground uppercase">
             {title.trim() || 'Unspecified Ticket'}
           </div>
           <div className="mt-1 font-mono text-xs text-muted-foreground">
@@ -489,11 +530,11 @@ function PreviewRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2">
+    <div className="flex items-start justify-between gap-4 py-2">
       <span className="label-mono text-[10px] text-muted-foreground">
         {label}:
       </span>
-      <div className="min-w-0 text-right">{children}</div>
+      <div className="min-w-0 max-w-[60%] text-right">{children}</div>
     </div>
   );
 }

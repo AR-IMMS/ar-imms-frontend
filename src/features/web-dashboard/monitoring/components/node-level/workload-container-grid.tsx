@@ -84,8 +84,8 @@ const WorkloadCard = memo(function WorkloadCard({
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const cpuChartRef = useRef<any>(null);
-  const memChartRef = useRef<any>(null);
+  const cpuChartRef = useRef<ReactECharts>(null);
+  const memChartRef = useRef<ReactECharts>(null);
 
   useEffect(() => {
     const container = containerRef.current;

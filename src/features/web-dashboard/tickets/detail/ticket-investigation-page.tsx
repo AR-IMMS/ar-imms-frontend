@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -19,6 +19,7 @@ import Header from '@/components/layout/web-dashboard/header';
 import { useIncidentDetailQuery } from '@/hooks/incidents/use-incident-queries';
 import { useUpdateTicketStatusMutation } from '@/hooks/tickets/use-ticket-mutations';
 import { useTicketDetailQuery } from '@/hooks/tickets/use-ticket-queries';
+import { useUserByIdQuery } from '@/hooks/identity/use-identity-queries';
 import type { IncidentDetail } from '@/types/incident';
 import type { Ticket, TicketActivity, TicketStatus } from '@/types/ticket';
 import { formatDateTime, STATUS_OPTIONS } from '../lib/ticket-ui';
@@ -247,8 +248,11 @@ function IncidentSummary({ incident }: { incident: IncidentDetail }) {
 }
 
 function EvidenceTable({ incident }: { incident: IncidentDetail }) {
-  const metrics = incident.evidence.metrics ?? [];
-  const window = incident.evidence.window;
+  const evidence = incident.evidence;
+  const metrics = evidence?.metrics ?? [];
+  const window = evidence?.window;
+  const evidenceType = evidence?.type ?? 'unknown';
+  const evidenceCompleteness = evidence?.completeness ?? 'unknown';
 
   return (
     <section className="panel overflow-hidden" aria-labelledby="evidence-title">
@@ -260,8 +264,7 @@ function EvidenceTable({ incident }: { incident: IncidentDetail }) {
           </h2>
         </div>
         <span className="label-mono text-[10px] text-muted-foreground">
-          {incident.evidence.type} ·{' '}
-          {incident.evidence.completeness ?? 'unknown'}
+          {evidenceType} - {evidenceCompleteness}
         </span>
       </div>
       <div className="overflow-x-auto">
@@ -297,13 +300,12 @@ function EvidenceTable({ incident }: { incident: IncidentDetail }) {
         </table>
       </div>
       <div className="border-t border-border px-5 py-3 font-mono text-[11px] text-muted-foreground">
-        Window: {formatDateTime(window?.from)} → {formatDateTime(window?.to)} ·
+        Window: {formatDateTime(window?.from)} to {formatDateTime(window?.to)} -
         Interval: {window?.interval ?? '-'}
       </div>
     </section>
   );
 }
-
 function RelatedIncidents({ incident }: { incident: IncidentDetail }) {
   const related = incident.relatedIncidents ?? [];
 
@@ -563,7 +565,7 @@ function TicketCommandPanel({
                     : 'border-cyan/25 bg-cyan/8 text-cyan-ice hover:border-cyan/45'
                 }`}
               >
-                {linkedTicket.id === ticket.id ? 'ACTIVE · ' : ''}
+                {linkedTicket.id === ticket.id ? 'ACTIVE - ' : ''}
                 {linkedTicket.id}
               </Link>
             ))
@@ -573,6 +575,34 @@ function TicketCommandPanel({
 
       <ActivityTimeline activities={ticket.activities ?? []} />
     </aside>
+  );
+}
+
+function UserDetailText({ userId }: { userId: string }) {
+  const { data: user, isLoading, isError } = useUserByIdQuery(userId, !!userId);
+
+  if (!userId) return <span>--</span>;
+
+  if (isLoading) {
+    return (
+      <span className="animate-pulse text-muted-foreground/60">
+        Loading user...
+      </span>
+    );
+  }
+
+  if (isError || !user) {
+    return <span>{userId}</span>;
+  }
+
+  const displayName = user.fullName
+    ? `${user.fullName} (${user.username})`
+    : user.username;
+
+  return (
+    <span className="text-cyan-ice" title={user.email}>
+      {displayName} &lt;{user.email}&gt;
+    </span>
   );
 }
 
@@ -609,12 +639,15 @@ function ActivityTimeline({ activities }: { activities: TicketActivity[] }) {
                   </span>
                 </div>
                 <div className="mt-2 grid gap-1 font-mono text-[11px] text-muted-foreground">
-                  <span>Actor: {activity.actorUserId}</span>
                   {activity.fromUserId ? (
-                    <span>From: {activity.fromUserId}</span>
+                    <span>
+                      From: <UserDetailText userId={activity.fromUserId} />
+                    </span>
                   ) : null}
                   {activity.toUserId ? (
-                    <span>To: {activity.toUserId}</span>
+                    <span>
+                      To: <UserDetailText userId={activity.toUserId} />
+                    </span>
                   ) : null}
                   {activity.message ? (
                     <span className="text-foreground">
