@@ -27,10 +27,10 @@ function NodeHardwareGrid({
   primaryNicStatus,
 }: NodeHardwareGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
-  const cpuChartRef = useRef<any>(null);
-  const memChartRef = useRef<any>(null);
-  const netChartRef = useRef<any>(null);
-  const tempChartRef = useRef<any>(null);
+  const cpuChartRef = useRef<ReactECharts>(null);
+  const memChartRef = useRef<ReactECharts>(null);
+  const netChartRef = useRef<ReactECharts>(null);
+  const tempChartRef = useRef<ReactECharts>(null);
 
   useEffect(() => {
     const container = gridRef.current;
@@ -127,7 +127,7 @@ function NodeHardwareGrid({
         backgroundColor: 'rgba(20, 27, 45, 0.95)',
         borderColor: 'rgba(255, 77, 109, 0.2)',
         textStyle: { color: '#f8fafc', fontSize: 9, fontFamily: 'monospace' },
-        formatter: (params: any) => {
+        formatter: (params: { value: number | null }[]) => {
           const val = params[0].value;
           return `TEMP: ${val !== null && val !== undefined ? val.toFixed(1) : 'N/A'}°C`;
         },

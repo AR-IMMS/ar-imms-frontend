@@ -38,15 +38,15 @@ const sections: NavSection[] = [
   {
     title: 'Operations',
     items: [
-      { icon: LayoutGrid, label: 'Overview', to: '/overview' },
-      { icon: Gauge, label: 'Operations', to: '/operations' },
+      // { icon: LayoutGrid, label: "Overview", to: "/overview" },
+      // { icon: Gauge, label: "Operations", to: "/operations" },
       { icon: Activity, label: 'Monitoring', to: '/monitoring' },
       {
         icon: AlertTriangle,
         label: 'Alerts & Tickets',
         to: '/tickets',
       },
-      { icon: FileText, label: 'Audit Logs', to: '/audit' },
+      // { icon: FileText, label: "Audit Logs", to: "/audit" },
     ],
   },
   {

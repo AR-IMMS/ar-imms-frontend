@@ -21,6 +21,7 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
     { q: query.trim() || undefined },
     expanded
   );
+
   const options = useMemo(() => {
     const nodeParents = new Map(
       (topologyQuery.data ?? []).flatMap(({ rack, nodes }) =>
@@ -35,6 +36,7 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
       .filter((asset) => asset.type === 'rack' || asset.type === 'node')
       .map((asset): TicketAssetReference => {
         const parent = asset.type === 'node' ? nodeParents.get(asset.id) : null;
+
         return {
           type: asset.type === 'rack' ? 'RACK' : 'NODE',
           assetId: asset.id,
@@ -49,16 +51,18 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
 
   if (value) {
     const Icon = value.type === 'RACK' ? Server : Box;
+
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-cyan/35 bg-cyan/10 p-4">
-        <div className="grid size-11 place-items-center rounded-lg bg-cyan/10">
+      <div className="flex min-w-0 items-start gap-3 rounded-xl border border-cyan/35 bg-cyan/10 p-4">
+        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-cyan/10">
           <Icon className="size-5 text-cyan" />
         </div>
+
         <div className="min-w-0 flex-1">
-          <div className="label-mono text-[9px] text-cyan-ice">
+          <div className="label-mono break-words text-[9px] text-cyan-ice">
             {value.type} · {value.code}
           </div>
-          <div className="mt-1 truncate text-sm font-semibold text-foreground">
+          <div className="mt-1 break-words text-sm font-semibold text-foreground">
             {value.displayName}
           </div>
           {value.type === 'NODE' && value.rackCode ? (
@@ -74,7 +78,7 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
             setExpanded(true);
           }}
           aria-label="Remove related asset"
-          className="rounded-lg border border-border p-2 text-muted-foreground transition hover:text-foreground"
+          className="shrink-0 rounded-lg border border-border p-2 text-muted-foreground transition hover:text-foreground"
         >
           <X className="size-4" />
         </button>
@@ -90,31 +94,32 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
           onClick={() => setExpanded(true)}
           className="flex w-full items-center gap-3 text-left"
         >
-          <div className="grid size-11 place-items-center rounded-lg border border-border bg-background/40">
+          <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-border bg-background/40">
             <Box className="size-4 text-muted-foreground" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-sm font-semibold text-foreground">
               Attach a rack or node
             </div>
             <div className="mt-1 font-mono text-[10px] text-muted-foreground">
-              Optional — leave empty for general tasks
+              Optional - leave empty for general tasks
             </div>
           </div>
         </button>
       ) : (
         <div className="grid gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative min-w-0">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               autoFocus
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="ticket-input pl-10"
+              className="ticket-input w-full min-w-0 pl-10"
               placeholder="Search rack or node..."
             />
           </div>
-          <div className="max-h-52 overflow-y-auto rounded-lg border border-border bg-background/30">
+
+          <div className="max-h-52 overflow-y-auto overflow-x-hidden rounded-lg border border-border bg-background/30">
             {assetSearchQuery.isLoading ? (
               <div className="p-4 text-xs text-muted-foreground">
                 Loading assets...
@@ -127,6 +132,7 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
             ) : options.length ? (
               options.map((asset) => {
                 const Icon = asset.type === 'RACK' ? Server : Box;
+
                 return (
                   <button
                     key={`${asset.type}-${asset.assetId}`}
@@ -135,14 +141,14 @@ export default function TicketAssetPicker({ value, onChange }: Props) {
                       onChange(asset);
                       setExpanded(false);
                     }}
-                    className="flex w-full items-center gap-3 border-b border-border/50 px-3 py-3 text-left last:border-0 hover:bg-cyan/5"
+                    className="flex w-full items-start gap-3 border-b border-border/50 px-3 py-3 text-left last:border-0 hover:bg-cyan/5"
                   >
                     <Icon className="size-4 shrink-0 text-cyan" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium text-foreground">
                         {asset.displayName}
                       </div>
-                      <div className="font-mono text-[10px] text-muted-foreground">
+                      <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
                         {asset.type} · {asset.code}
                         {asset.type === 'NODE' && asset.rackCode
                           ? ` · ${asset.rackCode}`

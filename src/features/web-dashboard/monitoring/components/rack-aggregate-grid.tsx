@@ -87,22 +87,27 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
       minute: '2-digit',
       second: '2-digit',
     });
-    setNetHistory((prev) => {
-      if (prev.length > 0) {
-        const last = prev[prev.length - 1];
-        if (last.rx === rx && last.tx === tx) return prev;
-      }
-      const next = [...prev, { rx, tx, time }];
-      if (next.length > 12) next.shift(); // keep rolling 12 points
-      return next;
-    });
+    const timeout = window.setTimeout(
+      () =>
+        setNetHistory((prev) => {
+          if (prev.length > 0) {
+            const last = prev[prev.length - 1];
+            if (last.rx === rx && last.tx === tx) return prev;
+          }
+          const next = [...prev, { rx, tx, time }];
+          if (next.length > 12) next.shift(); // keep rolling 12 points
+          return next;
+        }),
+      0
+    );
+    return () => window.clearTimeout(timeout);
   }, [rx, tx]);
 
   // 2. Setup ECharts references for layout resize tracking
   const containerRef = useRef<HTMLDivElement>(null);
-  const tempChartRef = useRef<any>(null);
-  const diskChartRef = useRef<any>(null);
-  const netChartRef = useRef<any>(null);
+  const tempChartRef = useRef<ReactECharts>(null);
+  const diskChartRef = useRef<ReactECharts>(null);
+  const netChartRef = useRef<ReactECharts>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -207,9 +212,16 @@ export function RackAggregateGrid({ overview }: RackAggregateGridProps) {
         backgroundColor: 'rgba(20, 27, 45, 0.95)',
         borderColor: 'rgba(0, 209, 255, 0.2)',
         textStyle: { color: '#f8fafc', fontSize: 9, fontFamily: 'monospace' },
-        formatter: (params: any) => {
+        formatter: (
+          params: {
+            name: string;
+            color: string;
+            seriesName: string;
+            value: number;
+          }[]
+        ) => {
           let html = `<span style="font-size:8px;color:#64748b">${params[0].name}</span><br/>`;
-          params.forEach((p: any) => {
+          params.forEach((p) => {
             html += `<span style="color:${p.color}">${p.seriesName}: <b>${formatThroughput(p.value)}</b></span><br/>`;
           });
           return html;

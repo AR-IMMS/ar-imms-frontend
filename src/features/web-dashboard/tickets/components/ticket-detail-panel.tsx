@@ -37,6 +37,7 @@ import {
   statusTone,
 } from '../lib/ticket-ui';
 import TicketConfirmDialog from './ticket-confirm-dialog';
+import { useNodeContextQuery } from '@/hooks/asset/use-asset-queries';
 
 type TicketDetailPanelProps = {
   ticket: TicketProps;
@@ -248,10 +249,10 @@ export default function TicketDetailPanel({
               href={
                 detailTicket.assetRef.type === 'NODE' &&
                 detailTicket.assetRef.rackId
-                  ? `/assets/${detailTicket.assetRef.rackId}/${detailTicket.assetRef.assetId}`
+                  ? `/monitoring/${detailTicket.assetRef.rackId}`
                   : detailTicket.assetRef.type === 'RACK'
-                    ? `/assets/${detailTicket.assetRef.assetId}`
-                    : '/assets'
+                    ? `/monitoring/${detailTicket.assetRef.assetId}`
+                    : '/monitoring'
               }
               className="flex items-center gap-3 rounded-2xl border border-cyan/30 bg-cyan/10 p-4 transition hover:border-cyan/55"
             >
