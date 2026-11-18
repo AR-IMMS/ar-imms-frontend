@@ -91,6 +91,7 @@ export function useTicketEventNotifications({
     const abortController = new AbortController();
     let retryDelayMs = INITIAL_RETRY_DELAY_MS;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let lastEventId = '';
 
     const connect = async () => {
       setStreamStatus((current) =>
@@ -102,6 +103,7 @@ export function useTicketEventNotifications({
           headers: {
             Accept: 'text/event-stream',
             Authorization: `Bearer ${accessToken}`,
+            ...(lastEventId ? { 'Last-Event-ID': lastEventId } : {}),
           },
           signal: abortController.signal,
         });
@@ -122,6 +124,11 @@ export function useTicketEventNotifications({
           abortController.signal,
           (event) => {
             handleTicketEvent(event);
+          },
+          (eventId) => {
+            if (eventId) {
+              lastEventId = eventId;
+            }
           }
         );
 
@@ -232,10 +239,17 @@ export function parseTicketEventFrame(
   }
 }
 
+function parseTicketEventId(frame: string): string {
+  const line = frame.split(/\r?\n/).find((item) => item.startsWith('id:'));
+
+  return line ? line.slice(3).trimStart() : '';
+}
+
 async function readTicketEventStream(
   body: ReadableStream<Uint8Array>,
   signal: AbortSignal,
-  onEvent: (event: TicketRealtimeEvent) => void
+  onEvent: (event: TicketRealtimeEvent) => void,
+  onEventId: (eventId: string) => void
 ) {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -251,6 +265,10 @@ async function readTicketEventStream(
       buffer = frames.pop() ?? '';
 
       for (const frame of frames) {
+        const eventId = parseTicketEventId(frame);
+        if (eventId) {
+          onEventId(eventId);
+        }
         const event = parseTicketEventFrame(frame);
         if (event) {
           onEvent(event);
