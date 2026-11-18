@@ -89,6 +89,7 @@ export const useNodeMetrics = (
     if (error && nodeCode) {
       const apiErr = error as unknown as ApiError;
       setMetricsError(nodeCode, mode, {
+        status: apiErr.status || 0,
         code: apiErr.code || 'FETCH_ERROR',
         message: apiErr.message || 'Failed to fetch node metrics',
       });

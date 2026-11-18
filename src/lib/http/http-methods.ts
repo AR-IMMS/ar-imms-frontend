@@ -1,4 +1,11 @@
-import { http, type ExtendedHttpOptions } from './http-wrapper';
+import {
+  http,
+  httpList,
+  httpResponse,
+  type ExtendedHttpOptions,
+  type HttpResponse,
+} from './http-wrapper';
+import type { ListResponse } from '@/types/api';
 
 export const httpGet = <T>(url: string, options?: ExtendedHttpOptions) =>
   http<T>(url, { ...options, method: 'GET' });
@@ -44,3 +51,14 @@ export const httpPatch = <T>(
 
 export const httpDelete = <T>(url: string, options?: ExtendedHttpOptions) =>
   http<T>(url, { ...options, method: 'DELETE' });
+
+export const httpGetResponse = <T>(
+  url: string,
+  options?: ExtendedHttpOptions
+): Promise<HttpResponse<T> | null> =>
+  httpResponse<T>(url, { ...options, method: 'GET' });
+
+export const httpGetList = <T>(
+  url: string,
+  options?: ExtendedHttpOptions
+): Promise<ListResponse<T>> => httpList<T>(url, { ...options, method: 'GET' });

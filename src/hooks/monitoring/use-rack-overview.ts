@@ -44,6 +44,7 @@ export const useRackOverview = (rackId: string) => {
     if (error && rackId) {
       const apiErr = error as unknown as ApiError;
       setOverviewError(rackId, {
+        status: apiErr.status || 0,
         code: apiErr.code || 'FETCH_ERROR',
         message: apiErr.message || 'Failed to fetch rack overview',
       });
