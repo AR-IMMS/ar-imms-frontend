@@ -16,10 +16,6 @@ export const queryKeys = {
       technicians: () => ['identity', 'users', 'technicians'] as const,
       detailById: (userId: string) =>
         ['identity', 'users', 'detail', userId] as const,
-      detailByUsername: (
-        username: string,
-        params?: Partial<ListUsersRequest>
-      ) => ['identity', 'users', 'detail', username, params ?? {}] as const,
     },
   },
   asset: {

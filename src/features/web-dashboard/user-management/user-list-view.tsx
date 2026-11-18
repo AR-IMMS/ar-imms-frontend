@@ -12,7 +12,6 @@ import {
   useUsersQuery,
 } from '@/hooks/identity/use-identity-queries';
 import UserListFilters from './components/user-list-filters';
-import Pagination from '@/components/common/pagination';
 import { Avatar } from '@/components/common/avatar';
 
 type RoleFilter = RoleCode | 'ALL';
@@ -38,37 +37,19 @@ export default function UserListView() {
   const [selectedRole, setSelectedRole] = useState<RoleFilter>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
   const [openMenu, setOpenMenu] = useState<MenuKey>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 
   const deferredSearch = useDeferredValue(search.trim());
 
   const params: ListUsersRequest = useMemo(() => {
     const listParams: ListUsersRequest = {
-      page: currentPage,
-      limit: 20,
-      sortBy: 'createdAt',
-      sortDirection: 'desc',
+      page_size: 20,
+      ...(cursor ? { cursor } : {}),
     };
 
-    if (selectedStatus !== 'ALL') {
-      listParams.status = selectedStatus;
-    }
-
-    if (selectedRole !== 'ALL') {
-      listParams.roleCodes = [selectedRole];
-    }
-
-    const trimmedSearch = deferredSearch.trim();
-    if (trimmedSearch) {
-      if (trimmedSearch.includes('@')) {
-        listParams.email = trimmedSearch;
-      } else {
-        listParams.username = trimmedSearch;
-      }
-    }
-
     return listParams;
-  }, [currentPage, deferredSearch, selectedRole, selectedStatus]);
+  }, [cursor]);
 
   const rolesQuery = useRolesQuery();
   const usersQuery = useUsersQuery(params);
@@ -80,25 +61,44 @@ export default function UserListView() {
     );
   }, [rolesQuery.data]);
 
-  const users = useMemo(
-    () => usersQuery.data?.items ?? [],
-    [usersQuery.data?.items]
-  );
+  const users = useMemo(() => {
+    const searchValue = deferredSearch.toLowerCase();
+    return (usersQuery.data?.data ?? []).filter((user) => {
+      if (
+        searchValue &&
+        ![user.username, user.fullName, user.email, user.id]
+          .filter((value): value is string => typeof value === 'string')
+          .some((value) => value.toLowerCase().includes(searchValue))
+      ) {
+        return false;
+      }
+      if (selectedRole !== 'ALL' && !user.roleCodes.includes(selectedRole)) {
+        return false;
+      }
+      if (selectedStatus !== 'ALL' && user.status !== selectedStatus) {
+        return false;
+      }
+      return true;
+    });
+  }, [deferredSearch, selectedRole, selectedStatus, usersQuery.data?.data]);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setCurrentPage(1);
+    setCursor(undefined);
+    setCursorHistory([]);
   };
 
   function selectRoleFilter(roleCode: RoleFilter) {
     setSelectedRole(roleCode);
-    setCurrentPage(1);
+    setCursor(undefined);
+    setCursorHistory([]);
     setOpenMenu(null);
   }
 
   function selectStatusFilter(status: StatusFilter) {
     setSelectedStatus(status);
-    setCurrentPage(1);
+    setCursor(undefined);
+    setCursorHistory([]);
     setOpenMenu(null);
   }
 
@@ -242,16 +242,40 @@ export default function UserListView() {
 
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-[11px] font-mono uppercase tracking-[0.16em] text-muted-foreground">
-        <span>
-          Loaded {users.length} of{' '}
-          {usersQuery.data?.pageInfo.totalItems ?? users.length}
-        </span>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={usersQuery.data?.pageInfo.totalPages ?? 1}
-          onPageChange={setCurrentPage}
-          isLoading={usersQuery.isFetching}
-        />
+        <span>Loaded {users.length} users</span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="rounded border border-border px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={cursorHistory.length === 0 || usersQuery.isFetching}
+            onClick={() => {
+              const previousCursor = cursorHistory.at(-1);
+              setCursorHistory((history) => history.slice(0, -1));
+              setCursor(previousCursor || undefined);
+            }}
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            className="rounded border border-border px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={
+              usersQuery.isFetching ||
+              usersQuery.data?.pagination?.type !== 'cursor' ||
+              usersQuery.data.pagination.next_cursor === null
+            }
+            onClick={() => {
+              const pagination = usersQuery.data?.pagination;
+              if (pagination?.type !== 'cursor' || !pagination.next_cursor) {
+                return;
+              }
+              setCursorHistory((history) => [...history, cursor ?? '']);
+              setCursor(pagination.next_cursor);
+            }}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {selectedUser ? (
