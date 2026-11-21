@@ -1,57 +1,78 @@
-export interface ErrorResponse {
-  code: string;
-  message: string;
-  details?: {
-    status: number;
-    instance?: string;
-    type?: string;
-    reason?: string;
-    detail?: string;
-  };
-}
-
 export interface MetaResponse {
-  timestamp: string;
-  requestId?: string;
-  correlationId?: string;
-  version: string;
+  request_id: string;
+  trace_id?: string;
 }
 
-export interface ApiSuccess<T> {
-  success?: true;
+export interface CursorPagination {
+  type: 'cursor';
+  next_cursor: string | null;
+}
+
+export interface PagePagination {
+  type: 'page';
+  page: number;
+  page_size: number;
+  total_items: number | null;
+  total_pages: number | null;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+export type Pagination = CursorPagination | PagePagination;
+
+export interface SingleResponse<T> {
   data: T;
-  meta: MetaResponse;
-  error?: never;
+  meta?: MetaResponse;
 }
 
-export interface ApiFailure {
-  success?: false;
-  error: ErrorResponse;
-  meta: MetaResponse;
-  data?: never;
+export interface ListResponse<T> {
+  data: T[];
+  meta?: MetaResponse;
+  pagination?: Pagination;
+}
+
+export type ValidationErrorCode =
+  | 'INVALID_TYPE'
+  | 'INVALID_FORMAT'
+  | 'OUT_OF_RANGE'
+  | 'UNKNOWN_FIELD'
+  | 'INVALID_VALUE';
+
+export interface FieldError {
+  field: Array<string | number>;
+  code: ValidationErrorCode;
+  message: string;
+}
+
+export interface ErrorResponse {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  code: string;
+  request_id: string;
+  trace_id?: string;
+  errors?: FieldError[];
 }
 
 export interface ApiError {
   status: number;
   code: string;
   message: string;
+  title?: string;
+  detail?: string;
+  instance?: string;
+  requestId?: string;
+  traceId?: string;
+  errors?: FieldError[];
 }
 
-export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
+export type ApiResponse<T> = SingleResponse<T> | ListResponse<T>;
 
 export interface PaginationParams {
   page?: number;
-  limit?: number;
-  sortBy?: 'username' | 'email' | 'status' | 'createdAt' | 'updatedAt';
-  sortDirection?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  pageInfo: {
-    page: number;
-    limit: number;
-    totalItems: number;
-    totalPages: number;
-  };
+  page_size?: number;
+  cursor?: string;
+  sort?: string;
 }

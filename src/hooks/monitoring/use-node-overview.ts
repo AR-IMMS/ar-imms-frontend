@@ -30,6 +30,7 @@ export const useNodeOverview = (nodeCode: string) => {
     if (error && nodeCode) {
       const apiErr = error as unknown as ApiError;
       setOverviewError(nodeCode, {
+        status: apiErr.status || 0,
         code: apiErr.code || 'FETCH_ERROR',
         message: apiErr.message || 'Failed to fetch node overview',
       });

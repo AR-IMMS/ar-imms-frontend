@@ -1,14 +1,14 @@
 import { httpGet, httpPatch, httpPost, httpPut } from '@/lib/http/http-methods';
 import { IDENTITY_ENDPOINTS } from '@/lib/react-query/api-endpoint';
 import buildQueryString from '@/lib/utils/buildQueryString';
-import { PaginatedResponse } from '@/types/api';
+import { httpGetList } from '@/lib/http/http-methods';
+import type { ListResponse } from '@/types/api';
 import type {
   CreateUserRequestPayload,
   ROLE_ITEM,
   UserProfileResponse,
 } from '@/types/auth';
 import {
-  GetUserByUsernameRequest,
   ListUsersRequest,
   UpdateUserRolesRequestPayload,
   UpdateUserStatusRequestPayload,
@@ -25,8 +25,8 @@ export const identityService = {
 
   listUsers: (
     params: ListUsersRequest
-  ): Promise<PaginatedResponse<UserProfileResponse>> =>
-    httpGet<PaginatedResponse<UserProfileResponse>>(
+  ): Promise<ListResponse<UserProfileResponse>> =>
+    httpGetList<UserProfileResponse>(
       `${IDENTITY_ENDPOINTS.GET_USERS}${buildQueryString(params)}`,
       { service: SERVICE_NAME }
     ),
@@ -35,14 +35,6 @@ export const identityService = {
     httpGet<UserProfileResponse[]>(IDENTITY_ENDPOINTS.GET_TECHNICIANS, {
       service: SERVICE_NAME,
     }),
-
-  getUserByUsername: (
-    params: GetUserByUsernameRequest
-  ): Promise<PaginatedResponse<UserProfileResponse>> =>
-    httpGet<PaginatedResponse<UserProfileResponse>>(
-      `${IDENTITY_ENDPOINTS.GET_USER_BY_USERNAME(params.username)}${buildQueryString(params)}`,
-      { service: SERVICE_NAME }
-    ),
 
   getUserById: (userId: string): Promise<UserProfileResponse> =>
     httpGet<UserProfileResponse>(IDENTITY_ENDPOINTS.GET_USER_BY_ID(userId), {

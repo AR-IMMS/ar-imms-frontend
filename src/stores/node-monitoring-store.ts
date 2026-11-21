@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ErrorResponse } from '@/types/api';
+import type { ApiError } from '@/types/api';
 import type {
   MetricMode,
   NodeMetricsData,
@@ -11,13 +11,13 @@ import type {
 interface NodeOverviewState {
   overview: NodeOverviewData | null;
   loading: boolean;
-  error: ErrorResponse | null;
+  error: ApiError | null;
 }
 
 interface NodeMetricsState {
   metrics: NodeMetricsData | null;
   loading: boolean;
-  error: ErrorResponse | null;
+  error: ApiError | null;
 }
 
 interface MonitoringState {
@@ -26,7 +26,7 @@ interface MonitoringState {
 
   setOverviewLoading: (nodeCode: string, loading: boolean) => void;
   setOverviewData: (nodeCode: string, data: NodeOverviewData) => void;
-  setOverviewError: (nodeCode: string, error: ErrorResponse | null) => void;
+  setOverviewError: (nodeCode: string, error: ApiError | null) => void;
 
   setMetricsLoading: (
     nodeCode: string,
@@ -41,7 +41,7 @@ interface MonitoringState {
   setMetricsError: (
     nodeCode: string,
     mode: MetricMode,
-    error: ErrorResponse | null
+    error: ApiError | null
   ) => void;
 
   appendMetricPoint: (

@@ -14,7 +14,6 @@ export function useRolesQuery(enabled = true) {
     staleTime: DEFAULT_ROLES_STALE_TIME,
   });
 }
-
 export function useUsersQuery(params: ListUsersRequest, enabled = true) {
   return useQuery({
     queryKey: queryKeys.identity.users.list(params),
@@ -41,28 +40,6 @@ export function useUserByIdQuery(userId: string, enabled = true) {
     queryKey: queryKeys.identity.users.detailById(normalizedUserId),
     queryFn: () => identityService.getUserById(normalizedUserId),
     enabled: enabled && normalizedUserId.length > 0,
-    staleTime: DEFAULT_USERS_STALE_TIME,
-  });
-}
-
-export function useUsersByUsernameQuery(
-  username: string,
-  params?: ListUsersRequest,
-  enabled = true
-) {
-  const normalizedUsername = username?.trim() ?? '';
-
-  return useQuery({
-    queryKey: queryKeys.identity.users.detailByUsername(
-      normalizedUsername,
-      params
-    ),
-    queryFn: () =>
-      identityService.getUserByUsername({
-        username: normalizedUsername,
-        ...params,
-      }),
-    enabled: enabled && normalizedUsername.length > 0,
     staleTime: DEFAULT_USERS_STALE_TIME,
   });
 }

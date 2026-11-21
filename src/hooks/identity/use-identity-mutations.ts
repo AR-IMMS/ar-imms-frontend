@@ -3,7 +3,7 @@ import { identityService } from '@/services/identity/identity-service';
 import { queryClient } from '@/lib/react-query/query-client';
 import { queryKeys } from '@/lib/react-query/query-keys';
 import { useAuthStore } from '@/stores/auth-store';
-import type { PaginatedResponse } from '@/types/api';
+import type { ListResponse } from '@/types/api';
 import type {
   CreateUserRequestPayload,
   UserProfileResponse,
@@ -22,18 +22,18 @@ type UsersListQueryParams = typeof queryKeys.identity.users.list extends (
 type CreateUserMutationContext = {
   optimisticUserId: string;
   previousListQueries: Array<
-    [readonly unknown[], PaginatedResponse<UserProfileResponse> | undefined]
+    [readonly unknown[], ListResponse<UserProfileResponse> | undefined]
   >;
 };
 
 function isPaginatedUserResponse(
   value: unknown
-): value is PaginatedResponse<UserProfileResponse> {
+): value is ListResponse<UserProfileResponse> {
   return (
     typeof value === 'object' &&
     value !== null &&
-    'items' in value &&
-    Array.isArray((value as PaginatedResponse<UserProfileResponse>).items)
+    'data' in value &&
+    Array.isArray((value as ListResponse<UserProfileResponse>).data)
   );
 }
 
@@ -48,7 +48,7 @@ function syncUpdatedUserCaches(updatedUser: UserProfileResponse) {
       if (isPaginatedUserResponse(cachedData)) {
         return {
           ...cachedData,
-          items: cachedData.items.map((user) =>
+          data: cachedData.data.map((user) =>
             user.id === updatedUser.id ? { ...user, ...updatedUser } : user
           ),
         };
@@ -114,82 +114,45 @@ function isUsersListQueryKey(queryKey: readonly unknown[]): boolean {
 }
 
 function matchesUsersListFilters(
-  user: UserProfileResponse,
-  params: UsersListQueryParams
+  _user: UserProfileResponse,
+  _params: UsersListQueryParams
 ): boolean {
-  if (params.username) {
-    const normalizedUsername = params.username.trim().toLowerCase();
-    const searchPool = [user.username, user.fullName, user.email, user.id]
-      .filter((value): value is string => typeof value === 'string')
-      .some((value) => value.toLowerCase().includes(normalizedUsername));
-
-    if (!searchPool) {
-      return false;
-    }
-  }
-
-  if (params.email) {
-    if (!user.email.toLowerCase().includes(params.email.trim().toLowerCase())) {
-      return false;
-    }
-  }
-
-  if (params.status && user.status !== params.status) {
-    return false;
-  }
-
-  if (
-    params.roleCodes?.length &&
-    !params.roleCodes.some((roleCode) => user.roleCodes.includes(roleCode))
-  ) {
-    return false;
-  }
-
   return true;
 }
 
 function insertOptimisticUserIntoList(
-  data: PaginatedResponse<UserProfileResponse>,
+  data: ListResponse<UserProfileResponse>,
   optimisticUser: UserProfileResponse,
   params: UsersListQueryParams
-): PaginatedResponse<UserProfileResponse> {
+): ListResponse<UserProfileResponse> {
   const nextItems = [
     optimisticUser,
-    ...data.items.filter((item) => item.id !== optimisticUser.id),
+    ...data.data.filter((item) => item.id !== optimisticUser.id),
   ];
-  const limit = data.pageInfo.limit;
 
   return {
     ...data,
-    items: params.page === 1 ? nextItems.slice(0, limit) : data.items,
-    pageInfo: {
-      ...data.pageInfo,
-      totalItems: data.pageInfo.totalItems + 1,
-      totalPages:
-        params.page === 1
-          ? Math.max(1, Math.ceil((data.pageInfo.totalItems + 1) / limit))
-          : data.pageInfo.totalPages,
-    },
+    data: params.cursor ? data.data : nextItems,
   };
 }
 
 function replaceOptimisticUserInList(
-  data: PaginatedResponse<UserProfileResponse>,
+  data: ListResponse<UserProfileResponse>,
   optimisticUserId: string,
   createdUser: UserProfileResponse,
   params: UsersListQueryParams
-): PaginatedResponse<UserProfileResponse> {
-  const nextItems = data.items.map((item) =>
+): ListResponse<UserProfileResponse> {
+  const nextItems = data.data.map((item) =>
     item.id === optimisticUserId ? createdUser : item
   );
 
-  if (params.page !== 1) {
+  if (params.cursor) {
     return data;
   }
 
   return {
     ...data,
-    items: nextItems,
+    data: nextItems,
   };
 }
 
@@ -198,7 +161,7 @@ function syncCreatedUserCaches(
   optimisticUserId: string
 ) {
   const listQueries = queryClient.getQueriesData<
-    PaginatedResponse<UserProfileResponse>
+    ListResponse<UserProfileResponse>
   >({ queryKey: queryKeys.identity.users.all });
 
   for (const [queryKey, cachedData] of listQueries) {
@@ -240,7 +203,7 @@ export function useCreateUserMutation() {
 
       const optimisticUser = createOptimisticUser(payload);
       const previousListQueries = queryClient.getQueriesData<
-        PaginatedResponse<UserProfileResponse>
+        ListResponse<UserProfileResponse>
       >({ queryKey: queryKeys.identity.users.all });
 
       for (const [queryKey, cachedData] of previousListQueries) {
