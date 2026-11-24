@@ -1,267 +1,152 @@
 'use client';
 
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { useRouter } from 'next/navigation';
-import {
-  Bell,
-  CheckCheck,
-  CircleAlert,
-  MessageSquareText,
-  TicketCheck,
-  X,
-} from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell } from 'lucide-react';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/auth/use-auth';
-import { useTicketEventNotifications } from '@/hooks/tickets/use-ticket-event-notifications';
-import {
-  useMyTicketsQuery,
-  useTicketsQuery,
-} from '@/hooks/tickets/use-ticket-queries';
-import { hasAnyRole, hasRole } from '@/lib/auth/auth-permissions';
-import {
-  buildTicketNotifications,
-  type TicketNotification,
-  type TicketNotificationTone,
-} from '@/features/web-dashboard/tickets/lib/ticket-notifications';
-import type { UserProfileResponse } from '@/types/auth';
-
-const MAX_VISIBLE_NOTIFICATIONS = 40;
+import { ticketHome } from '@/lib/auth/ticket-access';
+import { ticketService } from '@/services/tickets/ticket-service';
 
 export function TicketNotificationCenter() {
-  const router = useRouter();
-  const { accessToken, isAuthenticated, user } = useAuth();
-  const profile = user as UserProfileResponse | null;
-  const shouldUseAssignedTickets =
-    hasRole(profile, 'MAINTENANCE_TECHNICIAN') &&
-    !hasAnyRole(profile, ['IT_ADMINISTRATOR', 'SYSTEM_MONITORING_OPERATOR']);
-  const allTicketsQuery = useTicketsQuery(undefined, !shouldUseAssignedTickets);
-  const assignedTicketsQuery = useMyTicketsQuery(
-    undefined,
-    shouldUseAssignedTickets
-  );
-  const ticketsQuery = shouldUseAssignedTickets
-    ? assignedTicketsQuery
-    : allTicketsQuery;
-  const ticketRoute = shouldUseAssignedTickets ? '/tickets/me' : '/tickets';
-  const realtime = useTicketEventNotifications({
-    accessToken,
-    enabled: isAuthenticated,
-    userId: user?.id,
+  const { user } = useAuth();
+  const home = ticketHome(user);
+  const cache = useQueryClient();
+  const scope = ['tickets', 'notifications', user?.id] as const;
+  const inbox = useQuery({
+    queryKey: scope,
+    queryFn: ticketService.notifications,
+    enabled: Boolean(home && user?.id),
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: 'always',
+    retry: false,
   });
-  const snapshotNotifications = useMemo(
-    () => buildTicketNotifications(ticketsQuery.data ?? []),
-    [ticketsQuery.data]
-  );
-  const notifications = useMemo(
-    () =>
-      mergeNotifications([...realtime.notifications, ...snapshotNotifications]),
-    [realtime.notifications, snapshotNotifications]
-  );
-  const storageKey = `ar-imms:ticket-notifications:read:${user?.id ?? 'operator'}`;
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
-  const [open, setOpen] = useState(false);
+  const mark = useMutation({
+    mutationFn: ticketService.markNotificationsRead,
+    onSettled: () => cache.invalidateQueries({ queryKey: scope }),
+  });
+  const data = inbox.isError ? undefined : inbox.data;
+  const unread = data?.unreadCount ?? 0;
 
-  useEffect(() => {
-    const hydrateTimer = window.setTimeout(() => {
-      setReadIds(readStoredIds(storageKey));
-    }, 0);
-
-    return () => window.clearTimeout(hydrateTimer);
-  }, [storageKey]);
-
-  const unreadCount = notifications.filter(
-    (item) => !readIds.has(item.id)
-  ).length;
-
-  function persistRead(next: Set<string>) {
-    setReadIds(next);
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify([...next].slice(-200))
-    );
-  }
-
-  function markAllRead() {
-    persistRead(new Set([...readIds, ...notifications.map((item) => item.id)]));
-  }
-
-  function openTicket(item: TicketNotification) {
-    persistRead(new Set([...readIds, item.id]));
-    window.sessionStorage.setItem('ar-imms:open-ticket', item.ticketId);
-    setOpen(false);
-    router.push(ticketRoute);
-  }
+  if (!home) return null;
 
   return (
-    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
-      <DropdownMenu.Trigger asChild>
-        <button
-          type="button"
-          aria-label={`Ticket notifications${unreadCount ? `, ${unreadCount} unread` : ''}`}
-          className="relative grid size-9 place-items-center rounded-lg border border-border bg-surface-1 text-muted-foreground transition hover:border-cyan/40 hover:text-cyan focus:outline-none focus:ring-2 focus:ring-cyan/20"
-        >
-          <Bell className="size-4" />
-          {unreadCount ? (
-            <span className="absolute -right-1 -top-1 grid min-h-4 min-w-4 place-items-center rounded-full border-2 border-background bg-critical px-1 font-mono text-[8px] font-bold leading-none text-white">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          ) : null}
-        </button>
-      </DropdownMenu.Trigger>
-
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align="end"
-          sideOffset={10}
-          className="z-50 w-[min(380px,calc(100vw-24px))] overflow-hidden rounded-2xl border border-border bg-surface-1 shadow-2xl outline-none"
-        >
-          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5">
-            <div>
-              <div className="text-sm font-bold text-foreground">
-                Notifications
-              </div>
-              <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                {unreadCount
-                  ? `${unreadCount} unread workflow updates`
-                  : "You're up to date"}
-                {realtime.status === 'reconnecting'
-                  ? ' · reconnecting live feed'
-                  : ''}
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              {unreadCount ? (
-                <button
-                  type="button"
-                  onClick={markAllRead}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-semibold text-cyan transition hover:bg-cyan/10"
-                >
-                  <CheckCheck className="size-3.5" /> Mark all read
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
-                aria-label="Close notifications"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="max-h-[min(520px,70vh)] overflow-y-auto p-2">
-            {ticketsQuery.isLoading ? (
-              <div className="px-3 py-10 text-center text-xs text-muted-foreground">
-                Syncing ticket activity...
-              </div>
-            ) : notifications.length ? (
-              notifications.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => openTicket(item)}
-                  className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-cyan/5 ${readIds.has(item.id) ? 'opacity-65' : 'bg-cyan/5'}`}
-                >
-                  <NotificationIcon tone={item.tone} title={item.title} />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="truncate text-xs font-bold text-foreground">
-                        {item.title}
-                      </span>
-                      {!readIds.has(item.id) ? (
-                        <span className="size-2 shrink-0 rounded-full bg-cyan" />
-                      ) : null}
-                    </span>
-                    <span className="mt-1 block truncate font-mono text-[10px] font-semibold text-cyan-ice">
-                      {item.ticketCode}
-                    </span>
-                    <span className="mt-1 line-clamp-2 block text-xs leading-5 text-muted-foreground">
-                      {item.body}
-                    </span>
-                    <span className="mt-1.5 block font-mono text-[9px] text-muted-foreground">
-                      {formatRelativeTime(item.createdAt)}
-                    </span>
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="grid place-items-center gap-2 px-4 py-12 text-center">
-                <TicketCheck className="size-7 text-neon-green" />
-                <div className="text-sm font-semibold text-foreground">
-                  No ticket updates yet
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Workflow activity will appear here.
-                </div>
-              </div>
+    <details
+      className="relative"
+      onToggle={(event) => {
+        if (event.currentTarget.open) {
+          mark.reset();
+          void inbox.refetch();
+        }
+      }}
+    >
+      <summary
+        aria-label={
+          unread
+            ? `Ticket notifications, ${unread} unread`
+            : 'Ticket notifications'
+        }
+        title="Ticket notifications"
+        className="relative flex h-9 min-w-9 cursor-pointer list-none items-center justify-center gap-2 rounded-lg border border-border px-2 text-foreground hover:text-cyan focus-visible:outline-2 focus-visible:outline-cyan sm:px-3"
+      >
+        <Bell aria-hidden="true" className="size-4 shrink-0" />
+        <span className="hidden text-xs font-semibold sm:inline">
+          Notifications
+        </span>
+        {unread > 0 && (
+          <span className="absolute -right-1 -top-1 rounded-full bg-cyan px-1 text-[10px] font-bold text-slate-950">
+            {unread > 9 ? '9+' : unread}
+          </span>
+        )}
+      </summary>
+      <div className="absolute right-0 top-full z-40 mt-2 w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-border bg-surface-1 text-sm shadow-xl">
+        <div className="flex items-center justify-between gap-3 border-b border-border p-3">
+          <div>
+            <h2 className="font-semibold">Ticket notifications</h2>
+            {data && (
+              <p className="text-xs text-muted-foreground">{unread} unread</p>
             )}
           </div>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+          <button
+            type="button"
+            disabled={!unread || mark.isPending}
+            onClick={() =>
+              mark.mutate(
+                data?.items
+                  .filter((item) => !item.read)
+                  .map((item) => item.id) ?? []
+              )
+            }
+            className="text-xs font-semibold text-cyan disabled:opacity-50"
+          >
+            Mark shown read
+          </button>
+        </div>
+        {inbox.isPending ? (
+          <p role="status" className="p-4 text-muted-foreground">
+            Loading notifications...
+          </p>
+        ) : null}
+        {inbox.isError ? (
+          <p role="alert" className="p-4 text-muted-foreground">
+            Could not load notifications.{' '}
+            <button
+              type="button"
+              onClick={() => void inbox.refetch()}
+              className="text-cyan underline"
+            >
+              Retry
+            </button>
+          </p>
+        ) : null}
+        {mark.isError ? (
+          <p role="alert" className="px-4 py-2 text-muted-foreground">
+            Could not mark notifications as read.
+          </p>
+        ) : null}
+        {data && !data.items.length && (
+          <div className="space-y-1 p-4 text-muted-foreground">
+            <p className="font-medium text-foreground">
+              No notifications for your account yet.
+            </p>
+            <p className="text-xs leading-relaxed">
+              Updates from other people on Tickets you own or are assigned to
+              appear here.
+            </p>
+          </div>
+        )}
+        <ul className="max-h-96 divide-y divide-border overflow-y-auto">
+          {data?.items.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={`/tickets/${item.ticket_id}`}
+                onClick={(event) => {
+                  if (!item.read) mark.mutate([item.id]);
+                  const panel = event.currentTarget.closest('details');
+                  if (panel) panel.open = false;
+                }}
+                className="flex items-start gap-3 p-3 hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-cyan"
+              >
+                <span
+                  className={`mt-1.5 size-2 shrink-0 rounded-full ${item.read ? 'bg-transparent' : 'bg-cyan'}`}
+                  aria-label={item.read ? 'Read' : 'Unread'}
+                />
+                <div className="min-w-0">
+                  <p className="font-semibold">{item.label}</p>
+                  <p className="truncate text-muted-foreground">
+                    #{item.ticket_number} {'\u00b7'} {item.ticket_title}
+                  </p>
+                  <time
+                    dateTime={item.occurred_at}
+                    className="text-xs text-muted-foreground"
+                  >
+                    {new Date(item.occurred_at).toLocaleString()}
+                  </time>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </details>
   );
-}
-
-function NotificationIcon({
-  tone,
-  title,
-}: {
-  tone: TicketNotificationTone;
-  title: string;
-}) {
-  const toneClass = {
-    cyan: 'bg-cyan/10 text-cyan',
-    purple: 'bg-purple/10 text-purple',
-    amber: 'bg-amber/10 text-amber',
-    green: 'bg-neon-green/10 text-neon-green',
-    red: 'bg-critical/10 text-critical',
-  }[tone];
-  const Icon = title.includes('note')
-    ? MessageSquareText
-    : title.includes('review')
-      ? TicketCheck
-      : CircleAlert;
-  return (
-    <span
-      className={`grid size-9 shrink-0 place-items-center rounded-lg ${toneClass}`}
-    >
-      <Icon className="size-4" />
-    </span>
-  );
-}
-
-function formatRelativeTime(value: string) {
-  const seconds = Math.max(
-    0,
-    Math.floor((Date.now() - Date.parse(value)) / 1000)
-  );
-  if (seconds < 60) return 'Just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-}
-
-function mergeNotifications(notifications: TicketNotification[]) {
-  const seenIds = new Set<string>();
-
-  return notifications
-    .filter((item) => {
-      if (seenIds.has(item.id)) return false;
-      seenIds.add(item.id);
-      return true;
-    })
-    .sort(
-      (left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)
-    )
-    .slice(0, MAX_VISIBLE_NOTIFICATIONS);
-}
-
-function readStoredIds(storageKey: string) {
-  try {
-    const stored = window.localStorage.getItem(storageKey);
-    return new Set(stored ? (JSON.parse(stored) as string[]) : []);
-  } catch {
-    return new Set<string>();
-  }
 }

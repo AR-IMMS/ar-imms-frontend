@@ -47,6 +47,7 @@ export function clearState() {
   useAuthStore.getState().logout();
   queryClient.removeQueries({ queryKey: queryKeys.auth.all });
   queryClient.removeQueries({ queryKey: queryKeys.identity.all });
+  queryClient.removeQueries({ queryKey: queryKeys.tickets.all });
 
   if (typeof window !== 'undefined') {
     localStorage.removeItem('auth-store');

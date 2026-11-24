@@ -7,7 +7,10 @@ export function useAuth() {
   const sessionId = useAuthStore((state) => state.sessionId);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const isAuthenticated = useAuthStore(
-    (state) => !!state.accessToken && !!state.refreshToken
+    (state) =>
+      !!state.accessToken &&
+      (!!state.refreshToken ||
+        process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true')
   );
 
   return {

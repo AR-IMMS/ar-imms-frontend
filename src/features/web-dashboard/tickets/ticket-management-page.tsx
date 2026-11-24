@@ -1,80 +1,95 @@
 'use client';
-
+import Link from 'next/link';
+import ArchivedTicketList from './components/archived-ticket-list';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import Header from '@/components/layout/web-dashboard/header';
 import CreateTicketModal from './components/create-ticket-modal';
 import TicketListView from './ticket-list-view';
-import { useTechniciansQuery } from '@/hooks/identity/use-identity-queries';
-
-type TicketManagementPageProps = {
-  mode?: 'all' | 'assigned-to-me';
-};
-
-const PAGE_COPY = {
-  all: {
-    eyebrow: 'OPERATOR // TICKET CONTROL',
-    title: 'Ticket Management',
-    subtitle: 'Dispatch, assignment, comments, evidence, and final closure.',
-  },
-  'assigned-to-me': {
-    eyebrow: 'TECHNICIAN // ASSIGNED WORK',
-    title: 'My Tickets',
-    subtitle:
-      'Review assigned work, acknowledge dispatch, and update progress.',
-  },
-} as const;
+import { useAuth } from '@/hooks/auth/use-auth';
+import { ticketAccess } from '@/lib/auth/ticket-access';
+import { primaryButton, secondaryButton } from './lib/ticket-ui';
 
 export default function TicketManagementPage({
   mode = 'all',
-}: TicketManagementPageProps) {
-  const searchParams = useSearchParams();
-  const initialIncidentId = searchParams.get('incidentId') || '';
-  const initialCreate = searchParams.get('create') === 'true';
-
-  const [createOpen, setCreateOpen] = useState(initialCreate);
-  const copy = PAGE_COPY[mode];
-  const canCreateTickets = mode === 'all';
-  const techniciansQuery = useTechniciansQuery(canCreateTickets);
-  const technicians = canCreateTickets ? (techniciansQuery.data ?? []) : [];
-
-  const handleClose = () => {
-    setCreateOpen(false);
-    if (typeof window !== 'undefined') {
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  };
-
+}: {
+  mode?: 'all' | 'assigned-to-me';
+}) {
+  const [create, setCreate] = useState(false);
+  const router = useRouter();
+  const search = useSearchParams();
+  const fromIncident = search.has('incidentId');
+  const { user } = useAuth();
+  const manager = mode === 'all' && ticketAccess(user).manage;
+  const archived = manager && search.get('view') === 'archived';
+  const canCreate = mode === 'all' && ticketAccess(user).create;
   return (
     <div className="ticket-readable h-full min-h-0 overflow-y-auto overscroll-contain">
-      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7 xl:px-10">
+      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8 xl:px-10">
         <Header
-          eyebrow={copy.eyebrow}
-          title={copy.title}
-          subtitle={copy.subtitle}
+          eyebrow={
+            mode === 'all'
+              ? 'Operator // Ticket Control'
+              : 'Technician // Assigned Work'
+          }
+          title={mode === 'all' ? 'Ticket Management' : 'My Tickets'}
+          subtitle={
+            mode === 'all'
+              ? 'Review Tickets, update responsibilities and manage the Ticket lifecycle.'
+              : 'Review your assigned or owned Tickets and record internal progress.'
+          }
           actions={
-            canCreateTickets ? (
+            canCreate ? (
               <button
-                type="button"
-                onClick={() => setCreateOpen(true)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan to-electric px-4 py-2.5 font-sans text-xs font-bold uppercase tracking-[0.06em] text-primary-foreground transition hover:shadow-[0_0_20px_rgba(0,209,255,0.4)] sm:w-auto"
+                className={primaryButton + ' w-full sm:w-auto'}
+                onClick={() => setCreate(true)}
               >
-                <Plus className="size-3.5" /> Create Ticket
+                <Plus className="size-4" />
+                Create Ticket
               </button>
             ) : null
           }
         />
-
-        <TicketListView technicians={technicians} mode={mode} />
-
-        {canCreateTickets && createOpen ? (
+        {fromIncident && (
+          <p
+            role="status"
+            className="rounded-lg border border-amber/35 bg-amber/10 p-3 text-sm"
+          >
+            Incident-based creation is unavailable. A manual Ticket can still be
+            created separately.
+          </p>
+        )}
+        {manager && (
+          <nav aria-label="Ticket views" className="flex flex-wrap gap-2">
+            <Link
+              aria-current={!archived ? 'page' : undefined}
+              href="/tickets"
+              className={
+                secondaryButton +
+                (!archived ? ' border-cyan/50 bg-cyan/10' : '')
+              }
+            >
+              Active workspace
+            </Link>
+            <Link
+              aria-current={archived ? 'page' : undefined}
+              href="/tickets?view=archived"
+              className={
+                secondaryButton + (archived ? ' border-cyan/50 bg-cyan/10' : '')
+              }
+            >
+              Archived Tickets
+            </Link>
+          </nav>
+        )}
+        {archived ? <ArchivedTicketList /> : <TicketListView mode={mode} />}
+        {canCreate && create && (
           <CreateTicketModal
-            technicians={technicians}
-            initialIncidentId={initialIncidentId}
-            onClose={handleClose}
+            onClose={() => setCreate(false)}
+            onCreated={(id) => router.push('/tickets/' + id)}
           />
-        ) : null}
+        )}
       </div>
     </div>
   );

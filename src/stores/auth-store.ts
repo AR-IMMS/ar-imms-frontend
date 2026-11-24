@@ -44,7 +44,10 @@ const createFallbackStorage = (): StateStorage => {
 };
 
 const createBrowserStorage = (): StateStorage => {
-  if (typeof window === 'undefined') {
+  if (
+    typeof window === 'undefined' ||
+    process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true'
+  ) {
     return createFallbackStorage();
   }
 
@@ -92,7 +95,10 @@ export const useAuthStore = create<AuthState>()(
       setHasHydrated: (value) => set({ hasHydrated: value }),
     }),
     {
-      name: 'auth-store',
+      name:
+        process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true'
+          ? 'core-browser-profile'
+          : 'auth-store',
       storage: createJSONStorage<PersistedAuthState>(createBrowserStorage),
       partialize: (state): PersistedAuthState => ({
         user: state.user
@@ -103,9 +109,15 @@ export const useAuthStore = create<AuthState>()(
               roleCodes: state.user.roleCodes,
             }
           : null,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-        sessionId: state.sessionId,
+        accessToken: state.refreshToken ? state.accessToken : null,
+        refreshToken:
+          process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true'
+            ? null
+            : state.refreshToken,
+        sessionId:
+          process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true'
+            ? null
+            : state.sessionId,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

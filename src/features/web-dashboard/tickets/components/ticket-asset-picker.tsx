@@ -1,178 +1,178 @@
 'use client';
+import { useId, useState } from 'react';
+import { Box, Search, X } from 'lucide-react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/auth/use-auth';
+import { ticketAccess } from '@/lib/auth/ticket-access';
+import { queryKeys } from '@/lib/react-query/query-keys';
+import { ticketService } from '@/services/tickets/ticket-service';
+import { fieldClass, secondaryButton } from '../lib/ticket-ui';
 
-import { Box, Search, Server, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import {
-  useAssetSearchQuery,
-  useTopologyTreeQuery,
-} from '@/hooks/asset/use-asset-queries';
-import type { TicketAssetReference } from '@/types/ticket';
-
-type Props = {
-  value: TicketAssetReference | null;
-  onChange: (value: TicketAssetReference | null) => void;
-};
-
-export default function TicketAssetPicker({ value, onChange }: Props) {
+export default function TicketAssetPicker({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (_ids: string[], _names: Record<string, string>) => void;
+}) {
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
-  const [query, setQuery] = useState('');
-  const topologyQuery = useTopologyTreeQuery(expanded);
-  const assetSearchQuery = useAssetSearchQuery(
-    { q: query.trim() || undefined },
-    expanded
-  );
-
-  const options = useMemo(() => {
-    const nodeParents = new Map(
-      (topologyQuery.data ?? []).flatMap(({ rack, nodes }) =>
-        nodes.map(
-          (node) =>
-            [node.id, { rackId: rack.id, rackCode: rack.rackCode }] as const
-        )
+  const [search, setSearch] = useState('');
+  const labelId = useId();
+  const enabled = ticketAccess(user).assets;
+  const directory = useInfiniteQuery({
+    queryKey: queryKeys.tickets.assets(user?.id),
+    queryFn: ({ pageParam }) => ticketService.assets(pageParam),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.nextCursor ?? undefined,
+    enabled: expanded && enabled,
+  });
+  const all = directory.data?.pages.flatMap((page) => page.items) ?? [];
+  const update = (ids: string[]) =>
+    onChange(
+      ids,
+      Object.fromEntries(
+        all
+          .filter((asset) => ids.includes(asset.id))
+          .map((asset) => [asset.id, asset.name])
       )
     );
-
-    return (assetSearchQuery.data ?? [])
-      .filter((asset) => asset.type === 'rack' || asset.type === 'node')
-      .map((asset): TicketAssetReference => {
-        const parent = asset.type === 'node' ? nodeParents.get(asset.id) : null;
-
-        return {
-          type: asset.type === 'rack' ? 'RACK' : 'NODE',
-          assetId: asset.id,
-          code: asset.code,
-          displayName: asset.name,
-          rackId: asset.type === 'rack' ? asset.id : parent?.rackId,
-          rackCode: asset.type === 'rack' ? asset.code : parent?.rackCode,
-        };
-      })
-      .slice(0, 30);
-  }, [assetSearchQuery.data, topologyQuery.data]);
-
-  if (value) {
-    const Icon = value.type === 'RACK' ? Server : Box;
-
+  if (!enabled)
     return (
-      <div className="flex min-w-0 items-start gap-3 rounded-xl border border-cyan/35 bg-cyan/10 p-4">
-        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-cyan/10">
-          <Icon className="size-5 text-cyan" />
+      <p className="text-sm text-muted-foreground">
+        Asset selection requires Asset read access.
+      </p>
+    );
+  const available = all.filter(
+    (asset) =>
+      asset.lifecycle_state !== 'RETIRED' &&
+      !value.includes(asset.id) &&
+      [asset.name, asset.asset_type, asset.id].some((part) =>
+        part?.toLowerCase().includes(search.trim().toLowerCase())
+      )
+  );
+  return (
+    <section
+      aria-labelledby={labelId}
+      className="min-w-0 space-y-3 rounded-xl border border-cyan/15 bg-background/30 p-3"
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="grid size-10 shrink-0 place-items-center rounded-lg border border-cyan/20 bg-cyan/10 text-cyan">
+          <Box className="size-5" aria-hidden />
         </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="label-mono break-words text-[9px] text-cyan-ice">
-            {value.type} · {value.code}
-          </div>
-          <div className="mt-1 break-words text-sm font-semibold text-foreground">
-            {value.displayName}
-          </div>
-          {value.type === 'NODE' && value.rackCode ? (
-            <div className="mt-1 font-mono text-[10px] text-muted-foreground">
-              Inside {value.rackCode}
-            </div>
-          ) : null}
+        <div className="min-w-0 grow">
+          <h3 id={labelId} className="text-sm font-semibold">
+            Related Assets
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {value.length} / 20 selected
+          </p>
         </div>
         <button
           type="button"
-          onClick={() => {
-            onChange(null);
-            setExpanded(true);
-          }}
-          aria-label="Remove related asset"
-          className="shrink-0 rounded-lg border border-border p-2 text-muted-foreground transition hover:text-foreground"
+          aria-expanded={expanded}
+          className={secondaryButton}
+          onClick={() => setExpanded((show) => !show)}
         >
-          <X className="size-4" />
+          {expanded ? 'Hide Assets' : 'Choose Assets'}
         </button>
       </div>
-    );
-  }
-
-  return (
-    <div className="rounded-xl border border-border bg-surface-1 p-4">
-      {!expanded ? (
-        <button
-          type="button"
-          onClick={() => setExpanded(true)}
-          className="flex w-full items-center gap-3 text-left"
-        >
-          <div className="grid size-11 shrink-0 place-items-center rounded-lg border border-border bg-background/40">
-            <Box className="size-4 text-muted-foreground" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-foreground">
-              Attach a rack or node
-            </div>
-            <div className="mt-1 font-mono text-[10px] text-muted-foreground">
-              Optional - leave empty for general tasks
-            </div>
-          </div>
-        </button>
-      ) : (
-        <div className="grid gap-3">
-          <div className="relative min-w-0">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="ticket-input w-full min-w-0 pl-10"
-              placeholder="Search rack or node..."
+      {value.length > 0 && (
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {value.map((id) => {
+            const asset = all.find((item) => item.id === id);
+            return (
+              <li
+                key={id}
+                className="flex min-w-0 items-start gap-2 rounded-lg border border-cyan/20 bg-cyan/8 p-2.5"
+              >
+                <Box className="mt-0.5 size-4 shrink-0 text-cyan" aria-hidden />
+                <div className="min-w-0 flex-1">
+                  <p className="break-words text-xs font-semibold">
+                    {asset?.name ?? 'Asset reference'}
+                  </p>
+                  <p className="mt-0.5 break-all font-mono text-[10px] text-muted-foreground">
+                    {asset?.asset_type ?? id}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="rounded p-1 text-muted-foreground hover:text-critical focus-visible:outline-2 focus-visible:outline-cyan"
+                  aria-label={'Remove Asset ' + (asset?.name ?? id)}
+                  onClick={() => update(value.filter((item) => item !== id))}
+                >
+                  <X className="size-4" aria-hidden />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {expanded && (
+        <div className="grid gap-2 border-t border-border pt-3">
+          <label className="relative block">
+            <span className="sr-only">Search loaded Assets</span>
+            <Search
+              className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground"
+              aria-hidden
             />
-          </div>
-
-          <div className="max-h-52 overflow-y-auto overflow-x-hidden rounded-lg border border-border bg-background/30">
-            {assetSearchQuery.isLoading ? (
-              <div className="p-4 text-xs text-muted-foreground">
-                Loading assets...
-              </div>
-            ) : assetSearchQuery.isError ? (
-              <div className="p-4 text-xs text-critical">
-                Could not load Asset data. Check that asset-service is running
-                and try again.
-              </div>
-            ) : options.length ? (
-              options.map((asset) => {
-                const Icon = asset.type === 'RACK' ? Server : Box;
-
-                return (
-                  <button
-                    key={`${asset.type}-${asset.assetId}`}
-                    type="button"
-                    onClick={() => {
-                      onChange(asset);
-                      setExpanded(false);
-                    }}
-                    className="flex w-full items-start gap-3 border-b border-border/50 px-3 py-3 text-left last:border-0 hover:bg-cyan/5"
-                  >
-                    <Icon className="size-4 shrink-0 text-cyan" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {asset.displayName}
-                      </div>
-                      <div className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                        {asset.type} · {asset.code}
-                        {asset.type === 'NODE' && asset.rackCode
-                          ? ` · ${asset.rackCode}`
-                          : ''}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })
-            ) : (
-              <div className="p-4 text-xs text-muted-foreground">
-                No rack or node found.
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            className="text-left font-mono text-[10px] text-muted-foreground hover:text-foreground"
+            <input
+              className={fieldClass + ' pl-9'}
+              placeholder="Search loaded Assets"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </label>
+          {directory.isLoading && (
+            <p role="status" className="text-sm text-muted-foreground">
+              Loading Assets...
+            </p>
+          )}
+          {directory.isError && (
+            <p role="alert" className="text-sm text-critical">
+              Asset directory unavailable.{' '}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => void directory.refetch()}
+              >
+                Retry
+              </button>
+            </p>
+          )}
+          <select
+            className={fieldClass}
+            aria-label="Add related Asset"
+            value=""
+            disabled={value.length >= 20 || !available.length}
+            onChange={(event) => {
+              if (event.target.value) update([...value, event.target.value]);
+            }}
           >
-            Keep this ticket asset-free
-          </button>
+            <option value="">
+              {available.length
+                ? 'Select an Asset'
+                : 'No matching Assets on loaded pages'}
+            </option>
+            {available.map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {asset.name}
+                {asset.asset_type ? ' · ' + asset.asset_type : ''}
+              </option>
+            ))}
+          </select>
+          {directory.hasNextPage && (
+            <button
+              type="button"
+              className={secondaryButton}
+              disabled={directory.isFetchingNextPage}
+              onClick={() => void directory.fetchNextPage()}
+            >
+              Load more Assets
+            </button>
+          )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

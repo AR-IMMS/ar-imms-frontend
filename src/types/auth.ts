@@ -29,6 +29,13 @@ export type PermissionCode =
   | 'alerts.queue.read'
   | 'incidents.create'
   | 'tickets.dispatch'
+  | 'ticket:read'
+  | 'ticket:create'
+  | 'ticket:manage'
+  | 'ticket:close'
+  | 'ticket:work'
+  | 'asset:read'
+  | 'user:read'
   | 'ar.inspections.conduct'
   | 'ar.assets.identify'
   | 'ar.diagnostics.read'
@@ -76,13 +83,13 @@ export interface USER {
   avatarUrl?: string;
   roleCodes: RoleCode[];
   status: UserStatus;
-  permissions?: PermissionCode[];
+  permissions?: string[];
 }
 
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
-  sessionId: string;
+  refreshToken: string | null;
+  sessionId: string | null;
 }
 
 export interface LoginRequestPayload {
@@ -107,9 +114,9 @@ export interface ChangePasswordRequestPayload {
 
 export interface UserProfileResponse extends USER {
   mustChangePassword: boolean;
-  lastLoginAt: string;
-  createdAt: string;
-  updatedAt: string;
+  lastLoginAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateUserRequestPayload {

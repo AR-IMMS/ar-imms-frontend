@@ -1,175 +1,120 @@
-import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { queryClient } from '@/lib/react-query/query-client';
+'use client';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSyncExternalStore } from 'react';
+import { useAuth } from '@/hooks/auth/use-auth';
 import { queryKeys } from '@/lib/react-query/query-keys';
 import { ticketService } from '@/services/tickets/ticket-service';
-import type {
-  AddTicketCommentInput,
-  AssignTicketInput,
-  AttachTicketEvidenceInput,
-  CreateTicketInput,
-  TicketProps,
-  TicketStatus,
-} from '@/types/ticket';
+import {
+  errorInfo,
+  isDefinitiveFailure,
+  newOperation,
+  operationRecord,
+  type OperationRecord,
+} from '@/services/tickets/ticket-operation';
+import type { TicketAction } from '@/types/ticket';
 
-function syncTicketCaches(ticket: TicketProps) {
-  queryClient.setQueryData(queryKeys.tickets.detail(ticket.id), ticket);
+const changeEvent = 'wf04-operation';
+const inFlight = new Set<string>();
+const subscribe = (notify: () => void) => {
+  window.addEventListener(changeEvent, notify);
+  return () => window.removeEventListener(changeEvent, notify);
+};
+const noPending = () => null;
 
-  queryClient.setQueriesData(
-    { queryKey: queryKeys.tickets.lists() },
-    (cachedData: unknown) => {
-      if (!Array.isArray(cachedData)) {
-        return cachedData;
+function read(raw: string | null) {
+  return raw === null ? null : operationRecord.parse(JSON.parse(raw));
+}
+export function useTicketOperation(action: TicketAction, id?: number) {
+  const { user } = useAuth();
+  const cache = useQueryClient();
+  const slot =
+    'wf04:' +
+    JSON.stringify([
+      process.env.NEXT_PUBLIC_TICKET_API_URL ?? '',
+      user?.id,
+      action,
+      id ?? 'new',
+    ]);
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    () => {
+      try {
+        return sessionStorage.getItem(slot);
+      } catch {
+        return null;
       }
-
-      return cachedData.map((item: TicketProps) =>
-        item.id === ticket.id ? ticket : item
-      );
-    }
+    },
+    noPending
   );
-}
-
-function invalidateTicketCollections(ticketId?: string) {
-  void queryClient.invalidateQueries({ queryKey: queryKeys.tickets.lists() });
-
-  if (ticketId) {
-    void queryClient.invalidateQueries({
-      queryKey: queryKeys.tickets.detail(ticketId),
-    });
-    void queryClient.invalidateQueries({
-      queryKey: queryKeys.tickets.evidence(ticketId),
-    });
+  let pending: OperationRecord | null = null;
+  try {
+    pending = read(snapshot);
+  } catch {
+    /* A corrupt receipt blocks a new write below. */
   }
-}
-
-export function useCreateTicketMutation() {
-  return useMutation({
-    mutationFn: (payload: CreateTicketInput) =>
-      ticketService.createTicket(payload),
-    onSuccess: (ticket) => {
-      syncTicketCaches(ticket);
-      invalidateTicketCollections(ticket.id);
-      toast.success('Ticket created.');
-    },
-  });
-}
-
-export function useAssignTicketMutation() {
-  return useMutation({
-    mutationFn: ({
-      ticketId,
-      payload,
-    }: {
-      ticketId: string;
-      payload: AssignTicketInput;
-    }) => ticketService.assignTicket(ticketId, payload),
-    onSuccess: (ticket) => {
-      syncTicketCaches(ticket);
-      invalidateTicketCollections(ticket.id);
-      toast.success('Technician assignment updated.');
-    },
-  });
-}
-
-export function useDeleteTicketMutation() {
-  return useMutation({
-    mutationFn: (ticketId: string) => ticketService.deleteTicket(ticketId),
-    onSuccess: (ticket) => {
-      invalidateTicketCollections(ticket.id);
-      toast.success('Ticket removed from active workflow.');
-    },
-  });
-}
-
-export function useCloseTicketMutation() {
-  return useMutation({
-    mutationFn: (ticketId: string) => ticketService.closeTicket(ticketId),
-    onSuccess: (ticket) => {
-      syncTicketCaches(ticket);
-      invalidateTicketCollections(ticket.id);
-      toast.success('Ticket closed.');
-    },
-  });
-}
-
-export function useUpdateTicketStatusMutation() {
-  return useMutation({
-    mutationFn: ({
-      ticketId,
-      status,
-    }: {
-      ticketId: string;
-      status: TicketStatus;
-    }) => ticketService.updateStatus(ticketId, status),
-    onSuccess: (ticket) => {
-      syncTicketCaches(ticket);
-      invalidateTicketCollections(ticket.id);
-      toast.success('Ticket status updated.');
-    },
-  });
-}
-
-export function useAddTicketCommentMutation() {
-  return useMutation({
-    mutationFn: ({
-      ticketId,
-      payload,
-    }: {
-      ticketId: string;
-      payload: AddTicketCommentInput;
-    }) => ticketService.addComment(ticketId, payload),
-    onSuccess: (ticket) => {
-      syncTicketCaches(ticket);
-      invalidateTicketCollections(ticket.id);
-      toast.success('Comment added.');
-    },
-  });
-}
-
-export function useAttachTicketEvidenceMutation() {
-  return useMutation({
+  function save(next: OperationRecord | null) {
+    if (next) sessionStorage.setItem(slot, JSON.stringify(next));
+    else sessionStorage.removeItem(slot);
+    window.dispatchEvent(new Event(changeEvent));
+  }
+  const mutation = useMutation({
+    retry: false,
     mutationFn: async ({
-      ticketId,
-      file,
-      note,
+      input,
+      retry,
     }: {
-      ticketId: string;
-      file: File;
-      note?: string;
+      input?: unknown;
+      retry?: boolean;
     }) => {
-      const upload = await ticketService.createEvidenceUploadUrl(ticketId, {
-        type: 'IMAGE',
-        fileName: file.name,
-        mimeType: file.type || 'application/octet-stream',
-      });
-
-      const uploadResponse = await fetch(upload.uploadUrl, {
-        method: upload.method,
-        headers: upload.headers,
-        body: file,
-      });
-
-      if (!uploadResponse.ok) {
+      if (!user?.id || inFlight.has(slot))
+        throw new Error('Another submission is already in progress.');
+      const stored = read(sessionStorage.getItem(slot));
+      if (stored && !retry)
         throw new Error(
-          `Evidence upload failed with ${uploadResponse.status}.`
+          'Resolve the pending operation before starting another.'
         );
+      if (!stored && retry)
+        throw new Error('There is no pending operation to retry.');
+      const entry = stored ?? newOperation(action, input);
+      inFlight.add(slot);
+      try {
+        save(entry);
+        try {
+          const result = await ticketService.mutate(
+            action,
+            id,
+            entry.payload,
+            entry.key
+          );
+          save(null);
+          return result;
+        } catch (error) {
+          if (!stored && isDefinitiveFailure(error)) save(null);
+          else
+            save({
+              ...entry,
+              requestId: errorInfo(error).requestId ?? entry.requestId,
+            });
+          throw error;
+        }
+      } finally {
+        inFlight.delete(slot);
       }
-
-      const payload: AttachTicketEvidenceInput = {
-        type: upload.type,
-        storageKey: upload.storageKey,
-        url: upload.objectUrl,
-        fileName: file.name,
-        mimeType: file.type,
-        sizeBytes: file.size,
-        note,
-      };
-
-      return ticketService.attachEvidence(ticketId, payload);
     },
-    onSuccess: (_evidence, variables) => {
-      invalidateTicketCollections(variables.ticketId);
-      toast.success('Evidence attached.');
+    onSettled: (result, error) => {
+      if (
+        result ||
+        errorInfo(error).status === 404 ||
+        errorInfo(error).status === 403
+      )
+        return cache.invalidateQueries({ queryKey: queryKeys.tickets.all });
     },
   });
+  return {
+    ...mutation,
+    pending,
+    submit: (input: unknown) => mutation.mutateAsync({ input }),
+    retryPending: () => mutation.mutateAsync({ retry: true }),
+  };
 }

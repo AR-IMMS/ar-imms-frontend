@@ -23,15 +23,16 @@ export const kyClient = ky.create({
   },
   hooks: {
     beforeRequest: [
-      ({ request }) => {
-        if (!request.headers.has('X-Request-Id')) {
+      ({ request, options }) => {
+        if (!options.context.core && !request.headers.has('X-Request-Id')) {
           request.headers.set('X-Request-Id', createRequestId());
         }
-        if (!request.headers.has('Traceparent')) {
+        if (!options.context.core && !request.headers.has('Traceparent')) {
           request.headers.set('Traceparent', createTraceparent());
         }
 
         // Kiểm tra xem request này có yêu cầu bỏ qua việc tiêm token không
+        if (options.context.skipAuth) return;
         if (request.headers.has(AUTH_HEADERS.SKIP_AUTH_INJECTION)) {
           request.headers.delete(AUTH_HEADERS.SKIP_AUTH_INJECTION);
           return;
@@ -46,10 +47,10 @@ export const kyClient = ky.create({
       },
     ],
     afterResponse: [
-      async ({ request, response }) => {
-        const shouldSkipAuthRefresh = request.headers.has(
-          AUTH_HEADERS.SKIP_AUTH_REFRESH
-        );
+      async ({ request, response, options, retryCount }) => {
+        const shouldSkipAuthRefresh =
+          options.context.skipAuth ||
+          request.headers.has(AUTH_HEADERS.SKIP_AUTH_REFRESH);
 
         const contentType = response.headers.get('content-type');
         let problemResponse: ErrorResponse | null = null;
@@ -71,7 +72,9 @@ export const kyClient = ky.create({
         if (!response.ok) {
           const apiError = toApiError(problemResponse, response);
 
-          const hasRetriedAuth = request.headers.has(AUTH_HEADERS.AUTH_RETRY);
+          const hasRetriedAuth = options.context.core
+            ? retryCount > 0
+            : request.headers.has(AUTH_HEADERS.AUTH_RETRY);
 
           // Nếu gặp lỗi 401 và KHÔNG mang cờ chặn refresh
           if (response.status === 401 && !shouldSkipAuthRefresh) {
@@ -82,6 +85,8 @@ export const kyClient = ky.create({
                 if (newToken) {
                   const newRequest = request.clone();
                   newRequest.headers.set('Authorization', `Bearer ${newToken}`);
+                  if (options.context.core)
+                    return ky.retry({ request: newRequest });
                   newRequest.headers.set(AUTH_HEADERS.AUTH_RETRY, 'true');
 
                   return ky(newRequest);

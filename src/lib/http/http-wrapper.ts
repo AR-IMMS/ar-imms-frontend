@@ -136,7 +136,11 @@ function prepareHttpOptions(options: ExtendedHttpOptions): ExtendedHttpOptions {
   return {
     ...options,
     headers,
-    ...(servicePrefix ? { prefix: servicePrefix } : {}),
+    ...(options.prefix !== undefined
+      ? { prefix: options.prefix }
+      : servicePrefix
+        ? { prefix: servicePrefix }
+        : {}),
   };
 }
 

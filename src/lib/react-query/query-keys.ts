@@ -50,14 +50,17 @@ export const queryKeys = {
   },
   tickets: {
     all: ['tickets'] as const,
-    lists: () => ['tickets', 'list'] as const,
-    list: (params?: ListTicketsParams) =>
-      ['tickets', 'list', params ?? {}] as const,
-    myList: (params?: ListTicketsParams) =>
-      ['tickets', 'list', 'me', params ?? {}] as const,
-    detail: (ticketId: string) => ['tickets', 'detail', ticketId] as const,
-    evidence: (ticketId: string) =>
-      ['tickets', 'detail', ticketId, 'evidence'] as const,
+    list: (actor?: string, params?: ListTicketsParams) =>
+      ['tickets', 'list', actor, params] as const,
+    detail: (actor?: string, id?: number) =>
+      ['tickets', 'detail', actor, id] as const,
+    articles: (actor?: string, id?: number) =>
+      ['tickets', 'articles', actor, id] as const,
+    links: (actor?: string, id?: number) =>
+      ['tickets', 'links', actor, id] as const,
+    owner: (actor?: string, id?: number, version?: string) =>
+      ['tickets', 'owner', actor, id, version] as const,
+    assets: (actor?: string) => ['tickets', 'assets', actor] as const,
   },
   incidents: {
     all: ['incidents'] as const,

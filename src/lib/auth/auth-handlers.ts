@@ -93,13 +93,13 @@ export async function handleAuthError(
   try {
     const { refreshToken, sessionId } = useAuthStore.getState();
 
-    if (!refreshToken || !sessionId) {
+    if ((!refreshToken || !sessionId) && !authService.usesCoreBrowserAuth) {
       throw error;
     }
 
     const refreshedTokens = await authService.refreshToken({
-      refreshToken,
-      sessionId,
+      refreshToken: refreshToken ?? '',
+      sessionId: sessionId ?? '',
     });
 
     useAuthStore.getState().setTokens(refreshedTokens);

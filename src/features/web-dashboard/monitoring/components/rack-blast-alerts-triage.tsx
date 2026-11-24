@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   BookOpen,
   ExternalLink,
@@ -26,7 +25,6 @@ export function RackBlastAlertsTriage({
   const { rack } = overview;
   const { blastRadius } = rack;
   const rackId = rack.rackInfo.id;
-  const router = useRouter();
 
   // 1. Fetch child nodes list from rack topology
   const { data: rackTopology } = useRackTopologyQuery(rackId, !!rackId);
@@ -80,19 +78,6 @@ export function RackBlastAlertsTriage({
       case 'suppressed':
       default:
         return 'border-slate-700 bg-slate-800 text-slate-400';
-    }
-  };
-
-  // Handle click on incident to navigate to details or tickets creation queue
-  const handleIncidentClick = (incident: IncidentListItem) => {
-    if (
-      incident.ticketLinkage?.isLinked &&
-      incident.ticketLinkage.tickets?.[0]?.id
-    ) {
-      const ticketId = incident.ticketLinkage.tickets[0].id;
-      router.push(`/tickets/${ticketId}`);
-    } else {
-      router.push(`/tickets?create=true&incidentId=${incident.id}`);
     }
   };
 
@@ -191,8 +176,7 @@ export function RackBlastAlertsTriage({
               rackIncidents.map((incident) => (
                 <div
                   key={incident.id}
-                  onClick={() => handleIncidentClick(incident)}
-                  className={`panel p-3 border rounded space-y-2 bg-slate-950/20 cursor-pointer hover:border-cyan/50 transition-all ${
+                  className={`panel p-3 border rounded space-y-2 bg-slate-950/20 ${
                     incident.severity?.toLowerCase() === 'critical'
                       ? 'border-critical/30'
                       : 'border-amber/30'
@@ -289,15 +273,9 @@ export function RackBlastAlertsTriage({
                         </a>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleIncidentClick(incident)}
-                      className="text-cyan hover:underline uppercase flex items-center gap-0.5 cursor-pointer"
-                    >
-                      {incident.ticketLinkage?.isLinked
-                        ? 'View Ticket ➔'
-                        : 'Create Ticket ➔'}
-                    </button>
+                    <span className="text-muted-foreground">
+                      Ticket linking unavailable
+                    </span>
                   </div>
                 </div>
               ))
@@ -458,15 +436,9 @@ export function RackBlastAlertsTriage({
                             </a>
                           )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleIncidentClick(incident)}
-                          className="text-cyan hover:underline uppercase flex items-center gap-0.5 cursor-pointer"
-                        >
-                          {incident.ticketLinkage?.isLinked
-                            ? 'View Ticket ➔'
-                            : 'Create Ticket ➔'}
-                        </button>
+                        <span className="text-muted-foreground">
+                          Ticket linking unavailable
+                        </span>
                       </div>
                     </div>
                   )}

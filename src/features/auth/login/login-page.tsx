@@ -9,20 +9,13 @@ import { z } from 'zod';
 import { useLoginMutation } from '@/hooks/auth/use-auth-mutation';
 import type { LoginRequestPayload } from '@/types/auth';
 
-function getPostLoginRoute(roleCodes: readonly string[]) {
-  if (
-    roleCodes.includes('MAINTENANCE_TECHNICIAN') &&
-    !roleCodes.includes('SYSTEM_MONITORING_OPERATOR') &&
-    !roleCodes.includes('IT_ADMINISTRATOR')
-  ) {
-    return '/tickets/me';
-  }
-
-  return '/tickets';
-}
+import { ticketHome } from '@/lib/auth/ticket-access';
+const coreLogin = process.env.NEXT_PUBLIC_CORE_BROWSER_AUTH === 'true';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: coreLogin
+    ? z.string().trim().min(1, 'Enter a username or email.').max(254)
+    : z.email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
@@ -73,7 +66,7 @@ export function LoginPage() {
     };
 
     const response = await loginMutation.mutateAsync(payload);
-    router.replace(getPostLoginRoute(response.user.roleCodes));
+    router.replace(ticketHome(response.user) ?? '/monitoring');
   }
 
   return (
@@ -163,11 +156,11 @@ export function LoginPage() {
                     htmlFor="email"
                     className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground flex items-center justify-between"
                   >
-                    <span>Email</span>
+                    <span>{coreLogin ? 'Username or email' : 'Email'}</span>
                   </label>
                   <input
                     id="email"
-                    type="email"
+                    type={coreLogin ? 'text' : 'email'}
                     autoComplete="email"
                     className="h-11 w-full rounded-lg border border-border bg-background/60 px-3.5 text-xs text-foreground font-mono placeholder:text-muted-foreground/60 placeholder:font-mono outline-none transition-all duration-300 focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 focus:bg-background"
                     placeholder="operator@company.com"

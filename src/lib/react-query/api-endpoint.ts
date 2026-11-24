@@ -90,23 +90,17 @@ export const MONITORING_ENDPOINTS = {
     `/monitoring/nodes/${encodeURIComponent(nodeCode)}/metrics/live`,
 } as const;
 
+const ticketBase = '/api/v1/tickets';
+const ticketPath = (id: number) => `${ticketBase}/${id}`;
 export const TICKET_ENDPOINTS = {
-  TICKETS: '/tickets',
-  MY_TICKETS: '/tickets/me',
-  EVENTS: '/tickets/events',
-  TICKET_BY_ID: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}`,
-  STATUS: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}/status`,
-  ASSIGNMENT: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}/assignment`,
-  CLOSE: (ticketId: string) => `/tickets/${encodeURIComponent(ticketId)}/close`,
-  COMMENTS: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}/comments`,
-  EVIDENCE: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}/evidence`,
-  EVIDENCE_UPLOAD_URL: (ticketId: string) =>
-    `/tickets/${encodeURIComponent(ticketId)}/evidence/upload-url`,
+  TICKETS: ticketBase,
+  TICKET_BY_ID: ticketPath,
+  STATUS: (id: number) => `${ticketPath(id)}/status`,
+  RESPONSIBILITIES: (id: number) => `${ticketPath(id)}/responsibilities`,
+  ARTICLES: (id: number) => `${ticketPath(id)}/articles`,
+  LINKS: (id: number) => `${ticketPath(id)}/links`,
+  CLOSE: (id: number) => `${ticketPath(id)}/close`,
+  REOPEN: (id: number) => `${ticketPath(id)}/reopen`,
 } as const;
 
 export const INCIDENT_ENDPOINTS = {

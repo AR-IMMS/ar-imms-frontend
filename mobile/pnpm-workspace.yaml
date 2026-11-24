@@ -1,0 +1,14 @@
+packages: []
+
+# Copy packages so Windows Metro can distinguish package files from symlinks.
+packageImportMethod: copy
+
+# Match the optional Worklets native peer bundled in Expo Go 58.
+overrides:
+  react-native-worklets: '0.13.0'
+
+# Metro runtime imports this polyfill without declaring it in SDK 58.
+packageExtensions:
+  '@expo/metro-runtime@58.0.17':
+    dependencies:
+      whatwg-fetch: '3.6.20'

@@ -19,7 +19,7 @@ import isActivePath from '@/lib/utils/isActivePath';
 import { useSidebar } from '@/hooks/common/use-ui-config';
 import { Tooltip } from '@/components/common/tooltip';
 import { useAuth } from '@/hooks/auth/use-auth';
-import { hasAnyRole, hasRole } from '@/lib/auth/auth-permissions';
+import { ticketHome } from '@/lib/auth/ticket-access';
 import type { UserProfileResponse } from '@/types/auth';
 
 type NavItem = {
@@ -63,24 +63,12 @@ const footerItems: NavItem[] = [
   { icon: LifeBuoy, label: 'Support', to: '/support' },
 ];
 
-function getTicketNavTarget(user: UserProfileResponse | null) {
-  if (
-    hasRole(user, 'MAINTENANCE_TECHNICIAN') &&
-    !hasAnyRole(user, ['IT_ADMINISTRATOR', 'SYSTEM_MONITORING_OPERATOR'])
-  ) {
-    return '/tickets/me';
-  }
-
-  return '/tickets';
-}
-
 function buildSections(user: UserProfileResponse | null): NavSection[] {
-  const ticketTarget = getTicketNavTarget(user);
-
+  const target = ticketHome(user);
   return sections.map((section) => ({
     ...section,
-    items: section.items.map((item) =>
-      item.to === '/tickets' ? { ...item, to: ticketTarget } : item
+    items: section.items.flatMap((item) =>
+      item.to !== '/tickets' ? [item] : target ? [{ ...item, to: target }] : []
     ),
   }));
 }

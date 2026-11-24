@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "AR-IMMS Field",
+    "slug": "ar-imms-field",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "arimms",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#07111f"
+      }
+    },
+    "web": {
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-image-picker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow AR-IMMS Field to scan Rack and Node QR codes"
+        }
+      ],
+      "expo-asset",
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      "expo-sharing"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "identityApiUrl": "http://localhost:4001/api/v1",
+      "incidentApiUrl": "http://localhost:4004/api/v1"
+    }
+  }
+}

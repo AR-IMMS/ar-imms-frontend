@@ -31,5 +31,8 @@ jobs:
       - name: Run linting
         run: pnpm lint
 
+      - name: Run Ticket contract tests
+        run: pnpm test:ticket
+
       - name: Run Next.js Build
         run: pnpm build
