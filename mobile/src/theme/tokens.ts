@@ -9,21 +9,21 @@ export const lightColors = {
   cyanSoft: '#E8EEFF',
   blue: '#315CF5',
   blueSoft: '#E8EEFF',
-  green: '#17A673',
+  green: '#116849',
   greenSoft: '#E3F7EF',
   purple: '#7457D9',
   purpleSoft: '#EEE9FF',
-  amber: '#E69B2E',
+  amber: '#865908',
   amberSoft: '#FFF3DD',
-  red: '#E25562',
+  red: '#AD3849',
   redSoft: '#FDE9EB',
-  teal: '#0EA5A8',
+  teal: '#096F73',
   tealSoft: '#DFF7F6',
   border: '#E2E8F0',
   borderBright: '#B8C7F8',
   text: '#101828',
   textMuted: '#667085',
-  textSubtle: '#7B879A',
+  textSubtle: '#606E81',
   black: '#071533',
   surface: '#FFFFFF',
   surfaceText: '#101828',
@@ -42,7 +42,7 @@ export const darkColors = {
   cardDark: '#0C1423',
   cyan: '#6D8CFF',
   cyanSoft: 'rgba(109, 140, 255, 0.15)',
-  blue: '#4E7BFF',
+  blue: '#375AC9',
   blueSoft: 'rgba(78, 123, 255, 0.16)',
   green: '#3DDC97',
   greenSoft: 'rgba(61, 220, 151, 0.13)',
@@ -74,13 +74,13 @@ export type ThemeColors = typeof lightColors;
 export const colors = darkColors;
 
 export const spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
-export const radii = { sm: 10, md: 14, lg: 18, xl: 24, xxl: 30 };
+export const radii = { sm: 10, md: 14, lg: 16, xl: 20, xxl: 24 };
 export const typography = { title: 30, heading: 20, body: 15, small: 12, micro: 10 };
 
 export const shadow = {
   shadowColor: '#101828',
-  shadowOpacity: 0.08,
-  shadowRadius: 18,
-  shadowOffset: { width: 0, height: 8 },
-  elevation: 4,
+  shadowOpacity: 0.045,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 3 },
+  elevation: 2,
 };

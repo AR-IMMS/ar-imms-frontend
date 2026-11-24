@@ -16,6 +16,8 @@ export function readOperation(key: string) {
   return protectedStore.get(key).then(value => value ? JSON.parse(value) as PendingMutation : null);
 }
 export async function submitOperation(client: NativeSession, key: string, actor: string, id: string, kind: MutationKind, payload: Payload, previous?: PendingMutation | null) {
+  const saved = await readOperation(key);
+  if (saved && saved.key !== previous?.key) throw new Error('Retry the saved request before starting another update.');
   const pending = previous ?? { key: randomUUID(), actor, kind, payload, id };
   if (pending.actor !== actor || pending.id !== id || pending.kind !== kind) throw new Error('Pending operation scope does not match.');
   await protectedStore.set(key, JSON.stringify(pending));
@@ -29,7 +31,8 @@ export async function submitOperation(client: NativeSession, key: string, actor:
     await protectedStore.remove(key);
     return result;
   } catch (error) {
-    if (!previous && error instanceof ApiRequestError && [400, 413, 415].includes(error.status ?? 0)) {
+    if (!previous && error instanceof ApiRequestError && ([400, 403, 404, 413, 415].includes(error.status ?? 0) ||
+      (error.status === 409 && error.code === 'TICKET_CONFLICT'))) {
       await protectedStore.remove(key);
     }
     throw error;

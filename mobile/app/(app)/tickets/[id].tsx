@@ -4,7 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import type { File } from 'expo-file-system';
 import { ArrowLeft, Box, Camera, Check, Clock3, MessageSquare, ScanLine, X } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Alert, AppState, Image, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { apiConfig } from '../../../src/api/config';
 import { ApiRequestError } from '../../../src/api/client';
@@ -20,7 +20,7 @@ import { openWebAr } from '../../../src/ar/open-webar';
 import { useAuth } from '../../../src/auth/auth-context';
 import { ActionButton } from '../../../src/components/action-button';
 import { CyberCard } from '../../../src/components/cyber-card';
-import { DeadlinePicker } from '../../../src/components/deadline-picker';
+import { StatusTransitionConfirmation } from '../../../src/components/status-transition-confirmation';
 import { FieldInput } from '../../../src/components/field-input';
 import { Screen } from '../../../src/components/screen';
 import { StatusPill } from '../../../src/components/status-pill';
@@ -65,7 +65,7 @@ function TicketDetail({ id }: { id: string }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [note, setNote] = useState('');
-  const [deadline, setDeadline] = useState('');
+  const [review, setReview] = useState<Ticket | null>(null);
   const [preview, setPreview] = useState<File | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [pending, setPending] = useState<PendingMutation | null>(null);
@@ -82,6 +82,7 @@ function TicketDetail({ id }: { id: string }) {
   const load = useCallback(async () => {
     if (!id || !actor || !focused.current) return;
     const version = ++generation.current;
+    setReview(null);
     setDetail(null);
     setLoading(true);
     setError('');
@@ -116,10 +117,10 @@ function TicketDetail({ id }: { id: string }) {
     const wake = AppState.addEventListener('change', state => {
       closePreview();
       if (state === 'active') void load();
-      else { generation.current++; focusVersion.current++; setDetail(null); }
+      else { setReview(null); generation.current++; focusVersion.current++; setDetail(null); }
     });
     return () => {
-      focused.current = false; generation.current++; focusVersion.current++;
+      setReview(null); focused.current = false; generation.current++; focusVersion.current++;
       setDetail(null); closePreview();
       wake.remove();
     };
@@ -133,43 +134,48 @@ function TicketDetail({ id }: { id: string }) {
     catch (error) {
       if (scope === focusVersion.current && focused.current) {
         if (unavailable(error)) { setDetail(null); closePreview(); setError(description(error)); }
-        else setMessage(description(error));
-        setPending(await readOperation(key).catch(() => null));
+        else {
+          if (error instanceof ApiRequestError && error.status === 409) await load();
+          setMessage(description(error));
+        }
+        try { setPending(await readOperation(key)); }
+        catch { setDetail(null); setError('Cannot verify the saved operation. Retry loading this Ticket.'); }
       }
     } finally {
       inFlight.current = false; setBusy(false); setProgress(null);
     }
   };
 
-  async function mutate(kind: PendingMutation['kind'], payload: PendingMutation['payload'], retry?: PendingMutation) {
+  async function mutate(kind: PendingMutation['kind'], payload: PendingMutation['payload'], retry?: PendingMutation, reviewed?: Ticket) {
     if (!id || !actor || !detail || !canWork) return;
     // A replay must retain the saved payload even after a state read shows it may have applied.
-    await getTicket(core, id, [], apiConfig.ticketStateIds).then(fresh => {
-      if (!retry && kind === 'status' && fresh.status !== detail.ticket.status) throw new Error('The state changed. Refresh the Ticket.');
-    });
+    const scope = focusVersion.current;
+    const fresh = await getTicket(core, id, [], apiConfig.ticketStateIds);
+    if (!focused.current || scope !== focusVersion.current) return;
+    if (!retry && kind === 'status' && (!reviewed || fresh.id !== reviewed.id || fresh.status !== reviewed.status)) {
+      await load();
+      setMessage('The Ticket status changed. Review its current status before continuing.');
+      return;
+    }
     await submitOperation(core, key, actor, id, kind, payload, retry);
     setPending(null);
     if (kind === 'articles') setNote('');
-    if (kind === 'status') setDeadline('');
     if (kind === 'evidence/finalize') setStaged(null);
     await load();
     setMessage('Core confirmed the update.');
   }
-  function confirmProgress() {
-    const action = detail && nextAction(detail.ticket.status);
+  function confirmProgress(deadline: string) {
+    if (!review || !detail || pending || !canWork || inFlight.current) return;
+    const action = nextAction(review.status);
     if (!action) return;
-    const confirm = () => void run(async () => {
-      const payload = action.target === 'PENDING' ? { state: action.target, pending_until: localDeadline(deadline) } : { state: action.target };
-      await mutate('status', payload);
+    void run(async () => {
+      try {
+        const payload = action.target === 'PENDING'
+          ? { state: action.target, pending_until: localDeadline(deadline) }
+          : { state: action.target };
+        await mutate('status', payload, undefined, review);
+      } finally { setReview(null); }
     });
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      if (window.confirm(action.label + ' in Core?')) confirm();
-      return;
-    }
-    Alert.alert(action.label, 'Update this Ticket in Core?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Confirm', onPress: confirm },
-    ]);
   }
 
   async function upload(source: 'camera' | 'photos' | 'pdf' | 'retry') {
@@ -237,7 +243,7 @@ function TicketDetail({ id }: { id: string }) {
         <>
           <View style={styles.titleBlock}>
             <View style={styles.pills}>
-              <Text style={{ color: priority?.color, backgroundColor: priority?.soft, padding: 6 }}>{ticket.priority}</Text>
+              <Text style={{ color: priority?.color, backgroundColor: priority?.soft, paddingVertical: 5, paddingHorizontal: 10, borderRadius: radii.sm, fontWeight: '600' }}>{ticket.priority}</Text>
               <StatusPill label={ticket.status === 'UNKNOWN' ? 'Unknown state' : ticket.status} tone={statusTone(ticket.status)} />
             </View>
             <Text style={styles.title}>{ticket.title}</Text>
@@ -259,6 +265,7 @@ function TicketDetail({ id }: { id: string }) {
           </CyberCard>
           <CyberCard>
             <Text style={styles.sectionTitle}>Work progress</Text>
+            {message ? <Text accessibilityLiveRegion="polite" style={styles.muted}>{message}</Text> : null}
             <View style={styles.steps}>
               {['NEW', 'OPEN', 'PENDING', 'CLOSED'].map(state => (
                 <View key={state} style={styles.step}>
@@ -269,10 +276,7 @@ function TicketDetail({ id }: { id: string }) {
             </View>
             <View style={styles.timeRow}><Clock3 color={colors.textMuted} size={14} /><Text style={styles.timeText}>{formatDate(ticket.updatedAt)}</Text></View>
             {canWork && action ? (
-              <>
-                {action.target === 'PENDING' ? <DeadlinePicker value={deadline} onChange={setDeadline} /> : null}
-                <ActionButton label={action.label} disabled={busy || Boolean(pending)} onPress={confirmProgress} />
-              </>
+              <ActionButton label={action.label} disabled={busy || Boolean(pending)} onPress={() => setReview(ticket)} />
             ) : null}
           </CyberCard>
           {apiConfig.webarUrl ? (
@@ -282,11 +286,11 @@ function TicketDetail({ id }: { id: string }) {
           ) : null}
           {pending ? (
             <CyberCard>
+              {pending.kind === 'status' && 'state' in pending.payload ? <Text style={styles.sectionTitle}>Requested status: {pending.payload.state}</Text> : null}
               <Text style={styles.muted}>An update is unresolved. Retry the saved request with its original key.</Text>
               <ActionButton disabled={busy || !canWork} label="Retry same request" onPress={() => void run(() => mutate(pending.kind, pending.payload, pending))} />
             </CyberCard>
           ) : null}
-          {message ? <Text accessibilityLiveRegion="polite" style={styles.muted}>{message}</Text> : null}
           <CyberCard>
             <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>Field updates</Text><MessageSquare color={colors.cyan} size={20} /></View>
             {canWork ? <>
@@ -326,6 +330,7 @@ function TicketDetail({ id }: { id: string }) {
           </CyberCard>
         </>
       )}
+      {review && detail ? <StatusTransitionConfirmation ticket={review} busy={busy} onCancel={() => { if (!inFlight.current) setReview(null); }} onConfirm={confirmProgress} /> : null}
       <Modal animationType="fade" onRequestClose={closePreview} statusBarTranslucent transparent visible={Boolean(preview)}>
         <View style={styles.previewBackdrop}>
           <Pressable accessibilityLabel="Close image preview" accessibilityRole="button" onPress={closePreview} style={styles.previewClose}><X color="#FFFFFF" size={24} /></Pressable>
@@ -349,14 +354,14 @@ function formatDate(value: string) {
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, headerButton: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, headerTitle: { color: colors.text, fontSize: 15, fontWeight: '900' },
-  titleBlock: { gap: spacing.md }, pills: { flexDirection: 'row', gap: spacing.sm }, title: { color: colors.text, fontSize: 26, fontWeight: '900', lineHeight: 32 }, description: { color: colors.textMuted, fontSize: 13, lineHeight: 20 },
-  incidentCard: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.purpleSoft }, incidentIcon: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: 15, backgroundColor: colors.panel }, incidentCopy: { flex: 1, gap: 3 }, incidentLabel: { color: colors.purple, fontSize: 8, fontWeight: '900', letterSpacing: 0.7 }, incidentTitle: { color: colors.text, fontSize: 12, fontWeight: '800' },
-  assetCard: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, assetIcon: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: 15, backgroundColor: colors.cyanSoft }, assetCopy: { flex: 1, gap: 3 }, assetLabel: { color: colors.cyan, fontSize: 8, fontWeight: '900', letterSpacing: 0.7 }, assetTitle: { color: colors.text, fontSize: 13, fontWeight: '800' }, assetRack: { color: colors.textMuted, fontSize: 9 },
-  sectionHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '900' }, sectionSubtitle: { marginTop: 3, color: colors.textMuted, fontSize: 10 },
-  steps: { alignItems: 'flex-start', flexDirection: 'row', marginTop: spacing.sm }, step: { alignItems: 'center', width: 74, gap: 7 }, stepDot: { alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 10, borderWidth: 2, borderColor: colors.border, backgroundColor: colors.cardDark }, stepDotDone: { borderColor: colors.green, backgroundColor: colors.green }, stepLabel: { color: colors.textSubtle, fontSize: 8, fontWeight: '700', textAlign: 'center' }, stepLabelDone: { color: colors.text }, stepLine: { flex: 1, height: 2, marginTop: 12, backgroundColor: colors.border }, stepLineDone: { backgroundColor: colors.green }, timeRow: { alignItems: 'center', alignSelf: 'center', flexDirection: 'row', gap: 5, marginTop: spacing.sm }, timeText: { color: colors.textMuted, fontSize: 10 },
-  actionGrid: { flexDirection: 'row', gap: spacing.md }, arAction: { alignItems: 'center', flex: 2, flexDirection: 'row', gap: spacing.md, minHeight: 68, paddingHorizontal: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.hero }, arTitle: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' }, arSubtitle: { marginTop: 2, color: '#9FB1D7', fontSize: 9 }, secondaryAction: { alignItems: 'center', justifyContent: 'center', flex: 1, gap: 5, minHeight: 68, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, secondaryActionText: { color: colors.cyan, fontSize: 10, fontWeight: '800' },
-  commentInput: { minHeight: 90, paddingTop: spacing.md, textAlignVertical: 'top' }, timeline: { gap: spacing.md }, timelineItem: { flexDirection: 'row', gap: spacing.md }, timelineDot: { width: 9, height: 9, marginTop: 5, borderRadius: 5, backgroundColor: colors.cyan }, timelineCopy: { flex: 1, gap: 4, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border }, commentIdentity: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: 7 }, commentAuthor: { color: colors.cyan, fontSize: 10, fontWeight: '800' }, commentRole: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 8, color: colors.purple, backgroundColor: colors.purpleSoft, fontSize: 8, fontWeight: '800' }, comment: { color: colors.text, fontSize: 12, lineHeight: 18 }, commentMeta: { color: colors.textSubtle, fontSize: 9 }, muted: { color: colors.textMuted, fontSize: 12 },
+  header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, headerButton: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, headerTitle: { color: colors.text, fontSize: 17, fontWeight: '700' },
+  titleBlock: { gap: spacing.md }, pills: { flexDirection: 'row', gap: spacing.sm }, title: { color: colors.text, fontSize: 25, fontWeight: '700', lineHeight: 32 }, description: { color: colors.textMuted, fontSize: 13, lineHeight: 20 },
+  incidentCard: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.purpleSoft }, incidentIcon: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: 15, backgroundColor: colors.panel }, incidentCopy: { flex: 1, gap: 3 }, incidentLabel: { color: colors.purple, fontSize: 11, fontWeight: '900', letterSpacing: 0.7 }, incidentTitle: { color: colors.text, fontSize: 12, fontWeight: '800' },
+  assetCard: { alignItems: 'center', flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, assetIcon: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: 15, backgroundColor: colors.cyanSoft }, assetCopy: { flex: 1, gap: 3 }, assetLabel: { color: colors.cyan, fontSize: 11, fontWeight: '900', letterSpacing: 0.7 }, assetTitle: { color: colors.text, fontSize: 13, fontWeight: '800' }, assetRack: { color: colors.textMuted, fontSize: 12 },
+  sectionHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }, sectionTitle: { color: colors.text, fontSize: 17, fontWeight: '700' }, sectionSubtitle: { marginTop: 3, color: colors.textMuted, fontSize: 10 },
+  steps: { alignItems: 'flex-start', flexDirection: 'row', marginTop: spacing.sm }, step: { alignItems: 'center', flex: 1, gap: 7 }, stepDot: { alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 10, borderWidth: 2, borderColor: colors.border, backgroundColor: colors.cardDark }, stepDotDone: { borderColor: colors.green, backgroundColor: colors.green }, stepLabel: { color: colors.textSubtle, fontSize: 11, fontWeight: '700', textAlign: 'center' }, stepLabelDone: { color: colors.text }, stepLine: { flex: 1, height: 2, marginTop: 12, backgroundColor: colors.border }, stepLineDone: { backgroundColor: colors.green }, timeRow: { alignItems: 'center', alignSelf: 'center', flexDirection: 'row', gap: 5, marginTop: spacing.sm }, timeText: { color: colors.textMuted, fontSize: 10 },
+  actionGrid: { flexDirection: 'row', gap: spacing.md }, arAction: { alignItems: 'center', flex: 2, flexDirection: 'row', gap: spacing.md, minHeight: 68, paddingHorizontal: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.hero }, arTitle: { color: '#FFFFFF', fontSize: 13, fontWeight: '900' }, arSubtitle: { marginTop: 2, color: '#9FB1D7', fontSize: 12 }, secondaryAction: { alignItems: 'center', justifyContent: 'center', flex: 1, gap: 5, minHeight: 68, borderRadius: radii.xl, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel }, secondaryActionText: { color: colors.cyan, fontSize: 10, fontWeight: '800' },
+  commentInput: { minHeight: 90, paddingTop: spacing.md, textAlignVertical: 'top' }, timeline: { gap: spacing.md }, timelineItem: { flexDirection: 'row', gap: spacing.md }, timelineDot: { width: 9, height: 9, marginTop: 5, borderRadius: 5, backgroundColor: colors.cyan }, timelineCopy: { flex: 1, gap: 4, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border }, commentIdentity: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: 7 }, commentAuthor: { color: colors.cyan, fontSize: 10, fontWeight: '800' }, commentRole: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 8, color: colors.purple, backgroundColor: colors.purpleSoft, fontSize: 11, fontWeight: '800' }, comment: { color: colors.text, fontSize: 15, lineHeight: 22 }, commentMeta: { color: colors.textSubtle, fontSize: 12 }, muted: { color: colors.textMuted, fontSize: 12 },
   evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }, evidenceImageButton: { width: 88, height: 88, borderRadius: radii.lg, overflow: 'hidden', backgroundColor: colors.cardDark }, evidenceImage: { width: '100%', height: '100%' }, evidenceFile: { alignItems: 'center', justifyContent: 'center', gap: 5, width: 88, height: 88, padding: spacing.sm, borderRadius: radii.lg, backgroundColor: colors.cardDark }, evidenceName: { color: colors.textMuted, fontSize: 8 },
   previewBackdrop: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, backgroundColor: 'rgba(2, 6, 18, 0.96)' }, previewClose: { position: 'absolute', zIndex: 1, top: 52, right: spacing.lg, alignItems: 'center', justifyContent: 'center', width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(255, 255, 255, 0.14)' }, previewImage: { width: '100%', height: '78%' }, previewHint: { position: 'absolute', bottom: 38, color: '#B8C2D8', fontSize: 10, textAlign: 'center' },
 });

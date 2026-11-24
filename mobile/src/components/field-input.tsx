@@ -1,16 +1,29 @@
-import { useMemo } from 'react';
-import { Text, TextInput, TextInputProps, StyleSheet, View } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, type TextInputProps, View } from 'react-native';
 import { useTheme } from '../theme/theme-context';
-import { radii, spacing, type ThemeColors } from '../theme/tokens';
+import { radii, spacing } from '../theme/tokens';
 
-interface FieldInputProps extends TextInputProps { label: string; }
-export function FieldInput({ label, style, ...props }: FieldInputProps) {
+export function FieldInput({ label, style, secureTextEntry, onFocus, onBlur, ...props }: TextInputProps & { label: string }) {
   const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-  return <View style={styles.wrap}><Text style={styles.label}>{label}</Text><TextInput placeholderTextColor={colors.textSubtle} style={[styles.input, style]} {...props} /></View>;
+  const [visible, setVisible] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const Icon = visible ? EyeOff : Eye;
+  return <View style={styles.wrap}>
+    <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+    <View style={[styles.field, { borderColor: focused ? colors.cyan : colors.border, backgroundColor: colors.panelStrong }]}>
+      <TextInput accessibilityLabel={label} placeholderTextColor={colors.textSubtle} secureTextEntry={secureTextEntry && !visible}
+        onFocus={event => { setFocused(true); onFocus?.(event); }}
+        onBlur={event => { setFocused(false); onBlur?.(event); }}
+        style={[styles.input, { color: colors.text }, style]} {...props} />
+      {secureTextEntry ? <Pressable accessibilityRole="button" accessibilityLabel={(visible ? 'Hide ' : 'Show ') + label.toLowerCase()}
+        onPress={() => setVisible(value => !value)} style={styles.control}><Icon size={19} color={colors.textMuted} /></Pressable> : null}
+    </View>
+  </View>;
 }
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  wrap: { gap: spacing.sm },
-  label: { color: colors.textMuted, fontSize: 12, fontWeight: '700' },
-  input: { minHeight: 56, paddingHorizontal: spacing.lg, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardDark, color: colors.text, fontSize: 15 },
+const styles = StyleSheet.create({
+  wrap: { gap: 6 }, label: { fontSize: 14, fontWeight: '600' },
+  field: { flexDirection: 'row', alignItems: 'center', borderRadius: radii.md, borderWidth: 1 },
+  input: { flex: 1, minWidth: 0, minHeight: 48, paddingHorizontal: spacing.md, fontSize: 16 },
+  control: { width: 46, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
 });

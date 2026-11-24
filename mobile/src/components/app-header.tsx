@@ -27,11 +27,11 @@ export function AppHeader({ title, subtitle, compact, showThemeToggle = true }: 
       </View>
       <View style={styles.actions}>
         {showThemeToggle ? (
-          <Pressable accessibilityLabel="Toggle color theme" onPress={toggleTheme} style={styles.iconButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Toggle color theme" onPress={toggleTheme} style={styles.iconButton}>
             {isDark ? <Sun color={colors.text} size={18} /> : <Moon color={colors.text} size={18} />}
           </Pressable>
         ) : null}
-        <Pressable accessibilityLabel={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} onPress={open} style={styles.iconButton}><Bell color={colors.text} size={18} />{unreadCount ? <View style={styles.badge}><Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text></View> : null}</Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} onPress={open} style={styles.iconButton}><Bell color={colors.text} size={18} />{unreadCount ? <View style={styles.badge}><Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text></View> : null}</Pressable>
       </View>
     </View>
   );
@@ -48,7 +48,7 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   name: { color: colors.text, fontSize: 18, fontWeight: '900' },
   compactName: { fontSize: 16 },
   actions: { flexDirection: 'row', gap: spacing.sm },
-  iconButton: { alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
+  iconButton: { alignItems: 'center', justifyContent: 'center', width: 46, height: 46, borderRadius: radii.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.panel },
   badge: { position: 'absolute', top: 4, right: 3, alignItems: 'center', justifyContent: 'center', minWidth: 17, height: 17, paddingHorizontal: 4, borderRadius: 9, borderWidth: 1.5, borderColor: colors.panel, backgroundColor: colors.red },
-  badgeText: { color: '#FFFFFF', fontSize: 8, fontWeight: '900' },
+  badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: '900' },
 });

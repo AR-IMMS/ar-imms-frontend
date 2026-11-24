@@ -47,6 +47,8 @@ For the Android Emulator use `http://10.0.2.2:8082`; on an iOS Simulator hosted 
 | Detail and updates | `GET /api/v1/tickets/{id}`, `/links` and `/articles`; authorized Asset metadata via `GET /api/v1/asset-topology/assets/{id}`. Technician progress uses `POST /tickets/{id}/status` for NEW ? OPEN ? PENDING ? OPEN. Notes use `POST /tickets/{id}/articles`. A pending receipt stores the original actor, Ticket, key and payload in protected storage. Reopen the same Ticket and retry the saved request after an uncertain outcome. |
 | Evidence | Request an upload grant, send raw binary with `X-Evidence-Grant`, and finalize with an operation key. The preview/download uses a short-lived Core access grant and authenticated content request. Gallery, camera and PDF picker are native, with temporary files in app-controlled cache. Supported file types are PNG, JPEG, WebP and PDF up to 8 MiB. Temporary files are removed after preview/share when possible. |
 
+The four bottom tabs open Overview, Tickets, History and Profile. Asset scanning is still accessible from Overview. Start work, Set pending and Resume work open a confirmation sheet with the Ticket number, title and both states. Set pending requires a future local deadline. Cancel dismisses the sheet. When Core reports an uncertain outcome, open the same Ticket and use **Retry same request**. On Expo Web, keep the current browser session open because receipts are held in memory.
+
 The Ticket notification sheet loads from Core for the signed-in user. Opening the sheet or returning to the foreground refreshes the inbox, and the active app also refreshes it every minute. Read acknowledgements are stored in Core and are shared with the Web Dashboard. Tap an item to open its Ticket. Queue and detail refresh on focus and app foreground. Technician create/close/reopen/assignment remain on the appropriate Web workflow. Legacy Incident routes have no authorized Core equivalent in this iteration. The existing WebAR scanner opens its configured browser target and requires independent auth there; Core bearer tokens are kept within the mobile Core request path.
 
 ## Verification
@@ -58,9 +60,12 @@ pnpm.cmd exec expo install --check
 pnpm.cmd dlx expo-doctor
 pnpm.cmd typecheck
 pnpm.cmd test
+pnpm.cmd test:ui
 pnpm.cmd exec expo lint
 $iosBundle = Join-Path $env:TEMP ('arimms-expo-ios-' + [guid]::NewGuid().ToString('N'))
 pnpm.cmd exec expo export --clear --platform ios --max-workers 3 --output-dir $iosBundle
 ```
+
+The UI suite exports Expo Web into a temporary directory and uses Edge on Windows with an intercepted Core fixture. On other hosts install the Playwright Chromium browser with `pnpm exec playwright-core install chromium`, or set `WF04_BROWSER_CHANNEL` to an installed supported browser. Set `WF04_UI_SCREENSHOTS` to an output directory to capture the reviewed screens.
 
 The Node tests use an isolated fake Core HTTP server. Expo bundling validates the native dependency graph. Run Expo on an attached emulator or physical device to validate SecureStore, camera/PDF selection, binary upload progress, preview/share and Web-to-Mobile assignment with approved live fixtures. A web preview does not exercise those native capabilities.

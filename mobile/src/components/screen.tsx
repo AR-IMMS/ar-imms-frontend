@@ -16,12 +16,14 @@ export function Screen({ children, scroll = true, refreshing = false, onRefresh,
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const content = <View style={[styles.inner, { paddingBottom: 112 + insets.bottom }, !padded && styles.flush]}>{children}</View>;
+  const content = <View style={[styles.inner, { paddingBottom: spacing.xl + insets.bottom }, !padded && styles.flush]}>{children}</View>;
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       {scroll ? (
         <ScrollView
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
           refreshControl={onRefresh ? (

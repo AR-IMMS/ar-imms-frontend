@@ -19,13 +19,13 @@ export function ActionButton({ label, onPress, icon: Icon, variant = 'primary', 
 }
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  button: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: spacing.sm, minHeight: 52, paddingHorizontal: spacing.lg, borderRadius: radii.lg, borderWidth: 1 },
-  primary: { backgroundColor: colors.cyan, borderColor: colors.cyan, ...shadow },
+  button: { alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: spacing.sm, minHeight: 48, paddingHorizontal: spacing.lg, borderRadius: radii.md, borderWidth: 1 },
+  primary: { backgroundColor: colors.blue, borderColor: colors.blue, ...shadow },
   secondary: { backgroundColor: colors.panel, borderColor: colors.border },
   danger: { backgroundColor: colors.redSoft, borderColor: colors.redSoft },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
   disabled: { opacity: 0.42 },
-  label: { color: colors.text, fontSize: 13, fontWeight: '800' },
+  label: { color: colors.text, fontSize: 15, fontWeight: '700' },
   primaryLabel: { color: '#FFFFFF' },
   dangerLabel: { color: colors.red },
 });

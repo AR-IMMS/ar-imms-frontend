@@ -13,6 +13,7 @@
     "web:offline": "expo start --web --offline --clear --port 8083",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/wf04-contract.test.cjs",
+    "test:ui": "node --test tests/technician-ui.test.cjs",
     "lint": "expo lint"
   },
   "dependencies": {
@@ -50,6 +51,7 @@
     "babel-preset-expo": "~58.0.26",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~58.0.4",
+    "playwright-core": "1.65.1",
     "typescript": "^6.0.3"
   },
   "engines": {
